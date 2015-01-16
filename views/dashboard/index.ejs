@@ -1,0 +1,97 @@
+<script src="/js/jquery-2.1.1.min.js"></script>
+<script src="/js/jquery-ui.min.js"></script>
+
+<script>
+
+function openBoard(){
+    submit("/dashboard/openBoard");
+}
+
+function openBoard2(){
+	var selectedId = $('#selectedId').val();
+    submit("/dashboard/openBoard2/" + selectedId);
+}
+
+function editBoard(){
+	var selectedId = $('#selectedId').val();
+    submit("/dashboard/editBoard/" + selectedId);
+}
+
+function deleteBoard(){
+  $("#confirmDeleteBoard").dialog({
+      modal: true,
+      resizable: false,
+      draggable: false,
+      open: function(){
+      	var focusButton = $(".ui-dialog-buttonset>button:nth-child(2)");
+      	focusButton.focus();
+      },
+      buttons: {
+        "はい": function() {
+          $(this).dialog("close");
+          var selectedId = $('#selectedId').val();
+          submit("/dashboard/deleteBoard/" + selectedId);
+        },
+        "いいえ": function() {
+          $(this).dialog("close");
+          return false;
+        }
+      }
+    });
+}
+
+function createBoard(){
+    submit("/dashboard/createBoard");
+}
+
+function userManage(){
+    submit("/usermanage/index");
+}
+
+function showDescription(){
+	var value = $('#selectedId').val();
+	var desc=$("#selectedId option[value='" + value + "']").data('desc');
+	$('#description-area').text(desc);
+}
+
+$(function(){
+	showDescription();
+	$('#selectedId').bind('change', function(){
+		showDescription();
+	});
+})
+</script>
+<div class="container theme-showcase" role="main">
+<form name="main" method="POST">
+<div class="row">
+  <div class="col-lg-6">
+    <div class="input-group">
+   <select id="selectedId" name="selectedId" class="form-control">
+<% for( var i in list ) {%>
+  <option value="<%= list[i].id %>" data-desc="<%= list[i].description %>"><%= list[i].title %></option>
+<% } %>
+</select>
+      <div class="input-group-btn">
+        <button id="action" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">操作&nbsp;<span class="caret"></span></button>
+        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+          <li><a id="action_open" onclick="openBoard2()">開く</a></li>
+          <li><a id="action_edit"  onclick="editBoard()">編集</a></li>
+          <li><a id="action_delete"  onclick="return deleteBoard()">削除</a></li>
+        </ul>
+      </div><!-- /btn-group -->
+    </div><!-- /input-group -->
+  </div><!-- /.col-lg-6 -->
+</div><!-- /.row -->
+      <div id="description-area" class="well" style="margin-top:10px;"></div>
+  <button type="submit" class="btn btn-default" onclick="createBoard()" >新規作成</button>
+    </div> <!-- /container -->
+
+<input type="hidden" name="loginUserId" value="<%= loginInfo.userId %>"/>
+
+</form>
+<div id="confirmDeleteBoard" title="ボード削除の確認" style="display:none">
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 30px 0;"></span>
+    ボードを削除します。よろしいですか？
+  </p>
+</div>

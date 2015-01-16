@@ -1,0 +1,92 @@
+<script>
+  function home(){
+    submit("/dashboard/index");
+  }
+  
+  function back(){
+    submit("/dashboard/index");
+  }
+  
+  // ユーザー作成
+  function openCreateUser(){
+    console.log("openCreate");
+    submit("/usermanage/openCreate");
+  };
+
+  // ユーザー作成
+  function createUser(){
+    console.log("createUser");
+    submit("/usermanage/index");
+  };
+
+  // ユーザー削除
+  function destroyUser(id){
+    console.log("destroy:" + id);
+    $("#confirmDeleteUser").dialog({
+      modal: true,
+      resizable: false,
+      draggable: false,
+      open: function(){
+      	var focusButton = $(".ui-dialog-buttonset>button:nth-child(2)");
+      	focusButton.focus();
+      },
+      buttons: {
+        "はい": function() {
+          $(this).dialog("close");
+          $('#target').val(id);
+          submit("/usermanage/destroyUser");
+        },
+        "いいえ": function() {
+          $(this).dialog("close");
+          return false;
+        }
+      }
+    });
+  };
+
+  // ユーザー更新
+  function openUpdateUser(id){
+    console.log("openUpdateUser:"+id);
+    location.href="/usermanage/openUpdateUser/" + id;
+  }
+</script>
+<div class="container theme-showcase" role="main">
+    <div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading">ユーザー一覧</div>
+<form method="POST">
+  <!-- Table -->
+  <table class="table">
+   <tr>
+   <th>ID</th>
+   <th>アカウント</th>
+   <th>ユーザー名</th>
+   <th>ロール</th>
+   <th>有効・無効</th>
+   <th>操作</th>
+   </tr>
+    <% for( var i in users ) {%>
+    <tr id="<%= users[i].id %>">
+       <td><%= users[i].id %></td>
+       <td><%= users[i].username %></td>
+       <td><%= users[i].nickname %></td>
+       <td><%= users[i].role %></td>
+       <td><% if(users[i].flag1 === 0) {%>有効<%} else { %>無効<% } %></td>
+       <td>
+         <span class="glyphicon glyphicon-pencil hovereffect_dark" onclick='openUpdateUser("<%= users[i].id %>")'></span>&nbsp;&nbsp;
+         <span class="glyphicon glyphicon-remove hovereffect_dark" onclick='destroyUser("<%= users[i].id %>")'></span>
+       </td>
+    </tr>
+  <% } %>
+  </table>
+</div>
+  <button type="submit" class="btn btn-default" onclick="openCreateUser()">新規ユーザー追加</button>
+  <button type="submit" class="btn btn-default" onclick="back()">キャンセル</button>
+  <input type="hidden" name="target" id="target" value="" />
+</form>
+<div id="confirmDeleteUser" title="ユーザー削除の確認" style="display:none">
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 30px 0;"></span>
+    ユーザーを削除します。よろしいですか？
+  </p>
+</div>

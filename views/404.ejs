@@ -1,0 +1,75 @@
+<style>
+.sticky {
+  width: 200px;
+  height: 40px;
+  box-shadow: 3px 3px 3px rgba(0,0,0,0.4);
+  position: absolute;
+  border: 1px solid #aaa;
+  font-size:16pt;
+}
+</style>
+<script src="/js/jquery-2.1.1.min.js"></script>
+<script>
+	var data =
+	[{W:20,H:4,z:1,T:0,L:0,BG:'#ff69b4',ROT:130},
+	{W:20,H:4,z:2,T:9,L:2,BG:'#ffa07a',ROT:10},
+	{W:20,H:4,z:3,T:7,L:6,BG:'#b0e0e6',ROT:92},
+	{W:20,H:4,z:5,T:0,L:25,BG:'#ffe780',ROT:130},
+	{W:20,H:4,z:4,T:9,L:36,BG:'#b0e0e6',ROT:130},
+	{W:20,H:4,z:2,T:10,L:26,BG:'#ff69b4',ROT:40},
+	{W:20,H:4,z:3,T:0,L:35,BG:'#ffa07a',ROT:50},
+	{W:20,H:4,z:1,T:0,L:57,BG:'#ffb07a',ROT:130},
+	{W:20,H:4,z:3,T:9,L:59,BG:'#b0e0e6',ROT:0},
+	{W:20,H:4,z:2,T:7,L:63,BG:'#ff69b4',ROT:90}];
+
+	function home(){
+		submit("/dashboard/index");
+	}
+
+	function back(){
+		submit("/dashboard/index");
+	}
+
+	function init(){
+		var scale=5;
+		for(var i = 0; i < data.length; i++){
+		var obj = data[i];
+		var st='z-index:'+ obj["z"]+';'
+		+'width: '+(obj["W"]*scale)+'px;'
+		+'height: '+(obj["H"]*scale)+'px;'
+		+'top: '+(50 + obj["T"]*scale)+'px;'
+		+'left:'+ (50 + obj["L"]*scale)+'px;'
+		+'background-color:'+ obj["BG"]+';'
+		+'transform: rotate('+obj["ROT"]+'deg);';
+
+		var $div = $('<div/>', {
+			class:'sticky', style: st});
+			$('#main').append($div);
+		}
+	}
+
+	$(function(){
+		init();
+	})
+</script>
+<div style="padding-left:5%">
+	<div>
+		<h1>404 Page Not Found</h1>
+	</div>
+	<div>
+		<div id="main" style="position:relative;width:80%;height:160px;"></div> 
+	</div>	
+	<div>
+		<h2>ページが見つかりません。</h2>
+		<p style="font-size:15pt;">
+		<% if (typeof error!== 'undefined') { %>
+		<%= error %>
+		<% } else { %>
+		ご指定のページは削除されたか、移動された可能性があります。
+		<% } %>
+		</p>
+	</div>
+	<form name="main" method="POST" >
+		<button type="submit" class="btn btn-default" onclick="home()">トップへ戻る</button>
+	</form>
+</div>

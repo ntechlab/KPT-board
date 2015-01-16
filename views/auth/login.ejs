@@ -1,0 +1,46 @@
+<script src="/js/jquery-2.1.1.min.js"></script>
+<script src="/js/jquery.validate.min.js"></script>
+<script>
+  console.log("LOGIN script");
+  function logout(){
+  }
+  
+  function init(){
+    setUpValidation();
+  }
+  
+  function setUpValidation(){
+	$("form").validate({
+		rules: {
+			username :{
+				required: true
+			},
+			password :{
+				required: true,
+			}
+		},
+		messages: {
+			username :{
+				required: "ユーザーアカウントを入力してください"
+			},
+			password :{
+				required: "パスワードを入力してください"
+			}
+		}
+	});
+}
+
+</script>
+<div class="container theme-showcase" role="main">
+    <form role="form" action='/login' method='post'>
+  <div class="form-group">
+    <label for="username">アカウント</label>
+    <input class="form-control" name="username" id="username" placeholder="アカウントを入力してください。">
+  </div>
+  <div class="form-group">
+    <label for="password">パスワード</label>
+    <input type="password" name="password" class="form-control" id="password" placeholder="パスワードを入力してください。">
+  </div>
+  <button id="login" type="submit" class="btn btn-default">ログイン</button>
+</form>
+</div> <!-- /container -->

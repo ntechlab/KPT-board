@@ -1,0 +1,475 @@
+<script src="/js/jquery-2.1.1.min.js"></script>
+<script src="/js/jquery-ui.min.js"></script>
+
+<script>
+
+  function T(){
+    var self = this;
+    
+    this.encode1 = function encode1(input){
+      var ret = input;
+      ret=ret.replace(/&/g, "&amp;");
+      ret=ret.replace(/</g, "&lt;");
+      ret=ret.replace(/>/g, "&gt;");
+      ret = self.NLtoBR(ret);
+      return ret;  
+    };
+
+    this.encode2 = function encode2(input){
+      var ret = input;
+      ret=self.BRtoNL(ret);
+      ret=ret.replace(/</g, "&lt;");
+      ret=ret.replace(/>/g, "&gt;");  
+      return ret;
+    };
+    
+    this.BRtoNL = function BRToNL(input){
+      var ret = input;
+      ret=ret.replace(/<br\s*[\/]?>/gi, "\n");
+      return ret;
+    };
+    
+    this.NLtoBR = function NLtoBR(input){
+      var ret = input;
+      ret=ret.replace(/\r\n/g, '<br />');
+      ret=ret.replace(/\r/g, '<br />');
+      ret=ret.replace(/\n/g, '<br />');
+      return ret;
+    }
+  }
+
+  var t = new T();
+ 
+  function home(){
+    submit("/dashboard/index");
+  }
+  
+  function back(){
+    submit("/dashboard/index");
+  }
+  
+  // チケット削除
+  function destroyTicket(id){
+    console.log("destroyTicket:" + id);
+    io.socket.get('/board/process/', {actionType:"destroy", boardId : '<%= boardId %>', id: id});
+  }
+
+  // チケット更新
+  function updateTicket(id){
+    console.log("updateTicket:"+id);
+    var newContents = $('#ta_'+id).val();
+    io.socket.get('/board/process/', {actionType:"update", boardId : '<%= boardId %>', id: id, contents: newContents});
+  }
+
+  // チケット作成
+  function createTicket(x, y, color){
+    console.log("createTicket:" + x + "," + y);
+    io.socket.get('/board/process/', 
+    {actionType:"create", 
+     contents: "", 
+     positionX: x + "px",
+     positionY: y + "px",
+     color: color,
+     boardId : '<%= boardId %>',
+     userId : '<%= loginInfo.userId %>'});
+  }
+
+  function createTicketByButton() {
+    var type = $('#selectTicketType').val();
+    createTicket(10, 10, type);
+  }
+
+  function make(data) {
+   var val = data["contents"];
+   var nickname = data["nickname"];
+   var sticky = $('<div class="sticky"><div class="userInfo"></div><div id="close"><span class="close">×</span></div><div class="contentsArea"></div></div>');
+   val=t.NLtoBR(val);
+
+   sticky.find('.userInfo').text(nickname);
+   sticky.find('.contentsArea').html(val);
+   sticky.appendTo('#board')
+      .attr('id', "ticket_"+data["id"])
+      .attr('data-id', data["id"])
+      .addClass(data["color"])
+      .animate({left: data["positionX"], top: data["positionY"] })
+//      .css('left', data["positionX"])
+//      .css('top', data["positionY"])
+      .draggable({stop: updateFusenListener})
+      .click(function(e) {
+        console.log("付箋クリックイベント発生");
+      })
+      .bind("dblTap",function(){
+        var $self = $(this).find('.contentsArea');
+        var id0 = data["id"];
+        var c = $self.html();
+        c=t.encode2(c);
+        $self.html('<textarea>' + c + '</textarea>').addClass('contents_edit')
+          .children()
+          .focus()
+          .blur(function() {
+          var c2 = $(this).val();
+          c2 = t.encode1(c2);     
+          $(this).parent().html(c2);
+          var $sticky = $self.closest('.sticky');
+          updateFusen($sticky);
+        });
+      }).mousedown(function() {
+        $('.sticky').removeClass('selected');
+        $(this).addClass('selected');
+      });
+     sticky.find('#close').click(function(){
+       confirmDeleteTicket(data["id"]);
+    });
+    return sticky;
+  }
+  
+  // 付箋更新処理を呼び出すリスナ
+  function updateFusenListener() {
+    updateFusen($(this));
+  }
+
+  // 付箋更新処理
+  function updateFusen($target) {
+    var newData = {};
+    newData["actionType"] = "update";
+    newData["boardId"] = '<%= boardId %>';
+    newData["id"] = $target.data('id');
+    newData["positionX"] = $target.css('left');
+    newData["positionY"] = $target.css('top');
+    var cc = $target.find(".contentsArea").html();
+    cc=t.BRtoNL(cc);
+    newData["contents"] = cc;
+    console.dir(newData);
+    io.socket.get('/board/process/', newData);
+  }
+
+function confirmDeleteTicket(id){
+  $("#confirmDeleteTicket").dialog({
+      modal: true,
+      resizable: false,
+      draggable: false,
+      open: function(){
+      	var focusButton = $(".ui-dialog-buttonset>button:nth-child(2)");
+      	focusButton.focus();
+      },
+      buttons: {
+        "はい": function() {
+          $(this).dialog("close");
+          destroyTicket(id);
+        },
+        "いいえ": function() {
+          $(this).dialog("close");
+          return false;
+        }
+      }
+    });
+}
+
+// 付箋移動処理
+function moveTicket(ticketId, dstBoardId){
+	console.log('ticketid['+ticketId+']');
+	var newData = {};
+    newData["actionType"] = "move";
+    newData["boardId"] = '<%= boardId %>';
+    newData["dstBoardId"] = dstBoardId;
+    newData["id"] = ticketId;
+    newData["nickname"] = '<%= loginInfo.userName %>';
+    io.socket.get('/board/process/', newData);
+
+}
+
+function showMoveTicketDialog(ticketId){
+  $("#selectBoardDialog").dialog({
+      modal: true,
+      resizable: false,
+      draggable: false,
+      buttons: {
+        "移動": function() {
+          $(this).dialog("close");
+          var dstBoardId = $('#dstBoardId').val();
+          moveTicket(ticketId, dstBoardId);
+        },
+        "キャンセル": function() {
+          $(this).dialog("close");
+          return false;
+        }
+      }
+    });
+}
+
+
+  // jQueryオンロード処理
+  $(function(){
+
+  $("body").contextmenu({
+    delegate: ".hasmenu",
+    ticketId : undefined,
+    menu: [],
+        beforeOpen: function(event, ui) {
+        var $menu = ui.menu,
+            $target = ui.target;
+            var sticky = $target.closest('.sticky');
+			console.log("sticky:["+sticky.html()+"]");
+            if(sticky.html() != undefined){
+            	ticketId = sticky.attr('data-id');
+            	  $("body").contextmenu("replaceMenu",
+            	   [{title: "移動", cmd: "move"}]);
+            } else {
+            	 $("body").contextmenu("replaceMenu", 
+            	   [
+                     {title: "作成", children: [
+				            {title: "青", cmd: "ticket_blue_pic"},
+				            {title: "黄", cmd: "ticket_yellow_pic"},
+				            {title: "赤", cmd: "ticket_pink_pic"}
+			            ]
+			         }
+			       ]
+			     );
+	        }
+    },
+        
+    select: function(event, ui) {
+    	var cmd = ui.cmd;
+    	console.log("CMD:["+cmd+"]");
+    	if(cmd === "move"){
+    		showMoveTicketDialog(ticketId);
+    	} else {
+	        var $menu = $('ul.ui-menu');
+        var top = $('#board').offset().top;
+        var left = $('#board').offset().left;
+        var posX = $menu.offset().left - left;
+        var posY = $menu.offset().top - top;
+	createTicket(posX, posY, ui.cmd);
+    }
+    }
+  });
+
+    // 付箋データ
+    var ticketData = <%- JSON.stringify(ticketData) %>;
+
+    // 付箋データから付箋を作成し、ボードに追加。
+    for(var i = 0; i < ticketData.length; i++){
+      var data = ticketData[i];
+      var sticky = make(data);
+      $('#board').append(sticky);
+    }
+
+    console.log("リスナ登録");
+    io.socket.get('/board/register/',{boardId : '<%= boardId %>'});
+
+    // メッセージ受信時に呼び出される関数
+    io.socket.on('message', function(data) {
+      console.log("メッセージ受信", data);
+      var id = data["id"];
+      var action = data['action'];
+      console.log("action["+action+"]");
+      if(action == "created"){
+        console.log("チケットを作成します");
+        var ms = "<tr id='"+id+"'>"
+                +"<td>"+id+"</td>"
+                +"<td><input type='button' onclick='destroyTicket("+id+")' value='削除'/></td>"
+                +"<td><input type='button' onclick='updateTicket("+id+")' value='更新'/></td>"
+                +"<td>"+data["boardId"]+"</td>"
+                +"<td>"+data["createUser"]+"</td>"
+                +"<td>"+data["nickname"]+"</td>"
+                +"<td><textarea id='ta_"+id+"'>"+data["contents"]+"</textarea></td></tr>";
+
+        $('#tickets').append(ms);
+
+        var sticky = make(data);
+        $('#board').append(sticky);
+
+      } else if(action == "updated"){
+        console.log("チケットを更新します:"+data["id"]+","+data["contents"]);
+        $('#ta_'+data["id"]).val(data["contents"]);
+        var $sticky = $(".sticky[data-id='"+data['id']+"']");
+        $sticky.animate({'left': data["positionX"], 'top': data["positionY"]});
+//        $sticky.css('left', data["positionX"]);
+//        $sticky.css('top', data["positionY"]);
+        var ccc = data["contents"];
+        ccc=t.NLtoBR(ccc);
+        $sticky.find(".contentsArea").html(ccc);
+      } else if(action == "destroyed"){
+        console.log("チケットを削除します:"+data["id"]);
+        console.dir(data);
+        $('tr#'+data["id"]).remove();
+        $(".sticky[data-id='"+data['id']+"']").remove();
+      }
+    });
+});
+</script>
+<style>
+table th {
+  background-color:#dfd;
+}
+
+#info th {
+  width:150px;
+  text-align:left;
+}
+
+.sticky {
+  width: 270px;
+  height: 180px;
+  position: absolute;
+  cursor: pointer;
+  padding-left:20px;
+  padding-right:30px;
+  padding-top:18px;
+  font-size:16pt;
+}
+
+.userInfo {
+  width:200px;
+  height:15px;
+  float:left;
+  font-size:12px;
+  color:gray;
+  font-family: "Meiryo UI",serif; 
+}
+
+.contentsArea {
+  height:75px;
+  clear: both;
+  font-size:12px;
+  font-family: "Meiryo UI",serif; 
+}
+
+.sticky textarea {
+  margin-top: -5px;
+  margin-left: -5px;
+  width: 225px;
+  height: 115px;
+  font-size: 10pt;
+  font-family: "Meiryo UI",serif; 
+}
+
+.selected {
+  z-index:100;
+}
+
+.hasmenu {
+//  border: 1px solid #008;
+//  margin: 3px;
+//  padding: 5px;
+//  width: 30px;
+}
+
+.ui-widget{
+  font-size: 1em;
+}
+
+.ui-menu {
+  width: 90px;
+  z-index:1000;
+}
+
+#board {
+  background-image:url(/images/background02.gif);
+  background-repeat: repeat;
+  position:relative;
+//  background-color: #F7BE81;
+  width: 1500px;
+  height: 800px;
+}
+
+.ticket_blue {
+  background-color: blue;
+  
+  box-shadow: 5px 5px 5px rgba(0,0,0,0.4);
+}
+
+.ticket_pink {
+  background-color: pink;
+  box-shadow: 5px 5px 5px rgba(0,0,0,0.4);
+}
+
+.ticket_yellow {
+  background-color: yellow;
+  box-shadow: 5px 5px 5px rgba(0,0,0,0.4);
+}
+
+.ticket_blue_pic {
+  background-image:url(/images/ticket_blue1.png);
+}
+
+.ticket_yellow_pic {
+  background-image:url(/images/ticket_yellow1.png);
+}
+
+.ticket_pink_pic {
+  background-image:url(/images/ticket_pink1.png);
+}
+
+</style>
+
+<div class="container theme-showcase" role="main">
+  <h3><%= title %></td></h3>
+  <h4 style="margin:10px;"><%= description %></h4>
+
+<form method="POST">
+  <input type="hidden" name="boardId" value="<%= boardId %>" />
+  <input type="hidden" name="userId" value="<%= loginInfo.userId %>" />
+<div>
+<div class="row">
+  <div style="width:200px;margin:10px;">
+    <div class="input-group">
+   <select id="selectTicketType" name="selectTicketType" class="form-control">
+     <option value="ticket_blue_pic">青</option>
+     <option value="ticket_yellow_pic">黄</option>
+     <option value="ticket_pink_pic">赤</option>
+   </select>
+      <div class="input-group-btn">
+        <button id="createTicketButton" type="button" class="btn btn-default" onclick="createTicketByButton();">作成</button>
+      </div><!-- /btn-group -->
+    </div><!-- /input-group -->
+  </div><!-- /.col-lg-6 -->
+</div><!-- /.row -->
+
+  <div id="board" class="hasmenu">
+</div>
+</div>
+<input type="button" style="margin:10px;" value="デバッグ情報" onclick="$('#debugTable').toggle();"/>
+<div id="debugTable" style="display:none">
+	<table id="tickets" border="1">
+	  <tr>
+	    <th>ID</th>
+	    <th>削除</th>
+	    <th>更新</th>
+	    <th>ボードID</th>
+	    <th>ユーザーID</th>
+	    <th>ニックネーム</th>
+	    <th>内容</th>
+	  </tr>
+	<% for( var i in list ) {%>
+	  <tr id="<%= list[i].id %>">
+	     <td><%= list[i].id %></td>
+	     <td><input type="button" onclick="destroyTicket(<%= list[i].id %>)" value="削除"/></td>
+	     <td><input type="button" onclick="updateTicket(<%= list[i].id %>)" value="更新"/></td>
+	     <td><%= list[i].boardId %></td>
+	     <td><%= list[i].createUser %></td>
+	     <td><%= list[i].nickname %></td>
+	     <td><textarea id="ta_<%= list[i].id %>"><%= list[i].contents %></textarea></td>
+	  </tr>
+	<% } %>
+	</table>
+</div>
+</form>
+</div>
+<!-- 付箋削除の確認ダイアログ -->
+<div id="confirmDeleteTicket" title="付箋削除の確認" style="display:none">
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 30px 0;"></span>
+    付箋を削除します。よろしいですか？
+  </p>
+</div>
+<!-- 移動先ボード選択ダイアログ -->
+<div id="selectBoardDialog" title="移動先ボード選択" style="display:none">
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 30px 0;"></span>
+    移動先ボードを選択してください。
+    <select id="dstBoardId" style="width:100%">
+    <% for( var i in boardList ) {%><option value="<%= boardList[i].id %>"><%= boardList[i].title %></option><% } %>
+    </select>
+  </p>
+</div>

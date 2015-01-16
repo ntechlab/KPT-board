@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>付箋アプリ（仮）</title>
+
+    <!-- Viewport mobile tag for sensible mobile support -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!--  
+        Stylesheets and Preprocessors
+        ==============================
+
+        You can always bring in CSS files manually with `<link>` tags, or asynchronously
+        using a solution like AMD (RequireJS).  Or, if you like, you can take advantage 
+        of Sails' conventional asset pipeline (boilerplate Gruntfile).
+
+        By default, stylesheets from your `assets/styles` folder are included
+        here automatically (between STYLES and STYLES END). Both CSS (.css) and LESS (.less)
+        are supported. In production, your styles will be minified and concatenated into
+        a single file.
+        
+        To customize any part of the built-in behavior, just edit `tasks/pipeline.js`.
+        For example, here are a few things you could do:
+            
+            + Change the order of your CSS files
+            + Import stylesheets from other directories
+            + Use a different or additional preprocessor, like SASS, SCSS or Stylus
+    -->
+
+    <!--STYLES-->
+    
+    <!--STYLES END-->
+
+    <link rel="stylesheet" href="/css/smoothness/jquery-ui.min.css">
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="/css/bootstrap-theme.min.css" rel="stylesheet">
+
+<style>
+body {
+  padding-top: 70px;
+  padding-bottom: 30px;
+}
+
+.theme-dropdown .dropdown-menu {
+  position: static;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.theme-showcase > p > .btn {
+  margin: 5px 0;
+}
+
+.theme-showcase .navbar .container {
+  //width: auto;
+}
+
+.hovereffect_light {
+ color: white;
+}
+
+.hovereffect_light:hover {
+color:#86cecb;
+}
+
+.hovereffect_dark {
+ color: black;
+}
+
+.hovereffect_dark:hover {
+color:#86cecb;
+}
+
+label.has-error {
+  color: #FF7F50;
+  margin:3px;
+}
+</style>
+<script>
+  function home(){
+  }
+
+  function back(){
+  }
+
+  function logout(){
+    showConfirmLogoutDialog();
+  }
+
+  function showConfirmLogoutDialog(){
+    $("#confirmLogout").dialog({
+      modal: true,
+      resizable: false,
+      draggable: false,
+      open: function(){
+      	var focusButton = $(".ui-dialog-buttonset>button:nth-child(2)");
+      	focusButton.focus();
+      },
+      buttons: {
+        "はい": function() {
+          $(this).dialog("close");
+             submit("/auth/logout");
+        },
+        "いいえ": function() {
+          $(this).dialog("close");
+        }
+      }
+    });
+  }
+  
+  function submit(action){
+    var form = document.forms.item(0);
+    form.action = action;
+    form.submit();
+  }
+</script>
+  </head>
+
+  <body role="document">
+  
+    <!-- Fixed navbar -->
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" style="color:white;" href="https://github.com/ntechlab/git_practice" tabindex=-1 ><span class="hovereffect_light">付箋アプリ（仮）</span></a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li>
+              <a onclick="home()" tabindex=-1>
+                <span class="hovereffect_light">
+                  <span class="glyphicon glyphicon-home"></span>&nbsp;ホーム
+                </span>
+              </a>
+            </li>
+            <li>
+              <a onclick="back()" tabindex=-1>
+                <span class="hovereffect_light">
+                  <span class="glyphicon glyphicon-circle-arrow-left"></span>&nbsp;戻る
+                </span>
+              </a>
+            </li>
+            <li>
+              <a onclick="location.href='/usermanage/openUpdateUser/<%= loginInfo.id %>'" id="headerUserName" tabindex=-1>
+                <span class="hovereffect_light">
+                  <span class="glyphicon glyphicon-user"></span>&nbsp;<%= loginInfo.userName %><%= loginInfo.roleDesc %>
+                </span>
+              </a>
+            </li>
+            <% if(loginInfo != null && loginInfo.roleName === 'admin') {%>
+            <li>
+              <a onclick="submit('/usermanage/index');" tabindex=-1>
+              <span class="hovereffect_light">
+                <span class="glyphicon glyphicon glyphicon-cog"></span>&nbsp;ユーザー管理
+                </span>    
+              </a>
+            </li>
+            <% } %>
+            <li>
+              <a onclick="logout()" tabindex=-1>
+              <span class="hovereffect_light">
+                <span class="glyphicon glyphicon-log-out"></span>&nbsp;ログアウト
+                </span>    
+              </a>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+     <% if(loginInfo.message) {%>
+      <div class="row">
+        <div class="col-sm-offset-1 col-sm-10">
+        <% if(loginInfo.message["type"] == "success") { %>
+          <div class="alert alert-success" role="alert"><span class="glyphicon glyphicon-ok-sign"></span>&nbsp;<%= loginInfo.message["contents"] %></div>
+		<% } else if(loginInfo.message["type"] == "warn") { %>
+          <div class="alert alert-warning" role="alert"><span class="glyphicon glyphicon-warning-sign"></span>&nbsp;<%= loginInfo.message["contents"] %></div>
+		<% } else if(loginInfo.message["type"] == "danger") { %>
+          <div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;<%= loginInfo.message["contents"] %></div>
+		<% } else { %>
+          <div class="alert alert-info" role="alert"><span class="glyphicon glyphicon-info-sign"></span>&nbsp;<%= loginInfo.message["contents"] %></div>
+		<% } %>
+        </div>
+      </div>
+      <% } %>
+    <%- body %>
+
+    <!--
+        Client-side Templates
+        ========================
+
+        HTML templates are important prerequisites of modern, rich client applications.
+        To work their magic, frameworks like Backbone, Angular, Ember, and Knockout require
+        that you load these templates client-side.
+
+        By default, your Gruntfile is configured to automatically load and precompile
+        client-side JST templates in your `assets/templates` folder, then
+        include them here automatically (between TEMPLATES and TEMPLATES END).
+        
+        To customize this behavior to fit your needs, just edit `tasks/pipeline.js`.
+        For example, here are a few things you could do:
+
+            + Import templates from other directories
+            + Use a different template engine (handlebars, jade, dust, etc.)
+            + Internationalize your client-side templates using a server-side
+              stringfile before they're served.
+    -->
+
+    <!--TEMPLATES-->
+    
+    <!--TEMPLATES END-->
+
+
+    <!--
+
+      Client-side Javascript
+      ========================
+
+      You can always bring in JS files manually with `script` tags, or asynchronously
+      on the client using a solution like AMD (RequireJS).  Or, if you like, you can 
+      take advantage of Sails' conventional asset pipeline (boilerplate Gruntfile).
+
+      By default, files in your `assets/js` folder are included here
+      automatically (between SCRIPTS and SCRIPTS END).  Both JavaScript (.js) and
+      CoffeeScript (.coffee) are supported. In production, your scripts will be minified
+      and concatenated into a single file.
+      
+      To customize any part of the built-in behavior, just edit `tasks/pipeline.js`.
+      For example, here are a few things you could do:
+          
+          + Change the order of your scripts
+          + Import scripts from other directories
+          + Use a different preprocessor, like TypeScript
+
+    -->
+
+    <!--SCRIPTS-->
+    <script src="/min/production.min.js"></script>
+    <!--SCRIPTS END-->
+
+    <script src="/js/jquery-2.1.1.min.js"></script>
+    <script src="/js/jquery-ui.min.js"></script>
+    <script src="/js/jquery.ui-contextmenu.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.ui.touch-punch.min.js"></script>
+    <script src="/js/jquery.event.dblTap.js"></script>
+    <script src="/js/jquery.validate.min.js"></script>
+
+<script>
+
+function initializeValidator(){
+ // Validatorの初期値を変更します
+  $.validator.setDefaults({
+    // NG項目のclass
+    errorClass : 'has-error',
+    // OK項目のclass
+    validClass : 'has-success',
+    // 入力チェックNGの場合、項目のform-groupにerrorClassを設定します
+    highlight : function(element, errorClass, validClass) {
+      $(element).closest('.form-group').addClass(errorClass).removeClass(validClass);
+    },
+    // 入力チェックOKの場合、項目のform-groupにvalidClassを設定します
+    unhighlight : function(element, errorClass, validClass) {
+      $(element).closest('.form-group').removeClass(errorClass).addClass(validClass);
+    }
+  });
+}
+
+$(function(){
+
+  initializeValidator();
+  
+  try {
+    init();
+  } catch(e) {
+    // 初期化関数なし
+  }
+});
+</script>
+  </body>
+<div id="confirmLogout" title="ログアウトの確認" style="display:none;">
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 30px 0;"></span>
+    ログアウトします。よろしいですか？
+  </p>
+</div>
+</html>
