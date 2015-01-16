@@ -1,12 +1,15 @@
-# 付箋アプリ（仮）（作成中）
-###【利用方法（仮）】
+# KPTボード
+###【利用方法】
+０．必要なアプリケーションの準備<br/>
+プロダクションモードで起動する場合にはmongodbをインストールする。下記【mongodbの準備と利用方法】参照。
 
 １．パッケージインストール<br/>
 適宜必要なパッケージをインストールする。<br/>
-dashboard直下で、npm installを実行、もしくは、既にダウンロードしたnode_modulesディレクトリをdashboard直下にコピーする。
+dashboard直下で、npm installを実行する。
+（もしくは、既にダウンロードしたnode_modulesディレクトリをdashboard直下にコピー。）
 
 ２．デフォルト管理アカウントの設定<br/>
-MySailsApp/dashboard/config/bootstrap.js内のデフォルト管理アカウントを適宜修正。<br/>
+config/bootstrap.js内のデフォルト管理アカウントを適宜修正。<br/>
 ▲パスワードを平文として含むため取扱に注意。<br/>
 Sails.js起動時、指定したデフォルト管理アカウントが存在しない場合に作成する。<br/>
 
