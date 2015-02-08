@@ -10,6 +10,16 @@ module.exports = {
   attributes: {
     title : {type : 'string', required : true},
     description : {type : 'string'},
+    width : {type : 'integer', defaultsTo: 1600},
+    height : {type : 'integer', defaultsTo: 800},
+    bgType : {type : 'string', defaultsTo: 'image'},
+    bgColor : {type : 'string', defaultsTo: ''},
+    bgImage : {type : 'string', defaultsTo: '/images/background/background02.gif'},
+    bgRepeatType : {type : 'string', defaultsTo: 'repeat'},
+    bgSepV : {type : 'integer', defaultsTo: 1},
+    bgSepH : {type : 'integer', defaultsTo: 1},
+    bgSepLineWidth : {type : 'integer', defaultsTo: 3},
+    bgSepLineColor : {type : 'string', defaultsTo: '#000000'}
   }
 };
 

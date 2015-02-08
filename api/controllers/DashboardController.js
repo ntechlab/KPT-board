@@ -18,7 +18,7 @@ module.exports = {
 			if(err){
 				sails.log.error("メイン画面オープン時にエラー発生[" + JSON.stringify(err) +"]");
 				found = [];
-				message = {type: "danger", contents: "メイン画面の表示に失敗しました: "+JSON.stringify(err)};				
+				message = {type: "danger", contents: "メイン画面の表示に失敗しました: "+JSON.stringify(err)};
 			}
 			loginInfo.message = message;
 			res.view({
@@ -27,7 +27,7 @@ module.exports = {
 			});
 		});
     },
-    
+
     /**
      * ボード画面を開く
      */
@@ -117,24 +117,34 @@ module.exports = {
 				} else {
 					boardList = boards || [];
 				}
-				
+
 			// コールバック関数終了時にnext()を呼び出す。
 			next();
 		    });
 		})
-			
+
 
 		// ビュー生成関数のラッパー生成
 		var createViewWrapper = function (){
 		    var obj = {
-				boardId: boardId, 
+				boardId: boardId,
 				loginInfo: loginInfo,
-				title : found["title"], 
+				title : found["title"],
 				description: found["description"],
 				ticketData : tickets,
 				boardList : boardList,
-				list : tickets
-			}; 
+				list : tickets,
+				width: found["width"],
+				height: found["height"],
+				bgImage: found["bgImage"],
+				bgRepeatType: found["bgRepeatType"],
+				bgSepV: found["bgSepV"],
+				bgSepH: found["bgSepH"],
+				bgSepLineWidth: found["bgSepLineWidth"],
+				bgSepLineColor: found["bgSepLineColor"],
+				canvasAppearance: Utility.getCanvasAppearance(found),
+				boardAppearance: Utility.getBoardAppearance(found)
+			};
 			res.view(obj);
 		};
 
@@ -151,6 +161,7 @@ module.exports = {
 		var id = req.param("selectedId");
 	    sails.log.debug("action: DashboardController.editBoard["+id+"]");
 		var loginInfo = Utility.getLoginInfo(req, res);
+
 		Board.findOne(id).exec(function(err,found){
 		    if(err || !found) {
 				sails.log.error("ボード編集時 ボード取得失敗: エラー発生:[" + found + "]:" + JSON.stringify(err));
@@ -158,14 +169,40 @@ module.exports = {
 				return;
 			} else {
 				sails.log.debug("編集対象ボード[" + JSON.stringify(found) + "]");
-	    	    res.view({ id: id, 
-			       title :found["title"], 
-			       description:found["description"],
-			       loginInfo: loginInfo
+				var fs = require('fs');
+				var root = "assets";
+				var path = "/images/background/";
+				fs.readdir(root + path, function(err, files){
+					if (err) {
+						throw err;
+					}
+					var fileList = [];
+					files.filter(function(file){
+						return fs.statSync(root + path + file).isFile();
+					}).forEach(function (file) {
+						fileList.push(path + file);
+					});
+					sails.log.debug(fileList);
+					res.view({ id: id,
+						title :found["title"],
+						description:found["description"],
+						width: found["width"],
+						height: found["height"],
+						bgType:found["bgType"],
+						bgColor:found["bgColor"],
+						bgImage:found["bgImage"],
+						bgRepeatType: found["bgRepeatType"],
+						bgSepV: found["bgSepV"],
+						bgSepH: found["bgSepH"],
+						bgSepLineWidth: found["bgSepLineWidth"],
+						bgSepLineColor: found["bgSepLineColor"],
+						images: fileList,
+						loginInfo: loginInfo
+					});
 				});
 			}
-    	});
-    },
+		});
+	},
 
 	/**
 	 * ボード削除処理
@@ -193,7 +230,7 @@ module.exports = {
 			Utility.openMainPage(req, res, message);
 		}
     },
-    
+
     /**
      * ボード作成画面を開く
      */

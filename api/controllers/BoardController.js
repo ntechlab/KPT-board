@@ -6,7 +6,7 @@
  */
 
 module.exports = {
-  
+
     /**
      * ボード作成
      */
@@ -20,7 +20,7 @@ module.exports = {
 	  return;
 	}
 	Board.create({
-	    title: title, 
+	    title: title,
 	    description : req.param('description')
 	}).exec(function(err, created){
 		if(err) {
@@ -37,17 +37,35 @@ module.exports = {
 		Utility.openMainPage(req, res, {type: "success", contents: "ボードを作成しました。"});
 	});
     },
-    
+
     /**
      * ボード情報更新
      */
     updateBoard : function(req, res) {
 	    var boardId = req.param('id');
         sails.log.debug("action: BoardController.updateBoard[" + boardId + "]");
-		Board.update(boardId, {
-		    title:req.param('title'), 
-		    description : req.param('description')
-		}).exec(function(err,created){
+        var newObj = {
+    		    title:req.param('title'),
+    		    description : req.param('description'),
+    		    width : req.param('width'),
+    		    height : req.param('height'),
+    		    bgType : req.param('bgType'),
+    		    bgImage : req.param('bgImage'),
+    		    bgRepeatType: req.param["bgRepeatType"],
+    		    bgSepV : req.param('bgSepV'),
+    		    bgSepH : req.param('bgSepH'),
+    		    bgSepLineWidth : req.param('bgSepLineWidth'),
+    		    bgSepLineColor : req.param('bgSepLineColor')
+    		};
+        var list = ['bgColor', 'bgRepeatType'];
+        for(var i = 0; i < list.length; i++){
+        	var key = list[i];
+	        if(req.param(key)){
+	        	newObj[key] = req.param(key);
+	        }
+        }
+
+		Board.update(boardId, newObj).exec(function(err,created){
 			if(err) {
 				sails.log.error("ボード情報の更新に失敗しました: " + JSON.stringify(err));
 				var loginInfo = Utility.getLoginInfo(req, res);
@@ -63,7 +81,7 @@ module.exports = {
 			Utility.openMainPage(req, res, {type: "success", contents: "ボード情報を更新しました。"});
 		});
     },
-  
+
 	/**
 	 * リスナ登録
 	 */
@@ -72,12 +90,12 @@ module.exports = {
     sails.log.debug("action: BoardController.register[" + boardId + "]");
     var socket = req.socket;
     var io = sails.io;
-    
+
     // リスナ登録
     sails.log.debug("リスナ登録:socket.join[" + socket + ":" + boardId+"]");
     socket.join('room_'+boardId+'_');
   },
-  
+
 	/**
 	 * チケットの作成、削除、更新処理アクション
 	 */
@@ -111,7 +129,7 @@ module.exports = {
 		    io.sockets.in(roomName).emit('message',
 		    {
 		    action: "created",
-			id: ticket.id, 
+			id: ticket.id,
 			contents: ticket.contents,
 			boardId: ticket.boardId,
 			createUser : ticket.createUser,
@@ -171,7 +189,7 @@ module.exports = {
            io.sockets.in("room_" + dstBoardId).emit('message',
 		    {
 			    action: "created",
-				id: id, 
+				id: id,
 				contents: ticket.contents,
 				boardId: ticket.boardId,
 				createUser : ticket.createUser,
@@ -181,7 +199,7 @@ module.exports = {
 				nickname : nickname
 			});
 		}
-      })    
+      })
     }
   }
 

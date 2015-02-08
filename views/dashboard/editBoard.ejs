@@ -1,3 +1,8 @@
+<script src="/js/jquery-2.1.1.min.js"></script>
+<script src="/js/jquery-ui.min.js"></script>
+<script src="/js/jquery.jcarousel.min.js"></script>
+<script src="/js/jpicker-1.1.6.min_modified.js"></script>
+<link rel="stylesheet" href="/css/jPicker-1.1.6.min.css">
 <script>
 function home(){
   submit("/dashboard/index");
@@ -14,20 +19,351 @@ function save(){
 function cancel(){
   submit("/dashboard/index");
 }
+
+function showImages(){
+    $("#mydialog").dialog({
+      resizable: false,
+      width: 740,
+      height: 400,
+      modal: true,
+      buttons: {
+        "背景として設定する": function(){
+           var src = $selectedImage.find('img').attr('src');
+           $('#bgImage').val(src);
+           $('#selected').attr('src', src);
+           $(this).dialog("close");
+       },
+        "キャンセル": function() {
+          $(this).dialog("close");
+        }
+      }
+    });
+}
+
+
+var $selectedImage;
+
+function setUpColorPicker(){
+	var checked = $('#bgTypeColor').prop('checked');
+	console.log("setUpColorPicker["+checked+"]");
+	if(checked){
+		$('input[name="bgRepeatType"]').attr("disabled", "disabled");
+		$('#selected').unbind('click', showImages);
+		$('#selected').addClass("opaque");
+		$('#Binded').removeAttr("disabled");
+		$('#Binded').removeClass("opaque");
+		$('#forBgColor span.Image').show();
+	} else {
+		$('input[name="bgRepeatType"]').removeAttr("disabled");
+		$('#selected').bind('click', showImages);
+		$('#selected').removeClass("opaque");
+		$('#Binded').attr("disabled", "disabled");
+		$('#Binded').addClass("opaque");
+		$('#forBgColor span.Image').hide();
+	}
+}
+(function($) {
+    $(function() {
+        $('.jcarousel').jcarousel();
+        $('.jcarousel-control-prev')
+            .on('jcarouselcontrol:active', function() {
+                $(this).removeClass('inactive');
+            })
+            .on('jcarouselcontrol:inactive', function() {
+                $(this).addClass('inactive');
+            })
+            .jcarouselControl({
+                target: '-=1'
+            });
+        $('.jcarousel-control-next')
+            .on('jcarouselcontrol:active', function() {
+                $(this).removeClass('inactive');
+            })
+            .on('jcarouselcontrol:inactive', function() {
+                $(this).addClass('inactive');
+            })
+            .jcarouselControl({
+                target: '+=1'
+            });
+        $('.jcarousel-pagination')
+            .on('jcarouselpagination:active', 'a', function() {
+                $(this).addClass('active');
+            })
+            .on('jcarouselpagination:inactive', 'a', function() {
+                $(this).removeClass('active');
+            })
+            .jcarouselPagination();
+       $('div.jcarousel li').click(function(){
+           $('div.jcarousel li').removeClass('opaque');
+           $(this).addClass('opaque');
+           $selectedImage = $(this);
+       });
+
+       $('#Binded').jPicker();
+       $('#Binded2').jPicker();
+       $("#mydialog").dialog({ autoOpen: false });
+		setUpColorPicker();
+		$('input[name="bgType"]').click(setUpColorPicker);
+    });
+})(jQuery);
+
 </script>
+<style>
+
+.opaque {
+  opacity: 0.5;
+}
+
+.selected {
+border: 15px solid orange;
+box-sizing: border-box;
+}
+.jcarousel-wrapper {
+    margin: 20px auto;
+    position: relative;
+    border: 10px solid #fff;
+    -webkit-border-radius: 5px;
+       -moz-border-radius: 5px;
+            border-radius: 5px;
+    -webkit-box-shadow: 0 0 2px #999;
+       -moz-box-shadow: 0 0 2px #999;
+            box-shadow: 0 0 2px #999;
+}
+
+/** Carousel **/
+
+.jcarousel {
+    position: relative;
+    overflow: hidden;
+    /*width: 600px;*/
+    width: 100%;
+    height: 150px;
+}
+
+.jcarousel ul {
+    width: 20000em;
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.jcarousel li {
+    float: left;
+}
+
+/** Carousel Controls **/
+
+.jcarousel-control-prev,
+.jcarousel-control-next {
+    position: absolute;
+    top: 60px;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    background: #4E443C;
+    color: #fff;
+    text-decoration: none;
+    text-shadow: 0 0 1px #000;
+    font: 24px/27px Arial, sans-serif;
+    -webkit-border-radius: 30px;
+       -moz-border-radius: 30px;
+            border-radius: 30px;
+    -webkit-box-shadow: 0 0 2px #999;
+       -moz-box-shadow: 0 0 2px #999;
+            box-shadow: 0 0 2px #999;
+}
+
+.jcarousel-control-prev {
+    left: -50px;
+}
+
+.jcarousel-control-next {
+    right: -50px;
+}
+
+.jcarousel-control-prev:hover span,
+.jcarousel-control-next:hover span {
+    display: block;
+}
+
+.jcarousel-control-prev.inactive,
+.jcarousel-control-next.inactive {
+    opacity: .5;
+    cursor: default;
+}
+
+/** Carousel Pagination **/
+
+.jcarousel-pagination {
+    position: absolute;
+    bottom: 0;
+    left: 15px;
+}
+
+.jcarousel-pagination a {
+    text-decoration: none;
+    display: inline-block;
+
+    font-size: 11px;
+    line-height: 14px;
+    min-width: 14px;
+
+    background: #fff;
+    color: #4E443C;
+    border-radius: 14px;
+    padding: 3px;
+    text-align: center;
+
+    margin-right: 2px;
+
+    opacity: .75;
+}
+
+.jcarousel-pagination a.active {
+    background: #4E443C;
+    color: #fff;
+    opacity: 1;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.75);
+}
+
+</style>
 <div class="container theme-showcase" role="main">
-<form name="main" method="POST" >
+<form name="main" method="POST">
 <input type="hidden" name="id" value="<%= id %>"/>
-    <div class="form-group">
-      <label for="title">タイトル</label>
-      <input class="form-control"  name="title" id="title" placeholder="ボードのタイトルを修正してください。" value="<%= title %>">
-    </div>
-   <div class="form-group">
-      <label for="description">説明</label>
-      <textarea class="form-control" rows="4" name="description" id="description" placeholder="ボードの説明を修正してください。"><%= description %></textarea>
-    </div>
-    <button type="submit" class="btn btn-default" onclick="return save()" >保存</button>
-    <button type="submit" class="btn btn-default" onclick="cancel()"/>キャンセル</button>
-  </div>
+<input type="hidden" id="bgImage" name="bgImage" value="<%= bgImage %>"/>
+<div class="panel panel-default">
+	<div class="panel-heading">基本設定</div>
+	<div class="panel-body">
+		<div class="form-group">
+			<label for="title">タイトル</label>
+			<input class="form-control"  name="title" id="title" placeholder="ボードのタイトルを修正してください。" value="<%= title %>">
+		</div>
+		<div class="form-group">
+			<label for="description">説明</label>
+			<textarea class="form-control" rows="4" name="description" id="description" placeholder="ボードの説明を修正してください。"><%= description %></textarea>
+		</div>
+		<div class="row">
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label for="width">幅</label>
+	 				<input class="form-control"  name="width" id="width" value="<%= width %>"/>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label for="height">高さ</label>
+					<input class="form-control"  name="height" id="height" value="<%= height %>"/>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="panel panel-default">
+	<div class="panel-heading">背景</div>
+	<div class="panel-body" style="margin-left:10px">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="form-group" style="padding-left:5px">
+					<div class="radio">
+						<input type="radio" value="color" name="bgType" id="bgTypeColor" <% if(bgType==='color'){%>checked<% } %>/>
+						<label for="bgTypeColor">単色</label>
+					</div>
+					<div id="forBgColor">
+						<input id="Binded" name="bgColor" type="text" value="<%= bgColor %>" />
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="form-group" style="padding-left:5px">
+					<div class="radio">
+						<input type="radio" value="image" name="bgType" id="bgTypeImage" <% if(bgType==='image'){%>checked<% } %>/>
+						<label for="bgTypeImage">画像</label>
+					</div>
+					<div>
+						<img id="selected" src="<%= bgImage %>" style="margin-bottom:10px;width:200px;height:150px;border:2px solid gray;"></img>
+					</div>
+					<div style="margin:5px;">
+						<label>繰り返しのタイプ</label><br>
+						<div style="margin:3px">
+							<div class="radio-inline">
+								<input type="radio" value="no-repeat" name="bgRepeatType" id="repeatNone" <% if(bgRepeatType==='no-repeat'){%>checked<% } %>/>
+								<label for="repeatNone">なし</label>
+							</div>
+							<div class="radio-inline">
+								<input type="radio" value="repeat" name="bgRepeatType" id="repeatXY" <% if(bgRepeatType==='repeat'){%>checked<% } %>/>
+								<label for="repeatXY">縦横方向</label>
+							</div>
+							<div class="radio-inline">
+								<input type="radio" value="repeat-y" name="bgRepeatType" id="repeatY" <% if(bgRepeatType==='repeat-y'){%>checked<% } %>/>
+								<label for="repeatY">縦方向</label>
+							</div>
+							<div class="radio-inline">
+								<input type="radio" value="repeat-x" name="bgRepeatType" id="repeatX" <% if(bgRepeatType==='repeat-x'){%>checked<% } %>/>
+								<label for="repeatX">横方向</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="panel panel-default">
+	<div class="panel-heading">分割</div>
+	<div class="panel-body">
+		<div class="row">
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label for="bgSepV">縦方向分割数</label>
+					<input class="form-control" type="text"  name="bgSepV" id="bgSepV" value="<%= bgSepV %>"/>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label for="bgSepH">横方向分割数</label>
+					<input class="form-control" type="text" name="bgSepH" id="bgSepH" value="<%= bgSepH %>"/>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label for="bgSepLineWidth">線の幅</label>
+					<input class="form-control" type="text" name="bgSepLineWidth" id="bgSepLineWidth" value="<%= bgSepLineWidth %>"/>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label for="bgSepLineColor">線の色</label>
+					<div id="forLineColor">
+						<input id="Binded2" name="bgSepLineColor" type="text" value="<%= bgSepLineColor %>" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<button type="submit" class="btn btn-default" onclick="return save()" >保存</button>
+<button type="submit" class="btn btn-default" onclick="cancel()"/>キャンセル</button>
+</div>
 </form>
+</div>
+<div id="mydialog">
+	<div class="wrapper" style="width:620px;margin-left:40px;">
+        <div class="jcarousel-wrapper">
+            <div class="jcarousel">
+                <ul>
+                <% for( var i in images ) {%>
+                    <li><img src="<%= images[i] %>" width="200" height="150" alt=""></li>
+                <% } %>
+                </ul>
+             </div>
+            <a href="#" class="jcarousel-control-prev">&lsaquo;</a>
+            <a href="#" class="jcarousel-control-next">&rsaquo;</a>
+            <p class="jcarousel-pagination"></p>
+        </div>
+    </div>
 </div>

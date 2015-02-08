@@ -5,30 +5,30 @@
 
   function T(){
     var self = this;
-    
+
     this.encode1 = function encode1(input){
       var ret = input;
       ret=ret.replace(/&/g, "&amp;");
       ret=ret.replace(/</g, "&lt;");
       ret=ret.replace(/>/g, "&gt;");
       ret = self.NLtoBR(ret);
-      return ret;  
+      return ret;
     };
 
     this.encode2 = function encode2(input){
       var ret = input;
       ret=self.BRtoNL(ret);
       ret=ret.replace(/</g, "&lt;");
-      ret=ret.replace(/>/g, "&gt;");  
+      ret=ret.replace(/>/g, "&gt;");
       return ret;
     };
-    
+
     this.BRtoNL = function BRToNL(input){
       var ret = input;
       ret=ret.replace(/<br\s*[\/]?>/gi, "\n");
       return ret;
     };
-    
+
     this.NLtoBR = function NLtoBR(input){
       var ret = input;
       ret=ret.replace(/\r\n/g, '<br />');
@@ -39,15 +39,15 @@
   }
 
   var t = new T();
- 
+
   function home(){
     submit("/dashboard/index");
   }
-  
+
   function back(){
     submit("/dashboard/index");
   }
-  
+
   // チケット削除
   function destroyTicket(id){
     console.log("destroyTicket:" + id);
@@ -64,9 +64,9 @@
   // チケット作成
   function createTicket(x, y, color){
     console.log("createTicket:" + x + "," + y);
-    io.socket.get('/board/process/', 
-    {actionType:"create", 
-     contents: "", 
+    io.socket.get('/board/process/',
+    {actionType:"create",
+     contents: "",
      positionX: x + "px",
      positionY: y + "px",
      color: color,
@@ -113,7 +113,7 @@
           .blur(function() {
           sticky.data("editing", false);
           var c2 = $(this).val();
-          c2 = t.encode1(c2);     
+          c2 = t.encode1(c2);
           $(this).parent().html(c2);
           var $sticky = $self.closest('.sticky');
           updateFusen($sticky);
@@ -127,7 +127,7 @@
     });
     return sticky;
   }
-  
+
   // 付箋更新処理を呼び出すリスナ
   function updateFusenListener() {
     updateFusen($(this));
@@ -202,9 +202,37 @@ function showMoveTicketDialog(ticketId){
     });
 }
 
+function setUpCanvas(){
+	var height = <%= height %>;
+	var width = <%= width %>;
+	var vsep = <%= bgSepV %>;
+	var hsep = <%= bgSepH %>;
+	var lineWidth = <%= bgSepLineWidth %>;
+	var lineColor = "#<%= bgSepLineColor %>";
+	var canvas = $('#mycanvas')[0];
+	if (canvas.getContext) {
+		var context = canvas.getContext('2d');
+		context.lineWidth = lineWidth;
+		context.strokeStyle = lineColor;
+		var stepY = height/vsep;
+		for(var y = stepY; y < height; y+= stepY) {
+			context.moveTo(0,y);
+			context.lineTo(width,y);
+		}
+		var stepX = width/hsep;
+		for(var x = stepX; x < width; x+= stepX) {
+			context.moveTo(x,0);
+			context.lineTo(x,height);
+		}
+		context.stroke();
+	}
+}
+
 
   // jQueryオンロード処理
   $(function(){
+
+  setUpCanvas();
 
   $("body").contextmenu({
     delegate: ".hasmenu",
@@ -220,7 +248,7 @@ function showMoveTicketDialog(ticketId){
             	  $("body").contextmenu("replaceMenu",
             	   [{title: "移動", cmd: "move"}]);
             } else {
-            	 $("body").contextmenu("replaceMenu", 
+            	 $("body").contextmenu("replaceMenu",
             	   [
                      {title: "作成", children: [
 				            {title: "青", cmd: "ticket_blue_pic"},
@@ -232,7 +260,7 @@ function showMoveTicketDialog(ticketId){
 			     );
 	        }
     },
-        
+
     select: function(event, ui) {
     	var cmd = ui.cmd;
     	console.log("CMD:["+cmd+"]");
@@ -289,8 +317,6 @@ function showMoveTicketDialog(ticketId){
         $('#ta_'+data["id"]).val(data["contents"]);
         var $sticky = $(".sticky[data-id='"+data['id']+"']");
         $sticky.animate({'left': data["positionX"], 'top': data["positionY"]});
-//        $sticky.css('left', data["positionX"]);
-//        $sticky.css('top', data["positionY"]);
         var ccc = data["contents"];
         ccc=t.NLtoBR(ccc);
         $sticky.find(".contentsArea").html(ccc);
@@ -330,14 +356,14 @@ table th {
   float:left;
   font-size:12px;
   color:gray;
-  font-family: "Meiryo UI",serif; 
+  font-family: "Meiryo UI",serif;
 }
 
 .contentsArea {
   height:75px;
   clear: both;
   font-size:12px;
-  font-family: "Meiryo UI",serif; 
+  font-family: "Meiryo UI",serif;
 }
 
 .sticky textarea {
@@ -346,7 +372,7 @@ table th {
   width: 225px;
   height: 115px;
   font-size: 10pt;
-  font-family: "Meiryo UI",serif; 
+  font-family: "Meiryo UI",serif;
 }
 
 .selected {
@@ -369,18 +395,16 @@ table th {
   z-index:1000;
 }
 
+#mycanvas {
+  <%= canvasAppearance %>
+}
+
 #board {
-  background-image:url(/images/background02.gif);
-  background-repeat: repeat;
-  position:relative;
-//  background-color: #F7BE81;
-  width: 1500px;
-  height: 800px;
+  <%= boardAppearance %>
 }
 
 .ticket_blue {
   background-color: blue;
-  
   box-shadow: 5px 5px 5px rgba(0,0,0,0.4);
 }
 
@@ -407,7 +431,6 @@ table th {
 }
 
 </style>
-
 <div class="container theme-showcase" role="main">
   <h3><%= title %></td></h3>
   <h4 style="margin:10px;"><%= description %></h4>
@@ -430,8 +453,8 @@ table th {
     </div><!-- /input-group -->
   </div><!-- /.col-lg-6 -->
 </div><!-- /.row -->
-
-  <div id="board" class="hasmenu">
+<canvas id="mycanvas" width="<%= width %>" height="<%= height %>" style="position:absolute;"></canvas>
+<div id="board" class="hasmenu">
 </div>
 </div>
 <input type="button" style="margin:10px;" value="デバッグ情報" onclick="$('#debugTable').toggle();"/>
