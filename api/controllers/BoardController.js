@@ -51,7 +51,6 @@ module.exports = {
     		    height : req.param('height'),
     		    bgType : req.param('bgType'),
     		    bgImage : req.param('bgImage'),
-    		    bgRepeatType: req.param["bgRepeatType"],
     		    bgSepV : req.param('bgSepV'),
     		    bgSepH : req.param('bgSepH'),
     		    bgSepLineWidth : req.param('bgSepLineWidth'),
