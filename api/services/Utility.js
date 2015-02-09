@@ -55,3 +55,14 @@ exports.getBoardAppearance = function(boardData){
 	ret += "position:relative;";
 	return ret;
 }
+
+// 現在時刻を取得
+exports.getDateTime = function(){
+	require('date-utils');
+
+	var dt = new Date();
+	var fmtDateTame = dt.toFormat("YYYY/MM/DD HH24:MI:SS");
+	console.log(fmtDateTame);
+	return fmtDateTame;
+}
+
