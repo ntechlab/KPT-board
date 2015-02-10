@@ -92,8 +92,6 @@
       .attr('data-id', data["id"])
       .addClass(data["color"])
       .animate({left: data["positionX"], top: data["positionY"] })
-//      .css('left', data["positionX"])
-//      .css('top', data["positionY"])
       .draggable({stop: updateFusenListener})
       .click(function(e) {
         // console.log("付箋クリックイベント発生");
@@ -316,6 +314,8 @@ function setUpCanvas(){
         console.log("チケットを更新します:"+data["id"]+","+data["contents"]);
         $('#ta_'+data["id"]).val(data["contents"]);
         var $sticky = $(".sticky[data-id='"+data['id']+"']");
+        // 他ユーザーがチケットを動かす前に編集フラグをfalseにする。
+		$sticky.data("editing", false);
         $sticky.animate({'left': data["positionX"], 'top': data["positionY"]});
         var ccc = data["contents"];
         ccc=t.NLtoBR(ccc);
