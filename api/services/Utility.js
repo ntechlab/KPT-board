@@ -37,10 +37,15 @@ exports.openMainPage = function(req, res, message){
 exports.getCanvasAppearance = function(boardData){
 	var ret = "";
 	var bgType = boardData["bgType"];
+	var repeatType = boardData["bgRepeatType"];
 	if(bgType === "color"){
 		ret += "background-color: #"+boardData["bgColor"]+";\r\n";
 	} else if(bgType === "image"){
-		ret += "background-repeat: "+boardData["bgRepeatType"]+";\r\n";
+		if(repeatType !== "cover"){
+			ret += "background-repeat: " + repeatType + ";\r\n";
+		} else {
+			ret += "background-size: cover;\r\n";
+		}
 		ret += "background-image:url("+boardData["bgImage"]+");\r\n";
 	}
 	ret += "width: "+boardData["width"]+";\r\n";
