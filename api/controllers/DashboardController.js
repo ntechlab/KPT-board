@@ -89,7 +89,6 @@ module.exports = {
 							
 							// テーブル内容の更新
 							Board.update(boardId, newBoard).exec(function(err2, updated) {
-								err2 ="dummy" + boardId;
 								if(err2) {
 									sails.log.error("ボード情報のマイグレーションに失敗しました:[" + boardId + "]: " + JSON.stringify(err2));
 									ngIds.push(boardId);
