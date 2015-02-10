@@ -10,6 +10,7 @@ module.exports = {
   attributes: {
     title : {type : 'string', required : true},
     description : {type : 'string'},
+    version : {type : 'string', defaultsTo: '1.1'},
     width : {type : 'integer', defaultsTo: 1600},
     height : {type : 'integer', defaultsTo: 800},
     bgType : {type : 'string', defaultsTo: 'image'},

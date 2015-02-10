@@ -5,6 +5,24 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
+// underscore利用準備
+var u = require('underscore');
+
+// 背景情報のデフォルト値
+var BOARD_DEFAULT_VALUES = {
+	version : '1.1',
+ 	width : 1600,
+    height : 800,
+    bgType : 'image',
+    bgColor : '',
+    bgImage : '/images/background/background02.gif',
+    bgRepeatType :  'repeat',
+    bgSepV : 1,
+    bgSepH : 1,
+    bgSepLineWidth : 3,
+    bgSepLineColor : '#000000'
+};
+
 module.exports = {
 
 	/**
@@ -14,17 +32,93 @@ module.exports = {
 	    sails.log.debug("action: DashboardController.index");
 		var loginInfo = Utility.getLoginInfo(req, res);
 		var message;
-		Board.find({}).exec(function(err,found){
+		Board.find({}).exec(function(err, found) {
+			// ボードリストの取得に失敗した場合にはエラーメッセージを表示する。
 			if(err){
 				sails.log.error("メイン画面オープン時にエラー発生[" + JSON.stringify(err) +"]");
 				found = [];
 				message = {type: "danger", contents: "メイン画面の表示に失敗しました: "+JSON.stringify(err)};
+				loginInfo.message = message;
+				res.view({
+					list: found,
+					loginInfo: loginInfo
+				});
+				return;
 			}
-			loginInfo.message = message;
-			res.view({
-				list: found,
-				loginInfo: loginInfo
-			});
+
+			// 同期処理関数を作成
+			var wait = function (callbacks, done) {
+				var counter = callbacks.length;
+				if(counter > 0){
+					var next = function() {
+						if (--counter == 0) {
+							done();
+						}
+					};
+					for (var i=0; i < callbacks.length; i++) {
+						callbacks[i](next);
+					};
+				} else {
+					done();
+				}
+			};
+
+			// 第1段階で終了すべき関数
+			var prerequisite = [];
+			
+			// ボードリストを取得した場合、必要に応じてボード情報のマイグレーションを行う。
+			// 取得したボード情報にバージョンが指定されていない場合にはマイグレーション対象とする。
+			var ngIds = [];
+			for (var i = 0; i < found.length; i++) {
+				if (found[i]["version"] === undefined) {
+					// i番目のボードに関する処理を即時評価とクロージャーで作成し、同期実行配列に追加する。
+					(function(num){
+						prerequisite.push(function(next) {
+							sails.log.debug("マイグレーション処理 開始");
+							var board = found[num];
+							var boardId = board["id"];
+							sails.log.info("マイグレーション対象ボード[" + boardId + "]");
+							sails.log.info("マイグレーション前[" + JSON.stringify(board) + "]");
+	
+							// 値が未指定の場合にはデフォルト値を設定する。
+							var newBoard = u.defaults(_.clone(board), BOARD_DEFAULT_VALUES);
+							delete newBoard["id"];
+							delete newBoard["createdAt"];
+							delete newBoard["updatedAt"];
+							sails.log.info("マイグレーション後[" + JSON.stringify(newBoard) + "]");
+							
+							// テーブル内容の更新
+							Board.update(boardId, newBoard).exec(function(err2, updated) {
+								err2 ="dummy" + boardId;
+								if(err2) {
+									sails.log.error("ボード情報のマイグレーションに失敗しました:[" + boardId + "]: " + JSON.stringify(err2));
+									ngIds.push(boardId);
+								} else {
+									sails.log.info("ボード情報のマイグレーションに成功[" + boardId + "]");
+								}
+								sails.log.debug("マイグレーション処理 終了");
+								next();
+							});
+						})
+					})(i);
+				}
+			};
+			
+			// 第２段階処理
+			var done = function() {
+				sails.log.debug("メイン画面表示処理 開始");
+				if(ngIds.length > 0){
+					loginInfo.message = {type: "danger", contents: "ボード情報のマイグレーションに失敗しました：[" + ngIds + "]"};
+				}
+				res.view({
+					list: found,
+					loginInfo: loginInfo
+				});
+				sails.log.debug("メイン画面表示処理 終了");
+			};
+
+			// 同期処理実行
+			wait(prerequisite, done);
 		});
     },
 

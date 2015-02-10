@@ -25,7 +25,8 @@
     "rc": "0.5.0",
     "sails": "0.10.1",
     "sails-disk": "~0.10.0",
-    "sails-mongo": "0.10.4"
+    "sails-mongo": "0.10.4",
+    "underscore": "^1.7.0"
   },
   "scripts": {
     "start": "node app.js",
