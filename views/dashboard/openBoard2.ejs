@@ -288,9 +288,9 @@ function showMoveTicketDialog(ticketId){
         console.log("チケットを更新します:"+data["id"]+","+data["contents"]);
         $('#ta_'+data["id"]).val(data["contents"]);
         var $sticky = $(".sticky[data-id='"+data['id']+"']");
+         // 他ユーザーがチケットを動かす前に編集フラグをfalseにする。
+		$sticky.data("editing", false);
         $sticky.animate({'left': data["positionX"], 'top': data["positionY"]});
-//        $sticky.css('left', data["positionX"]);
-//        $sticky.css('top', data["positionY"]);
         var ccc = data["contents"];
         ccc=t.NLtoBR(ccc);
         $sticky.find(".contentsArea").html(ccc);
