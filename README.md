@@ -27,7 +27,13 @@ Sails.js起動時、指定したデフォルト管理アカウントが存在し
        下記、【mongodbの準備と利用方法】を参照。）  
    - ポートを変更したい場合（例：1338ポートで起動する）  
       sails lift --port 1338  
-
+   - 利用するmongodbのデータベース名を変更したい場合（例：testを利用する）プロジェクト直下のconfigフォルダに、local.jsファイルを作成する。
+        内容は以下：  
+        module.exports.connections = {  
+	    mongodbServer : {  
+          database : 'test'  
+	   }  
+     }
 5. ログイン  
 http://localhost:1337/login  
 にアクセスしてログインして、ボード作成、チケット作成などの機能を利用する。  
