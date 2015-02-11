@@ -32,7 +32,7 @@ module.exports = {
 	    sails.log.debug("action: DashboardController.index");
 		var loginInfo = Utility.getLoginInfo(req, res);
 		var message;
-		Board.find({}).exec(function(err, found) {
+		Board.find({}).sort({"title":-1}).exec(function(err, found) {
 			// ボードリストの取得に失敗した場合にはエラーメッセージを表示する。
 			if(err){
 				sails.log.error("メイン画面オープン時にエラー発生[" + JSON.stringify(err) +"]");

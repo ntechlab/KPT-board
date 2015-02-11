@@ -21,7 +21,7 @@ exports.openMainPage = function(req, res, message){
 	if(message){
 		loginInfo.message = message;
 	}
-	Board.find({}).exec(function(err,found){
+	Board.find({}).sort({"title":-1}).exec(function(err,found){
 		if(err){
 			sails.log.error("メイン画面オープン時にエラー発生[" + JSON.stringify(err) +"]");
 			found = [];
