@@ -189,6 +189,7 @@ module.exports = {
 					    // ニックネームをチケットに追加。
 					    ti["nickname"] = userFound["nickname"];
 					} else {
+						ti["nickname"] = "none";
 						sails.log.warn("チケットのユーザーIDの検索: 結果なし[" + createUser + "]");
 					}
 				}
