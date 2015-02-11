@@ -2,6 +2,7 @@
 <script src="/js/jquery-ui.min.js"></script>
 <script src="/js/jquery.jcarousel.min.js"></script>
 <script src="/js/jpicker-1.1.6.min_modified.js"></script>
+<script src="/js/jquery.validate.min.js"></script>
 <link rel="stylesheet" href="/css/jPicker-1.1.6.min.css">
 <script>
 function home(){
@@ -13,7 +14,20 @@ function back(){
 }
 
 function save(){
-  submit("/board/updateBoard");
+  // エラーが存在する場合には処理を中断する。
+  var res = validator.form();
+  if(!res){
+    $("#errorDialog").dialog({
+      modal: true,
+      buttons: {
+        Ok: function() {
+          $( this ).dialog("close");
+        }
+      }
+    });
+  	return false;
+  }
+  return submit("/board/updateBoard");
 }
 
 function cancel(){
@@ -62,6 +76,73 @@ function setUpColorPicker(){
 		$('#forBgColor span.Image').hide();
 	}
 }
+
+	function init(){
+		setUpValidation();
+	}
+
+	// エラーチェックバリデーター
+	var validator;
+
+	function setUpValidation(){
+		jQuery.validator.addMethod("plus1",
+			function(value, element) {
+				return this.optional(element) || /^([1-9][0-9]*)$/.test(value);
+			}
+		);
+		validator = $("form").validate({
+			onfocusout: function(element) { $(element).valid(); },
+			rules: {
+				width :{
+					required: true,
+					digits: true,
+					minlength: 3
+				},
+				height :{
+					required: true,
+					digits: true,
+					minlength: 3
+				},
+				bgSepV :{
+					required: true,
+					plus1 : true
+				},
+				bgSepH :{
+					required: true,
+					plus1 : true
+				},
+				bgSepLineWidth :{
+					required: true,
+					plus1 : true
+				}
+			},
+			messages: {
+				width :{
+					required: "数値を入力して下さい",
+					digits: "数値を入力して下さい",
+					minlength: "100以上の数値を指定してください"
+				},
+				height :{
+					required: "数値を入力して下さい",
+					digits: "数値を入力して下さい",
+					minlength: "100以上の数値を指定してください"
+				},
+				bgSepV :{
+					required: "1以上の数値を入力して下さい",
+					plus1: "1以上の数値を入力して下さい"
+				},
+				bgSepH :{
+					required: "1以上の数値を入力して下さい",
+					plus1: "1以上の数値を入力して下さい"
+				},
+				bgSepLineWidth :{
+					required: "1以上の数値を入力して下さい",
+					plus1: "1以上の数値を入力して下さい"
+				}
+			}
+		});
+	}
+
 (function($) {
     $(function() {
         $('.jcarousel').jcarousel();
@@ -353,7 +434,6 @@ box-sizing: border-box;
 <button type="submit" class="btn btn-default" onclick="return save()" >保存</button>
 <button type="submit" class="btn btn-default" onclick="cancel()"/>キャンセル</button>
 </div>
-</form>
 </div>
 <div id="mydialog">
 	<div class="wrapper" style="width:620px;margin-left:40px;">
@@ -364,10 +444,15 @@ box-sizing: border-box;
                     <li><img src="<%= images[i] %>" width="200" height="150" alt=""></li>
                 <% } %>
                 </ul>
-             </div>
+            </div>
             <a href="#" class="jcarousel-control-prev">&lsaquo;</a>
             <a href="#" class="jcarousel-control-next">&rsaquo;</a>
             <p class="jcarousel-pagination"></p>
         </div>
     </div>
+</div>
+<div id="errorDialog" title="入力チェック" style="display:none;">
+  <p>
+    入力値が正しくありません。
+  </p>
 </div>
