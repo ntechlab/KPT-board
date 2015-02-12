@@ -35,8 +35,16 @@ module.exports.sockets = {
   *                                                                          *
   ***************************************************************************/
   onDisconnect: function(session, socket) {
-
-    // By default: do nothing.
+	  var io = sails.io;
+	  if(session.passport){
+		  var userId = session.passport.userId;
+		  var roomName = BoardUserManager.removeBoardUser(userId);
+		  var usersInRoom = BoardUserManager.getBoardUserInfo(roomName);
+		  if(roomName){
+			  io.sockets.in(roomName).emit('message', 
+					  {action : "leave", userId: userId, users: usersInRoom});
+		  }
+	  }
   },
 
 

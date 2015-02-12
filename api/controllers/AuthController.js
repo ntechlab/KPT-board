@@ -54,6 +54,7 @@ module.exports = {
 					return;
 				}
 				sails.log.info("*** " + datetime + " *** login OK[" + JSON.stringify(user[0]) + "]");
+				req.session.passport["userId"] = user[0]["username"];
 				req.session.passport["name"] = user[0]["nickname"];
 				req.session.passport["role"] = user[0]["role"];
 				req.session.passport["modelId"] = user[0]["id"];
@@ -68,6 +69,7 @@ module.exports = {
 		req.logout();
 		if (req.session && req.session.passport) {
 			sails.log.info("*** " + datetime + " *** logout[" + JSON.stringify(req.session.passport) + "]");
+			req.session.passport["userId"] = "";
 			req.session.passport["name"] = "";
 			req.session.passport["role"] = "";
 			req.session.passport["modelId"] = "";

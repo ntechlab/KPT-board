@@ -92,7 +92,15 @@ module.exports = {
 
     // リスナ登録
     sails.log.debug("リスナ登録:socket.join[" + socket + ":" + boardId+"]");
-    socket.join('room_'+boardId+'_');
+    var roomName = 'room_'+boardId+'_'; 
+    socket.join(roomName);
+    if(req.session.passport){
+    	 var userId = req.session.passport.userId;
+    	 BoardUserManager.addBoardUser(roomName, userId);
+    	 var usersInRoom = BoardUserManager.getBoardUserInfo(roomName);
+    	 io.sockets.in(roomName).emit('message', {action : "enter", userId: userId, users: usersInRoom});
+    }
+    
   },
 
 	/**
@@ -199,6 +207,8 @@ module.exports = {
 			});
 		}
       })
+    } else {
+    	sails.log.debug("その他のaction:["+actionType+"]");
     }
   }
 

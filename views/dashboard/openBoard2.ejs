@@ -1,5 +1,6 @@
 <script src="/js/jquery-2.1.1.min.js"></script>
 <script src="/js/jquery-ui.min.js"></script>
+<script src="/js/underscore-min.js"></script>
 
 <script>
 
@@ -325,11 +326,46 @@ function setUpCanvas(){
         console.dir(data);
         $('tr#'+data["id"]).remove();
         $(".sticky[data-id='"+data['id']+"']").remove();
+      } else if(action == "enter"){
+      	console.log("ユーザーが入室しました:"+JSON.stringify(data));
+      	updateUserList(data);
+      } else if(action == "leave"){
+      	console.log("ユーザーが退室しました:"+JSON.stringify(data));
+      	updateUserList(data);
       }
     });
 });
+
+function updateUserList(data){
+	console.log("ユーザー一覧更新");
+	var users = data["users"];
+	$('#userList').empty();
+	_.forEach(users, function(user){
+		var $user = $("<div class='userInList'><img src='/images/people.png' style='width:30px;margin-right:5px;' />"+user+"</div>");
+		$('#userList').append($user);	
+	});
+
+}
 </script>
 <style>
+.userInList{
+	color: white;
+	font-size: 14px;
+	margin:10px;
+}
+
+#userList {
+	z-index: 10000;
+	position: fixed;
+	bottom: 10px;
+	right: 10px;
+	width: 200px;
+	background-color: black;
+	opacity: 0.5;
+	border: 10px gray solid;
+	padding: 5px;
+}
+
 table th {
   background-color:#dfd;
 }
@@ -431,7 +467,7 @@ table th {
 }
 
 </style>
-<div class="container theme-showcase" role="main">
+<div class="customContainer theme-showcase" role="main">
   <h3><%= title %></td></h3>
   <h4 style="margin:10px;"><%= description %></h4>
 
@@ -456,6 +492,7 @@ table th {
 <canvas id="mycanvas" width="<%= width %>" height="<%= height %>" style="position:absolute;"></canvas>
 <div id="board" class="hasmenu">
 </div>
+<div id="userList" class="userList"></div>
 </div>
 <input type="button" style="margin:10px;" value="デバッグ情報" onclick="$('#debugTable').toggle();"/>
 <div id="debugTable" style="display:none">
