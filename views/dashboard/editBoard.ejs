@@ -4,6 +4,7 @@
 <script src="/js/jpicker-1.1.6.min_modified.js"></script>
 <script src="/js/jquery.validate.min.js"></script>
 <link rel="stylesheet" href="/css/jPicker-1.1.6.min.css">
+
 <script>
 function home(){
   submit("/dashboard/index");
@@ -18,6 +19,7 @@ function save(){
   var res = validator.form();
   if(!res){
     $("#errorDialog").dialog({
+      title : "入力チェック",
       modal: true,
       buttons: {
         Ok: function() {
@@ -34,42 +36,309 @@ function cancel(){
   submit("/dashboard/index");
 }
 
-function showImages(){
-    $("#mydialog").dialog({
-      resizable: false,
-      width: 740,
-      height: 400,
-      modal: true,
-      buttons: {
-        "背景として設定する": function(){
-           var src = $selectedImage.find('img').attr('src');
-           $('#bgImage').val(src);
-           $('#selected').attr('src', src);
-           $(this).dialog("close");
-       },
-        "キャンセル": function() {
-          $(this).dialog("close");
-        }
-      }
-    });
+function getTime(){
+	return new Date().getTime();
 }
 
+// setTimeoutの待機時間を算出する。
+// startTimeから一定時間経過後にイベントを実行するために利用するsetTimeout指定時間を算出する。
+function getWaitDuration(minTime, startTime){
+	var duration = minTime - (getTime() - startTime);
+	if(duration < 0){
+		duration = 0;
+  	};
+  	return duration;
+}
 
+/**
+ * 背景画像アップロード処理
+ */
+function uploadImageFile() {
+	// 画面をブロック
+    $.blockUI({ message: '<h3><img src="/images/wait.gif" style="width:35px;margin-right:10px;"/>アップロード中...</h3>' });
+    var $form = $('#uploadForm');
+    var fd = new FormData($form[0]);
+    var start = getTime();
+    $.ajax(
+        '/dashboard/uploadImageFile',
+        {
+        type: 'post',
+        processData: false,
+        contentType: false,
+        data: fd,
+        dataType: "json",
+        success: function(data) {
+        	var duration = getWaitDuration(3000, start);
+            setTimeout(function(){
+	             // アップロードした画像ファイルを選択状態にする。
+	            var src = data.src;
+				$('#bgImage').val(src);
+				$('#selected').attr('src', src);
+
+				// 画面ブロックの解除
+            	$.unblockUI();
+            }, duration);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            // 画面ブロックの解除
+			$.unblockUI();
+            alert( "ファイルのアップロードに失敗しました。" );
+            console.log(textStatus);
+            console.log(errorThrown);
+        }
+    });
+    return false;
+}
+
+/**
+ * 背景画像削除処理
+ */
+function deleteImageFile() {
+	// 画面をブロック
+    $.blockUI({ message: '<h3><img src="/images/wait.gif" style="width:35px;margin-right:10px;"/>削除中...</h3>' });
+    var $form = $('#deleteImageForm');
+    var fd = new FormData($form[0]);
+    var start = getTime();
+    $.ajax(
+        '/dashboard/deleteImageFile',
+        {
+        type: 'post',
+        processData: false,
+        contentType: false,
+        data: fd,
+        dataType: "json",
+        success: function(data) {
+        	var duration = getWaitDuration(1000, start);
+            setTimeout(function(){
+	            // 削除された画像が指定されていた場合には、背景タイプを「単色」に変更する。
+	            var src = data.src;
+	            var oldSrc = $('#bgImage').val();
+				if(oldSrc === src){
+					$('#bgImage').val("");
+					$('#selected').attr('src', "");
+					$('#bgTypeColor').prop('checked', true);
+				}
+
+				// 画面ブロックの解除
+            	$.unblockUI();
+            }, duration);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            // 画面ブロックの解除
+			$.unblockUI();
+            alert( "ファイルのアップロードに失敗しました。" );
+            console.log(textStatus);
+            console.log(errorThrown);
+        }
+    });
+    return false;
+}
+
+/**
+ * 背景画像リスト読み込み処理
+ */
+function getImageFileList(cbSuccess, cbError){
+	$.ajax(
+		'/dashboard/getImageFileList',
+		{
+		type: 'post',
+		processData: false,
+		contentType: false,
+		data: {},
+		dataType: "json",
+		success: cbSuccess,
+		error: function(XMLHttpRequest, textStatus, errorThrown) {
+		    console.log(textStatus);
+		    console.log(errorThrown);
+		    cbError();
+		}
+	});
+	return false;
+}
+
+/**
+ * 背景画像リスト読み込み成功時コールバック
+ */
+var cbLoadImageSuccess = function(data){
+
+	// 画像の選択状態を解除する。
+	$('div.jcarousel li').removeClass('opaque');
+	$selectedImage = undefined;
+
+	// 画像をダイアログにセットする。
+	var images = data.images;
+	var $imageHolder = $('#imageHolder');
+	$imageHolder.empty();
+	_.forEach(images, function(src){
+		$imageHolder.append($('<li><img src="'+ src + '" width="200" height="150" alt=""></li>'));
+	});
+	$imageHolder.find('li').on('click', function(){
+		$('div.jcarousel li').removeClass('opaque');
+		$(this).addClass('opaque');
+		$selectedImage = $(this);
+	});
+
+	// カルーセル情報をリロードする。
+	carousel.jcarousel('reload');
+
+	// カルーセルのページネーション情報を更新
+	pagination.jcarouselPagination('reloadCarouselItems');
+};
+
+/**
+ * 背景画像リスト読み込み成功時コールバック
+ */
+var cbLoadImageError = function(data){
+	// 画像の選択状態を解除する。
+	$('div.jcarousel li').removeClass('opaque');
+	$selectedImage = undefined;
+
+	// 画像をダイアログにセットする。
+	var images = data.images;
+	var $imageHolder = $('#imageHolder');
+	$imageHolder.empty();
+
+	// カルーセル情報をリロードする。
+	carousel.jcarousel('reload');
+
+	// カルーセルのページネーション情報を更新
+	pagination.jcarouselPagination('reloadCarouselItems');
+
+	alert('背景画像情報の取得に失敗しました。');
+};
+
+/**
+ * 画像選択ダイアログを開く
+ */
+function showSelectImageDialog(){
+
+	$("#selectImageDialog").dialog({
+		title : "背景画像の選択",
+		resizable: false,
+		width: 740,
+		height: 350,
+		modal: true,
+		open: function(){
+		    // 非同期通信で背景画像リストを取得する。
+		    getImageFileList(cbLoadImageSuccess, cbLoadImageError);
+		},
+		buttons: {
+			"setAsBackgroundImage" : {
+				text : "背景として設定する",
+				id : "setAsBackgroundImage",
+				click : function(){
+					if($selectedImage === undefined){
+						alert('画像が選択されていません');
+						return false;
+					}
+					var src = $selectedImage.find('img').attr('src');
+					$('#bgImage').val(src);
+					$('#selected').attr('src', src);
+					$(this).dialog("close");
+				}
+			},
+			"キャンセル": function() {
+				$(this).dialog("close");
+			}
+		}
+	});
+	return false;
+}
+
+/**
+ * 画像削除ダイアログを開く
+ */
+function showDeleteImageDialog(){
+	$("#selectImageDialog").dialog({
+		title : "背景画像の削除",
+		resizable: false,
+		width: 740,
+		height: 350,
+		modal: true,
+		open: function(){
+		    // 非同期通信で背景画像リストを取得する。
+		    getImageFileList(cbLoadImageSuccess, cbLoadImageError);
+		},
+		buttons: {
+			"deleteImageButton" : {
+				text : "画像を削除する",
+				id : "deleteImageButton",
+				click : function(){
+					if($selectedImage === undefined){
+						alert('画像が選択されていません');
+						return false;
+					}
+					var src = $selectedImage.find('img').attr('src');
+					$('#deleteImage').val(src);
+					$(this).dialog("close");
+					deleteImageFile();
+				}
+			},
+			"キャンセル": function() {
+				$(this).dialog("close");
+			}
+		}
+	});
+	return false;
+}
+
+// ファイルアップロードダイアログを開く
+function showUploadDialog(){
+	$("#fileUploadDialog").dialog({
+	 	title: "ファイルアップロード",
+		resizable: false,
+		width: 500,
+		modal: true,
+		buttons: {
+			"uploadButton" : {
+				text : "アップロード",
+				id : "uploadButton",
+				// jquery-uiダイアログボタンが押下された時に、アップロードダイアログで定義した
+				// 非表示状態のsubmitボタンを押す。
+				click : function() {
+					var uploadFile = $('#uploadFile').val();
+					if(!uploadFile){
+						alert('ファイルが指定されていません');
+						return false;
+					};
+					$(this).dialog("close");
+					uploadImageFile();
+					// 設定されていたファイルをクリアする。
+					// file要素の値はセキュリティー上設定できないので、要素を再生成する。
+					$('#fileElementHolder').empty()
+						.append($('<input type="file" id="uploadFile" name="uploadFile" accept="image/jpeg, image/gif, image/png"/>'));
+				}
+			},
+			"cancelButton" : {
+				text : "キャンセル",
+				click : function() {
+					// 設定されていたファイルをクリアする。
+					// file要素の値はセキュリティー上設定できないので、要素を再生成する。
+					$('#fileElementHolder').empty()
+						.append($('<input type="file" id="uploadFile" name="uploadFile" accept="image/jpeg, image/gif, image/png"/>'));
+					$(this).dialog("close");
+				}
+			}
+		}
+	});
+	return false;
+}
+
+// カルーセルで選択されている画像
 var $selectedImage;
 
 function setUpColorPicker(){
 	var checked = $('#bgTypeColor').prop('checked');
-	console.log("setUpColorPicker["+checked+"]");
 	if(checked){
 		$('input[name="bgRepeatType"]').attr("disabled", "disabled");
-		$('#selected').unbind('click', showImages);
+		$('#selected').unbind('click', showSelectImageDialog);
 		$('#selected').addClass("opaque");
 		$('#Binded').removeAttr("disabled");
 		$('#Binded').removeClass("opaque");
 		$('#forBgColor span.Image').show();
 	} else {
 		$('input[name="bgRepeatType"]').removeAttr("disabled");
-		$('#selected').bind('click', showImages);
+		$('#selected').bind('click', showSelectImageDialog);
 		$('#selected').removeClass("opaque");
 		$('#Binded').attr("disabled", "disabled");
 		$('#Binded').addClass("opaque");
@@ -77,119 +346,150 @@ function setUpColorPicker(){
 	}
 }
 
-	function init(){
-		setUpValidation();
-	}
+function init(){
+	setUpValidation();
+}
 
-	// エラーチェックバリデーター
-	var validator;
+// エラーチェックバリデーター
+var validator;
 
-	function setUpValidation(){
-		jQuery.validator.addMethod("plus1",
-			function(value, element) {
-				return this.optional(element) || /^([1-9][0-9]*)$/.test(value);
-			}
-		);
-		validator = $("form").validate({
-			onfocusout: function(element) { $(element).valid(); },
-			rules: {
-				width :{
-					required: true,
-					digits: true,
-					minlength: 3
-				},
-				height :{
-					required: true,
-					digits: true,
-					minlength: 3
-				},
-				bgSepV :{
-					required: true,
-					plus1 : true
-				},
-				bgSepH :{
-					required: true,
-					plus1 : true
-				},
-				bgSepLineWidth :{
-					required: true,
-					plus1 : true
-				}
+function setUpValidation(){
+	jQuery.validator.addMethod("plus1",
+		function(value, element) {
+			return this.optional(element) || /^([1-9][0-9]*)$/.test(value);
+		}
+	);
+	validator = $("form").validate({
+		onfocusout: function(element) { $(element).valid(); },
+		rules: {
+			width :{
+				required: true,
+				digits: true,
+				minlength: 3
 			},
-			messages: {
-				width :{
-					required: "数値を入力して下さい",
-					digits: "数値を入力して下さい",
-					minlength: "100以上の数値を指定してください"
-				},
-				height :{
-					required: "数値を入力して下さい",
-					digits: "数値を入力して下さい",
-					minlength: "100以上の数値を指定してください"
-				},
-				bgSepV :{
-					required: "1以上の数値を入力して下さい",
-					plus1: "1以上の数値を入力して下さい"
-				},
-				bgSepH :{
-					required: "1以上の数値を入力して下さい",
-					plus1: "1以上の数値を入力して下さい"
-				},
-				bgSepLineWidth :{
-					required: "1以上の数値を入力して下さい",
-					plus1: "1以上の数値を入力して下さい"
-				}
+			height :{
+				required: true,
+				digits: true,
+				minlength: 3
+			},
+			bgSepV :{
+				required: true,
+				plus1 : true
+			},
+			bgSepH :{
+				required: true,
+				plus1 : true
+			},
+			bgSepLineWidth :{
+				required: true,
+				plus1 : true
 			}
-		});
-	}
+		},
+		messages: {
+			width :{
+				required: "数値を入力して下さい",
+				digits: "数値を入力して下さい",
+				minlength: "100以上の数値を指定してください"
+			},
+			height :{
+				required: "数値を入力して下さい",
+				digits: "数値を入力して下さい",
+				minlength: "100以上の数値を指定してください"
+			},
+			bgSepV :{
+				required: "1以上の数値を入力して下さい",
+				plus1: "1以上の数値を入力して下さい"
+			},
+			bgSepH :{
+				required: "1以上の数値を入力して下さい",
+				plus1: "1以上の数値を入力して下さい"
+			},
+			bgSepLineWidth :{
+				required: "1以上の数値を入力して下さい",
+				plus1: "1以上の数値を入力して下さい"
+			}
+		}
+	});
+}
+
+// カルーソルオブジェクト
+var carousel;
+
+// カルーソルページネーションオブジェクト
+var pagination;
 
 (function($) {
     $(function() {
-        $('.jcarousel').jcarousel();
-        $('.jcarousel-control-prev')
-            .on('jcarouselcontrol:active', function() {
-                $(this).removeClass('inactive');
-            })
-            .on('jcarouselcontrol:inactive', function() {
-                $(this).addClass('inactive');
-            })
-            .jcarouselControl({
-                target: '-=1'
-            });
-        $('.jcarousel-control-next')
-            .on('jcarouselcontrol:active', function() {
-                $(this).removeClass('inactive');
-            })
-            .on('jcarouselcontrol:inactive', function() {
-                $(this).addClass('inactive');
-            })
-            .jcarouselControl({
-                target: '+=1'
-            });
-        $('.jcarousel-pagination')
-            .on('jcarouselpagination:active', 'a', function() {
-                $(this).addClass('active');
-            })
-            .on('jcarouselpagination:inactive', 'a', function() {
-                $(this).removeClass('active');
-            })
-            .jcarouselPagination();
-       $('div.jcarousel li').click(function(){
-           $('div.jcarousel li').removeClass('opaque');
-           $(this).addClass('opaque');
-           $selectedImage = $(this);
-       });
+    	// カルーソルを保持する。
+		carousel = $('.jcarousel').jcarousel();
+	    $('.jcarousel-control-prev')
+	        .on('jcarouselcontrol:active', function() {
+	            $(this).removeClass('inactive');
+	        })
+	        .on('jcarouselcontrol:inactive', function() {
+	            $(this).addClass('inactive');
+	        })
+	        .jcarouselControl({
+	            target: '-=1'
+	        });
+	    $('.jcarousel-control-next')
+	        .on('jcarouselcontrol:active', function() {
+	            $(this).removeClass('inactive');
+	        })
+	        .on('jcarouselcontrol:inactive', function() {
+	            $(this).addClass('inactive');
+	        })
+	        .jcarouselControl({
+	            target: '+=1'
+	        });
+	    $('.jcarousel-pagination')
+	        .on('jcarouselpagination:active', 'a', function() {
+	            $(this).addClass('active');
+	        })
+	        .on('jcarouselpagination:inactive', 'a', function() {
+	            $(this).removeClass('active');
+	        })
+	        .jcarouselPagination();
+
+		pagination = $('.jcarousel-pagination');
 
        $('#Binded').jPicker();
        $('#Binded2').jPicker();
-       $("#mydialog").dialog({ autoOpen: false });
+
+		$("#errorDialog").dialog({autoOpen: false});
+		$("#selectImageDialog").dialog({ autoOpen: false });
+		$("#fileUploadDialog").dialog({ autoOpen: false });
 		setUpColorPicker();
 		$('input[name="bgType"]').click(setUpColorPicker);
+
+		// 「画像のアップロード」ボタン押下時にダイアログを開く
+		$('#uploadDialogButton').click(showUploadDialog);
+
+		// 「画像の削除」ボタン押下時にダイアログを開く
+		$('#deleteDialogButton').click(showDeleteImageDialog);
+
+		// ファイルが選択されている場合にのみ、「アップロード」ボタンを活性化する。
+		$('#uploadFile').change(function(){
+			if($('#uploadFile').val()){
+				$('#uploadButton').removeAttr('disabled')
+					.removeClass('disabledButton');
+			} else {
+				$('#uploadButton').attr('disabled', true)
+					.addClass('disabledButton');
+			}
+		});
     });
 })(jQuery);
 
 </script>
 <style>
+.fileUpload {
+	margin: 10px;
+}
+
+.disabledButton {
+	color: gray;
+}
 
 .opaque {
   opacity: 0.5;
@@ -366,6 +666,10 @@ box-sizing: border-box;
 					<div>
 						<img id="selected" src="<%= bgImage %>" style="margin-bottom:10px;width:200px;height:150px;border:2px solid gray;"></img>
 					</div>
+					<div>
+						<button id="uploadDialogButton" class="btn btn-default" style="margin-bottom:15px">画像のアップロード</button>
+						<button id="deleteDialogButton" class="btn btn-default" style="margin-bottom:15px">画像の削除</button>
+					</div>
 					<div style="margin:5px;">
 						<label>繰り返しのタイプ</label><br>
 						<div style="margin:3px">
@@ -434,16 +738,13 @@ box-sizing: border-box;
 <button type="submit" class="btn btn-default" onclick="return save()" >保存</button>
 <button type="submit" class="btn btn-default" onclick="cancel()"/>キャンセル</button>
 </div>
+</form>
 </div>
-<div id="mydialog">
+<div id="selectImageDialog">
 	<div class="wrapper" style="width:620px;margin-left:40px;">
         <div class="jcarousel-wrapper">
             <div class="jcarousel">
-                <ul>
-                <% for( var i in images ) {%>
-                    <li><img src="<%= images[i] %>" width="200" height="150" alt=""></li>
-                <% } %>
-                </ul>
+                <ul id="imageHolder"></ul>
             </div>
             <a href="#" class="jcarousel-control-prev">&lsaquo;</a>
             <a href="#" class="jcarousel-control-next">&rsaquo;</a>
@@ -451,8 +752,25 @@ box-sizing: border-box;
         </div>
     </div>
 </div>
-<div id="errorDialog" title="入力チェック" style="display:none;">
+<div id="errorDialog">
   <p>
     入力値が正しくありません。
   </p>
 </div>
+<div id="fileUploadDialog">
+	<form id="uploadForm" name="uploadForm"
+		enctype="multipart/form-data"
+		action="/dashboard/upload"
+		method="post">
+		<div class="fileUpload">
+			<input type="hidden" name="selectedId" value="<%= id %>"/>
+			<span id="fileElementHolder">
+				<input type="file" id="uploadFile" name="uploadFile" accept="image/jpeg, image/gif, image/png"/>
+			</span>
+			<input type="submit" id="upload" value="アップロード" style="display:none;" />
+		</div>
+	</form>
+</div>
+<form id="deleteImageForm">
+	<input type="hidden" id="deleteImage" name="deleteImage"/>
+</form>

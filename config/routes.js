@@ -32,18 +32,18 @@ module.exports.routes = {
   *                                                                          *
   ***************************************************************************/
 
-   '/': { view: 'home/index' },
+	'/': 'DashboardController.index',
 	'get /login': "AuthController.login",
 	'post /login': 'AuthController.process',
 	'get /logout': 'AuthController.logout',
 	'get /dashboard/openBoard2/:selectedId': 'DashboardController.openBoard2',
 	'get /dashboard/editBoard/:selectedId': 'DashboardController.editBoard',
 	'get /dashboard/deleteBoard/:selectedId': 'DashboardController.deleteBoard',
-	'get /usermanage/destroyUser/:target': 'UsermanageController.destroyUser', // b’èB—˜—p‚µ‚È‚¢—\’èiURL‚ÉíœŒã‚Ìƒ†[ƒU[ID‚ğc‚µ‚½‚­‚È‚¢j
-	'post /usermanage/destroyUser/:target': 'UsermanageController.destroyUser', // b’èB
-	'get /usermanage/updateUser/:target': 'UsermanageController.updateUser', // b’è
+	'get /usermanage/destroyUser/:target': 'UsermanageController.destroyUser', // ï¿½bï¿½ï¿½Bï¿½ï¿½ï¿½pï¿½ï¿½ï¿½È‚ï¿½ï¿½\ï¿½ï¿½iURLï¿½Éíœï¿½ï¿½Ìƒï¿½ï¿½[ï¿½Uï¿½[IDï¿½ï¿½ï¿½cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½j
+	'post /usermanage/destroyUser/:target': 'UsermanageController.destroyUser', // ï¿½bï¿½ï¿½B
+	'get /usermanage/updateUser/:target': 'UsermanageController.updateUser', // ï¿½bï¿½ï¿½
 	'get /usermanage/openUpdateUser/:target': 'UsermanageController.openUpdateUser', // OK
-	//'post /usermanage/openUpdateUser/:target': 'UsermanageController.openUpdateUser' // —˜—p‚µ‚È‚¢(URL‚Å¯•Ê‚Å‚«‚éŒ`‚É‚µ‚Ä‚¨‚­j
+	//'post /usermanage/openUpdateUser/:target': 'UsermanageController.openUpdateUser' // ï¿½ï¿½ï¿½pï¿½ï¿½ï¿½È‚ï¿½(URLï¿½Åï¿½ï¿½Ê‚Å‚ï¿½ï¿½ï¿½`ï¿½É‚ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½j
 
   /***************************************************************************
   *                                                                          *

@@ -8,6 +8,15 @@
 // underscore利用準備
 var u = require('underscore');
 
+var fs = require('fs');
+
+var BACKGROUND_REL_PATH = "/images/background/";
+
+var BACKGROUND_DIR = './assets' + BACKGROUND_REL_PATH;
+
+// ファイルアップロードと同時に背景画像を変更したい場合にはtrueにする。
+var flagChangeBackgroundImage = false;
+
 // 背景情報のデフォルト値
 var BOARD_DEFAULT_VALUES = {
 	version : '1.1',
@@ -15,13 +24,54 @@ var BOARD_DEFAULT_VALUES = {
     height : 800,
     bgType : 'image',
     bgColor : '',
-    bgImage : '/images/background/background02.gif',
+    bgImage : BACKGROUND_REL_PATH + 'background02.gif',
     bgRepeatType :  'repeat',
     bgSepV : 1,
     bgSepH : 1,
     bgSepLineWidth : 3,
     bgSepLineColor : '#000000'
 };
+
+function showEditView(req, res, id, loginInfo){
+
+	Board.findOne(id).exec(function(err,found){
+	    if(err || !found) {
+			sails.log.error("ボード編集時 ボード取得失敗: エラー発生:[" + found + "]:" + JSON.stringify(err));
+			Utility.openMainPage(req, res, {type: "danger", contents: "エラーが発生しました:"+JSON.stringify(err)});
+			return;
+		} else {
+			sails.log.debug("編集対象ボード[" + JSON.stringify(found) + "]");
+			fs.readdir(BACKGROUND_DIR, function(err, files){
+				if (err) {
+					throw err;
+				}
+				var fileList = [];
+				files.filter(function(file){
+					return fs.statSync(BACKGROUND_DIR + file).isFile();
+				}).forEach(function (file) {
+					fileList.push(BACKGROUND_REL_PATH + file);
+				});
+				sails.log.debug(fileList);
+				res.view('dashboard/editBoard', { id: id,
+					title :found["title"],
+					description:found["description"],
+					width: found["width"],
+					height: found["height"],
+					bgType:found["bgType"],
+					bgColor:found["bgColor"],
+					bgImage:found["bgImage"],
+					bgRepeatType: found["bgRepeatType"],
+					bgSepV: found["bgSepV"],
+					bgSepH: found["bgSepH"],
+					bgSepLineWidth: found["bgSepLineWidth"],
+					bgSepLineColor: found["bgSepLineColor"],
+					images: fileList,
+					loginInfo: loginInfo
+				});
+			});
+		}
+	});
+}
 
 module.exports = {
 
@@ -65,7 +115,7 @@ module.exports = {
 
 			// 第1段階で終了すべき関数
 			var prerequisite = [];
-			
+
 			// ボードリストを取得した場合、必要に応じてボード情報のマイグレーションを行う。
 			// 取得したボード情報にバージョンが指定されていない場合にはマイグレーション対象とする。
 			var ngIds = [];
@@ -79,14 +129,14 @@ module.exports = {
 							var boardId = board["id"];
 							sails.log.info("マイグレーション対象ボード[" + boardId + "]");
 							sails.log.info("マイグレーション前[" + JSON.stringify(board) + "]");
-	
+
 							// 値が未指定の場合にはデフォルト値を設定する。
 							var newBoard = u.defaults(_.clone(board), BOARD_DEFAULT_VALUES);
 							delete newBoard["id"];
 							delete newBoard["createdAt"];
 							delete newBoard["updatedAt"];
 							sails.log.info("マイグレーション後[" + JSON.stringify(newBoard) + "]");
-							
+
 							// テーブル内容の更新
 							Board.update(boardId, newBoard).exec(function(err2, updated) {
 								if(err2) {
@@ -102,7 +152,7 @@ module.exports = {
 					})(i);
 				}
 			};
-			
+
 			// 第２段階処理
 			var done = function() {
 				sails.log.debug("メイン画面表示処理 開始");
@@ -254,55 +304,15 @@ module.exports = {
     editBoard : function(req, res) {
 		var id = req.param("selectedId");
 	    sails.log.debug("action: DashboardController.editBoard["+id+"]");
-		var loginInfo = Utility.getLoginInfo(req, res);
-
-		Board.findOne(id).exec(function(err,found){
-		    if(err || !found) {
-				sails.log.error("ボード編集時 ボード取得失敗: エラー発生:[" + found + "]:" + JSON.stringify(err));
-				Utility.openMainPage(req, res, {type: "danger", contents: "エラーが発生しました:"+JSON.stringify(err)});
-				return;
-			} else {
-				sails.log.debug("編集対象ボード[" + JSON.stringify(found) + "]");
-				var fs = require('fs');
-				var root = "assets";
-				var path = "/images/background/";
-				fs.readdir(root + path, function(err, files){
-					if (err) {
-						throw err;
-					}
-					var fileList = [];
-					files.filter(function(file){
-						return fs.statSync(root + path + file).isFile();
-					}).forEach(function (file) {
-						fileList.push(path + file);
-					});
-					sails.log.debug(fileList);
-					res.view({ id: id,
-						title :found["title"],
-						description:found["description"],
-						width: found["width"],
-						height: found["height"],
-						bgType:found["bgType"],
-						bgColor:found["bgColor"],
-						bgImage:found["bgImage"],
-						bgRepeatType: found["bgRepeatType"],
-						bgSepV: found["bgSepV"],
-						bgSepH: found["bgSepH"],
-						bgSepLineWidth: found["bgSepLineWidth"],
-						bgSepLineColor: found["bgSepLineColor"],
-						images: fileList,
-						loginInfo: loginInfo
-					});
-				});
-			}
-		});
+	    var loginInfo = Utility.getLoginInfo(req, res);
+		showEditView(req, res, id, loginInfo);
 	},
 
 	/**
 	 * ボード削除処理
 	 */
     deleteBoard : function(req, res) {
-		var id = req.param("selectedId");
+    	var id = req.param("selectedId");
 		sails.log.debug("action: DashboardController.deleteBoard["+id+"]");
 		// 削除対象ボードIDが設定されていない場合には、処理を行わずメイン画面に遷移。
 		var message = null;
@@ -329,9 +339,103 @@ module.exports = {
      * ボード作成画面を開く
      */
     createBoard : function(req, res) {
-		sails.log.debug("action: DashboardController.createBoard");
+    	sails.log.debug("action: DashboardController.createBoard");
     	res.redirect('/newboard/index');
-    }
+    },
 
+    /**
+     * ファイルのアップロード
+     */
+	uploadImageFile: function  (req, res) {
+		sails.log.debug("action: DashboardController.uploadImageFile");
+
+		// GET経由でのアップロードは許可しない。
+		if(req.method === 'GET'){
+			sails.log.warn("GETによるファイルアップロード要求が送られました。");
+			return res.json({status: 'error', message : "処理が不正です。"});
+		}
+		var uploadFile = req.file('uploadFile');
+
+		// TODO: ファイル名のチェックロジックを実装する。jpg,png,gif以外の場合にはエラーにするなど。
+
+		var boardId = req.param("selectedId");
+		sails.log.info("ボードID[" + boardId + "]");
+		sails.log.info("アップロードファイル名[" + uploadFile + "]");
+
+		// ファイルのアップロード処理
+		uploadFile.upload({dirname: BACKGROUND_DIR}, function onUploadComplete (err, files) {
+			sails.log.info("ファイルアップロード処理 開始");
+			if (err) {
+				sails.log.error(err);
+				sails.log.error("ファイルアップロード時に例外発生");
+				return res.json({status: 'error', message : "ファイルのアップロードに失敗しました。", error: err});
+			}
+
+			// アップロードしたファイル名の取得
+			var filename = "";
+			if(files && files.length > 0){
+				filename = files[0].filename;
+			}
+			sails.log.info("アップロードファイル名[" + filename + "]");
+
+			sails.log.info("ファイルアップロード処理 終了");
+			return res.json({status: 'success', src : BACKGROUND_REL_PATH + filename});
+		});
+	},
+
+	/**
+	 * ファイル削除処理
+	 */
+	deleteImageFile: function  (req, res) {
+		sails.log.debug("action: DashboardController.deleteImageFile");
+
+		// GET経由での削除は許可しない。
+		if(req.method === 'GET'){
+			sails.log.warn("GETによるファイル削除要求が送られました。");
+			return res.json({status: 'error', message : "処理が不正です。"});
+		}
+
+		var path = req.param("deleteImage");
+		var fileName = "";
+		if(path){
+			var items = path.split("/");
+			fileName = items[items.length - 1];
+		}
+
+		sails.log.info("削除ファイル名パス[" + path + "]");
+		sails.log.debug("削除ファイル名[" + fileName + "]");
+
+		// 指定された画像ファイルを削除する。
+		var deletePath = BACKGROUND_DIR + fileName;
+		var ret;
+		fs.unlink(deletePath, function (err) {
+			if (err) {
+				sails.log.error(err);
+				ret = {status: 'error', message : "画像の削除に失敗しました。", error: err};
+			 } else {
+				sails.log.info('画像を削除しました[' + deletePath + "]");
+				ret = {status: 'success', src : BACKGROUND_REL_PATH + fileName};
+			}
+			return res.json(ret);
+		});
+	},
+
+	getImageFileList : function  (req, res) {
+		sails.log.debug("action: DashboardController.getImageFileList");
+		fs.readdir(BACKGROUND_DIR, function(err, files){
+			if (err) {
+				sails.log.error(err);
+				return res.json({status: 'error', error: err});
+			}
+			var fileList = [];
+			files.filter(function(file){
+				return fs.statSync(BACKGROUND_DIR + file).isFile();
+			}).forEach(function (file) {
+				fileList.push(BACKGROUND_REL_PATH + file);
+			});
+			sails.log.debug(fileList);
+			return res.json({status: 'success', images: fileList});
+		});
+	}
 };
 
