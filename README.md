@@ -14,7 +14,7 @@ dashboard直下で、npm installを実行する。
 3. デフォルト管理アカウントの設定  
 config/bootstrap.js内のデフォルト管理アカウントを適宜修正。  
 ▲パスワードを平文として含むため取扱に注意。  
-Sails.js起動時、指定したデフォルト管理アカウントが存在しない場合に作成する。  
+Sails.js起動時、指定したデフォルト管理アカウントが存在しない場合に作成する。
 
 4. Sails起動  
 アプリルートディレクトリ直下で以下のコマンドを実行：  
@@ -30,16 +30,24 @@ Sails.js起動時、指定したデフォルト管理アカウントが存在し
    - 利用するmongodbのデータベース名を変更したい場合（例：testを利用する）プロジェクト直下のconfigフォルダに、local.jsファイルを作成する。
         内容は以下：  
         module.exports.connections = {  
-	    mongodbServer : {  
+	      mongodbServer : {  
           database : 'test'  
 	   }  
      }
+
 5. ログイン  
 http://localhost:1337/login  
 にアクセスしてログインして、ボード作成、チケット作成などの機能を利用する。  
 項目２で定義した値が管理アカウントの初期値となる。  
  - id=username
  - パスワード=password  
+
+6. 制約事項  
+productionモードの場合、背景画像のアップロード機能が正常に動作しません。
+Linuxの場合、アプリ起動のタイミングで下記コマンドを発行することで当事象を回避可能です。  
+rm -fr {アプリケーションルート}/.tmp/public/images/background/  
+ln -s {アプリケーションルート}/assets/images/background {アプリケーションルート}/.tmp/public/images/background
+
 
 ----
 
