@@ -336,22 +336,142 @@ function setUpCanvas(){
     });
 });
 
+/**
+ * 配列内容が一致しているかを判定する。
+ */
+function match(array1, array2){
+	console.log("配列内容比較");
+	console.log(array1);
+	console.log(array2);
+	if(array1.length !== array2.length){
+		return false;
+	}
+	for(var i = 0; i < array1.length; i++){
+		if(array1[i] !== array2[i]){
+			return false;
+		}
+	}
+	return true;
+}
+
+/*
+ * 表示中ユーザーと利用中ユーザーリストの整合性をチェックする。
+ *
+ * 整合条件は以下の状況
+ * 入室の場合: （入室中ユーザー一覧）= (表示中ユーザー一覧) + 入室ユーザー
+ * 退室の場合: （入室中ユーザー一覧）+ 退室ユーザー = (表示中ユーザー一覧)
+ */
+function checkConsistencyOfUserList(action, displayUsers, users, userId){
+	var lhs, rhs;
+	if(action === "enter"){
+		lhs = _.sortBy(users);
+		rhs = _.sortBy(displayUsers.concat([userId]));
+	} else if(action === "leave"){
+		lhs = _.sortBy(users.concat([userId]));
+		rhs = _.sortBy(displayUsers);
+	} else {
+		return false;
+	}
+	return match(lhs, rhs);
+}
+
+/**
+ * ユーザー一覧を更新する。
+ */
 function updateUserList(data){
 	console.log("ユーザー一覧更新");
+
+	// 一覧に追加するユーザーの作成
+	function getNewUser(userId){
+		var $ret = $("<div></div>")
+			.attr("id", "id_" + userId)
+			.addClass("userInList");
+		$ret.append($("<img src='/images/people.png' style='width:30px;margin-right:5px;' />"));
+		$ret.append($('<span class="userName">'+userId+'</span>'));
+		return $ret;
+	}
+
+	// 入室ユーザー表示時のアニメーション効果
+	function animateEnteringUser($user){
+		$user.fadeIn('slow');
+		$user.animate({ backgroundColor: "#7fffd4", fontWeight: "bold"}, 500)
+			.animate({ backgroundColor: "#000000",fontWeight: "normal" }, 1000);
+	}
+
+	var action = data["action"];
+
+	// 入室中ユーザー一覧
 	var users = data["users"];
-	$('#userList').empty();
-	_.forEach(users, function(user){
-		var $user = $("<div class='userInList'><img src='/images/people.png' style='width:30px;margin-right:5px;' />"+user+"</div>");
-		$('#userList').append($user);	
+
+	// 入退出ユーザー
+	var userId = data["userId"];
+
+	// 表示中ユーザー一覧
+	var userList = $("#userList .userInList");
+	var displayUsers = _.map(userList, function(item){
+		return $(item).find(".userName").text();
 	});
 
+	// 表示中ユーザーと利用中ユーザーリストが不整合の場合リフレッシュ
+
+ 	// ユーザー一覧リフレッシュフラグ
+ 	var refreshUserList = !checkConsistencyOfUserList(action, displayUsers, users, userId);
+
+	// 初期表示時には全利用ユーザーを追加する。
+	if(refreshUserList){
+		console.log("ボード利用ユーザー一覧を再表示");
+		$('#userList').hide()
+			.empty();
+		_.forEach(users, function(user){
+			var $userToAdd = getNewUser(user);
+			$('#userList').append($userToAdd);
+		});
+		$('#userList').fadeIn('slow')
+	} else {
+		// 他ユーザーが入室した場合
+		if(action === "enter"){
+			// 入室したユーザーの追加場所を探索
+			// （利用ユーザーリスト内で入室ユーザーの１つ前のユーザーIDを取得）
+			var prev;
+			for(var i = 0; i < users.length - 1; i++){
+				if(users[i + 1] === userId){
+					prev = users[i];
+				}
+			}
+
+			// 入室ユーザー要素の作成
+			var $userToAdd = getNewUser(userId);
+			$userToAdd.hide();
+			var found;
+			if(prev !== undefined){
+				// 追加場所の次に入室ユーザー要素を追加
+				found = $("#id_"+prev);
+				found.after($userToAdd);
+				animateEnteringUser($userToAdd);
+			} else {
+				// 追加場所が未定義の場合には先頭に追加
+				found = $(userList[0]);
+				found.before($userToAdd);
+				animateEnteringUser($userToAdd);
+			}
+		}
+		// 他ユーザーが退出した場合
+		if(action ==="leave"){
+			var found = $("#id_"+userId);
+			found.fadeOut('slow', function(){
+				found.remove();
+			});
+		}
+	}
+
 }
+
 </script>
 <style>
 .userInList{
 	color: white;
 	font-size: 14px;
-	margin:10px;
+	margin:5px;
 }
 
 #userList {
@@ -362,8 +482,11 @@ function updateUserList(data){
 	width: 200px;
 	background-color: black;
 	opacity: 0.5;
-	border: 10px gray solid;
-	padding: 5px;
+	border: 5px gray solid;
+	padding: 3px;
+	border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
 }
 
 table th {
@@ -492,7 +615,7 @@ table th {
 <canvas id="mycanvas" width="<%= width %>" height="<%= height %>" style="position:absolute;"></canvas>
 <div id="board" class="hasmenu">
 </div>
-<div id="userList" class="userList"></div>
+<div id="userList" class="userList" style="display:none"></div>
 </div>
 <input type="button" style="margin:10px;" value="デバッグ情報" onclick="$('#debugTable').toggle();"/>
 <div id="debugTable" style="display:none">
