@@ -412,13 +412,13 @@ function updateUserList(data){
 		return $(item).find(".userName").text();
 	});
 
-	// 表示中ユーザーと利用中ユーザーリストが不整合の場合リフレッシュ
+	// 表示中ユーザーと利用中ユーザーリストが不整合、もしくは、自ユーザーのみ利用の場合リフレッシュ
 
  	// ユーザー一覧リフレッシュフラグ
  	var refreshUserList = !checkConsistencyOfUserList(action, displayUsers, users, userId);
 
 	// 初期表示時には全利用ユーザーを追加する。
-	if(refreshUserList){
+	if(refreshUserList || displayUsers.length == 0){
 		console.log("ボード利用ユーザー一覧を再表示");
 		$('#userList').hide()
 			.empty();
