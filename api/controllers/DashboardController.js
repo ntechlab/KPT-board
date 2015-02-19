@@ -12,7 +12,7 @@ var fs = require('fs');
 
 var BACKGROUND_REL_PATH = "/images/background/";
 
-var BACKGROUND_DIR = './assets' + BACKGROUND_REL_PATH;
+var BACKGROUND_DIR = './upload' + BACKGROUND_REL_PATH;
 
 // ファイルアップロードと同時に背景画像を変更したい場合にはtrueにする。
 var flagChangeBackgroundImage = false;
