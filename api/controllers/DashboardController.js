@@ -429,7 +429,8 @@ module.exports = {
 			}
 			var fileList = [];
 			files.filter(function(file){
-				return fs.statSync(BACKGROUND_DIR + file).isFile();
+				// .で始まるファイルは表示対象外とする。
+				return fs.statSync(BACKGROUND_DIR + file).isFile() && /^[^\.]/.test(file);
 			}).forEach(function (file) {
 				fileList.push(BACKGROUND_REL_PATH + file);
 			});
