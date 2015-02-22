@@ -322,17 +322,35 @@ module.exports = {
 		// 前提とするすべての処理が完了した後で実行する関数（ビュー生成関数のラッパー生成）
 		var done = function (){
 
-			// TODO: ボードごとに利用可能付箋情報を持つ予定。
+			// TODO: ボードごとに利用可能付箋情報を持つ予定。一旦、色指定ができるようにしてみる
 			var ticketToUse = [
-				{name: "ticket_blue_small", display: "キープ(小)"},
-				{name: "ticket_blue_big", display: "キープ(大)"},
-				{name: "ticket_pink_small", display: "プロブレム(小)"},
-				{name: "ticket_pink_big", display: "プロブレム(大)"},
-				{name: "ticket_yellow_small", display: "トライ(小)"},
-				{name: "ticket_yellow_big", display: "トライ(大)"}
-			];
+				{name: "ticket_blue_small", display: "Keep(S)"},
+				{name: "ticket_blue_big", display: "Keep(L)"},
+				{name: "ticket_pink_small", display: "Problem(S)"},
+				{name: "ticket_pink_big", display: "Plobrem(L)"},
+				{name: "ticket_yellow_small", display: "Try(S)"},
+				{name: "ticket_yellow_big", display: "Try(L)"},
+				{name: "ticket_blue_small", display: "color-blue(S)"},
+				{name: "ticket_blue_big", display: "color-blue(L)"},
+				{name: "ticket_brown_small", display: "color-brown(S)"},
+				{name: "ticket_brown_big", display: "color-brown(L)"},
+				{name: "ticket_gray_small", display: "color-gray(S)"},
+				{name: "ticket_gray_big", display: "color-gray(L)"},
+				{name: "ticket_green_small", display: "color-green(S)"},
+				{name: "ticket_green_big", display: "color-green(L)"},
+				{name: "ticket_orange_small", display: "color-orange(S)"},
+				{name: "ticket_orange_big", display: "color-orange(L)"},
+				{name: "ticket_pink_small", display: "color-pink(S)"},
+				{name: "ticket_pink_big", display: "color-pink(L)"},
+				{name: "ticket_purple_small", display: "color-purple(S)"},
+				{name: "ticket_purple_big", display: "color-purple(L)"},
+				{name: "ticket_white_small", display: "color-white(S)"},
+				{name: "ticket_white_big", display: "color-white(L)"},
+				{name: "ticket_yellow_small", display: "color-yellow(S)"},
+				{name: "ticket_yellow_big", display: "color-yellow(L)"}
+				];
 
-			// プルダウンメニューHTML設定ン
+			// プルダウンメニューHTML設定
 			comboMenu = createComboMenu(ticketToUse);
 
 			// コンテクストメニューHTML設定
