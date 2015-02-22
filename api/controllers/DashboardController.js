@@ -20,6 +20,9 @@ var TICKET_IMAGE_DIR = "/images/tickets/";
 // ファイルアップロードと同時に背景画像を変更したい場合にはtrueにする。
 var flagChangeBackgroundImage = false;
 
+// チケット個別スタイル情報リスト
+var ticketTypeList;
+
 // 背景情報のデフォルト値
 var BOARD_DEFAULT_VALUES = {
 	version : '1.1',
@@ -48,13 +51,13 @@ function showEditView(req, res, id, loginInfo){
 				if (err) {
 					throw err;
 				}
-				var fileList = [];
+				var backgroundFileList = [];
 				files.filter(function(file){
 					return fs.statSync(BACKGROUND_DIR + file).isFile();
 				}).forEach(function (file) {
-					fileList.push(BACKGROUND_REL_PATH + file);
+					backgroundFileList.push(BACKGROUND_REL_PATH + file);
 				});
-				sails.log.debug(fileList);
+				sails.log.debug(backgroundFileList);
 				res.view('dashboard/editBoard', { id: id,
 					title :found["title"],
 					description:found["description"],
@@ -68,7 +71,7 @@ function showEditView(req, res, id, loginInfo){
 					bgSepH: found["bgSepH"],
 					bgSepLineWidth: found["bgSepLineWidth"],
 					bgSepLineColor: found["bgSepLineColor"],
-					images: fileList,
+					images: backgroundFileList,
 					loginInfo: loginInfo
 				});
 			});
@@ -230,7 +233,7 @@ module.exports = {
 	    }
 	    Ticket.find({boardId : boardId}).exec(function(err2, tickets) {
 
-		// 第1段階で終了すべき関数
+		// 第1段階で終了すべき関数を格納する。
 		var prerequisite = [];
 
 		// 対象ボード上のチケットにニックネームを追加する。
@@ -263,6 +266,8 @@ module.exports = {
 		    }(i);
 		};
 		var boardList;
+
+		// ボードリスト取得処理関数を追加
 		prerequisite.push(function(next) {
 			    Board.find().where({ id: { 'not': boardId }}).exec(function(err4, boards) {
 				if(err4) {
@@ -280,59 +285,45 @@ module.exports = {
 		    });
 		})
 
-		prerequisite.push(function(next) {
-			if(ticketCssString === undefined) {
+		// チケット画像読み込み処理関数を追加
+		prerequisite.push(function(next){
+			if(ticketTypeList === undefined) {
 				sails.log.info("チケット画像読み込み");
+				// チケット個別スタイル情報が存在しない場合のみ処理する。
 				fs.readdir(ASSETS + TICKET_IMAGE_DIR, function(err, files){
 					if (err) {
 						throw err;
 					}
-					var fileList = [];
-					var info = {};
+					// 個別チケット情報を保持するオブジェクト
+					var imageFileTxtMap = {};
+
+					var imageFileList = [];
+
 					files.forEach(function (file) {
 						var path = ASSETS + TICKET_IMAGE_DIR + file;
 						if(fs.statSync(path).isFile()){
 							if(/\.txt$/.test(file)){
 								// 画像情報ファイルの場合(txt)
 								var contents = fs.readFileSync(path, 'utf-8');
-								sails.log.info("チケット個別スタイル追加[" + file + "]:" + contents);
-								info[file] = contents;
+								var imageFileName = file.replace(/\.txt$/, "");
+								sails.log.info("チケット個別スタイル追加[" + imageFileName + "]:" + contents);
+								imageFileTxtMap[imageFileName] = contents;
 							} else {
 								// それ以外の場合
-								var base = file.substring(0, file.indexOf("."));
-								sails.log.info("画像ファイル追加[" + file + "]:" + base);
+								sails.log.info("画像ファイル追加[" + file + "]");
 								// テンプレートパラメータ
-								fileList.push(file);
+								imageFileList.push(file);
 							}
 						}
 					});
-					var result = [];
-					// TODO: ボードごとに利用可能付箋情報を持つ予定。
-					var ticketToUse = [
-						{name: "ticket_blue_big", display: "キープ(大)"},
-						{name: "ticket_blue_small", display: "キープ(小)"},
-						{name: "ticket_pink_big", display: "プロブレム(大)"},
-						{name: "ticket_pink_small", display: "プロブレム(小)"},
-						{name: "ticket_yellow_big", display: "トライ(大)"},
-						{name: "ticket_yellow_small", display: "トライ(小)"}
-					];
-
-					// プルダウンメニューHTML設定ン
-					comboMenu = createComboMenu(ticketToUse);
-
-					// コンテクストメニューHTML設定
-					contextMenu = createContextMenu(ticketToUse);
-
-					u.each(fileList, function(fileName){
-						var add = {fileName: fileName};
-						if(info[fileName + ".txt"]){
-							add["contents"] = info[fileName + ".txt"];
+					ticketTypeList = [];
+					u.each(imageFileList, function(imageFileName){
+						var newObj = {imageFileName: imageFileName};
+						if(imageFileTxtMap[imageFileName]){
+							newObj["contents"] = imageFileTxtMap[imageFileName];
 						}
-						result.push(add);
-					});
-
-					// チケット個別スタイル
-					ticketCssString = createCss(result);
+						ticketTypeList.push(newObj);
+					})
 					next();
 				});
 			} else {
@@ -340,8 +331,28 @@ module.exports = {
 			}
 		});
 
-		// ビュー生成関数のラッパー生成
+		// ビュー生成関数のラッパー生成（前提とするすべての処理が完了した後で実行する関数）
 		var createViewWrapper = function (){
+
+			// TODO: ボードごとに利用可能付箋情報を持つ予定。
+			var ticketToUse = [
+				{name: "ticket_blue_small", display: "キープ(小)"},
+				{name: "ticket_blue_big", display: "キープ(大)"},
+				{name: "ticket_pink_small", display: "プロブレム(小)"},
+				{name: "ticket_pink_big", display: "プロブレム(大)"},
+				{name: "ticket_yellow_small", display: "トライ(小)"},
+				{name: "ticket_yellow_big", display: "トライ(大)"}
+			];
+
+			// プルダウンメニューHTML設定ン
+			comboMenu = createComboMenu(ticketToUse);
+
+			// コンテクストメニューHTML設定
+			contextMenu = createContextMenu(ticketToUse);
+
+			// チケット個別スタイル
+			ticketCssString = createCss(ticketTypeList);
+
 		    var obj = {
 				ticketCss: ticketCssString, // チケット個別スタイル
 				comboMenu: comboMenu, // プルダウンメニューHTML
@@ -502,36 +513,39 @@ module.exports = {
 				sails.log.error(err);
 				return res.json({status: 'error', error: err});
 			}
-			var fileList = [];
+			var backgroundFileList = [];
 			files.filter(function(file){
 				// .で始まるファイルは表示対象外とする。
 				return fs.statSync(BACKGROUND_DIR + file).isFile() && /^[^\.]/.test(file);
 			}).forEach(function (file) {
-				fileList.push(BACKGROUND_REL_PATH + file);
+				backgroundFileList.push(BACKGROUND_REL_PATH + file);
 			});
-			sails.log.debug(fileList);
-			return res.json({status: 'success', images: fileList});
+			sails.log.debug(backgroundFileList);
+			return res.json({status: 'success', images: backgroundFileList});
 		});
 	}
 };
 
 /**
  * チケット個別スタイルを生成
- * @param list
- * @returns {String}
+ * @param list チケットタイプリスト
+ * @returns {String} スタイル文字列
  */
-function createCss(list){
+function createCss(ticketTypeList){
 	var ret = "";
-	u.each(list, function(item){
-		ret += createCssOfImage(item);
+	u.each(ticketTypeList, function(ticketType){
+		ret += createCssOfImage(ticketType);
 	});
 	return ret;
 }
 
-// チケット個別スタイル情報ファイルの内容からスタイルHTMLを作成する。
-// 各行の先頭にクラス名を追加する。空行は無視する。
-function addMainClassName(mainClassName, style){
-	var lines = style.replace(/\r/g, "").split("\n");
+/**
+ * チケット個別スタイル情報ファイルの内容からスタイルHTMLを作成する。
+ *
+ * 各行の先頭にクラス名を追加する。空行は無視する。
+ */
+function addMainClassName(mainClassName, contents){
+	var lines = contents.replace(/\r/g, "").split("\n");
 	var ret = u.map(lines, function(line){
 		if(/^\s*$/.test(line)){
 			//チケット空行のためスキップ
@@ -543,26 +557,40 @@ function addMainClassName(mainClassName, style){
 	return ret;
 }
 
-function createCssOfImage(item){
-	var imageFileName = item["fileName"];
-	var contents = item["contents"];
-	var extIndex = imageFileName.indexOf(".");
-	var base = imageFileName.substring(0, extIndex);
+/**
+ * チケット単位の個別スタイル生成
+ * @param ticketType チケットタイプ
+ * @returns {String} スタイル文字列
+ */
+function createCssOfImage(ticketType){
+	var imageFileName = ticketType["imageFileName"];
+	var contents = ticketType["contents"];
+	var className = imageFileName.substring(0, imageFileName.indexOf("."));
 	var ret = "";
 	if(contents){
-		ret += addMainClassName("." + base, contents);
+		ret += addMainClassName("." + className, contents);
 	}
-	ret += "."+base + " {background-image:url(/images/tickets/" + imageFileName + ");}\r\n";
+	ret += "." + className + " {background-image:url(/images/tickets/" + imageFileName + ");}\r\n";
 	return ret;
 }
 
+/**
+ * コンボボックスメニューHTML作成
+ * @param displayTickets 対象ボードで利用可能なチケットタイプのリスト
+ * @returns HTML文字列
+ */
 function createComboMenu(displayTickets){
-	var ret = u.map(displayTickets, function(item){
-	   return '<option value="'+ item.name + '">'+ item.display + '</option>';
+	var ret = u.map(displayTickets, function(displayTicket){
+	   return '<option value="'+ displayTicket.name + '">'+ displayTicket.display + '</option>';
     }).join("\r\n");
 	return ret + "\r\n";
 }
 
+/**
+ * コンテクストメニューHTML作成
+ * @param displayTickets 対象ボードで利用可能なチケットタイプのリスト
+ * @returns HTML文字列
+ */
 function createContextMenu(displayTickets){
 	var ret = u.map(displayTickets, function(item){
 	   return '{title: "'+item.display+'", cmd: "'+item.name+'"}';
