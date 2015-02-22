@@ -42,13 +42,6 @@ http://localhost:1337/login
  - id=username
  - パスワード=password  
 
-6. 制約事項  
-productionモードの場合、背景画像のアップロード機能が正常に動作しません。
-Linuxの場合、アプリ起動のタイミングで下記コマンドを発行することで当事象を回避可能です。  
-rm -fr {アプリケーションルート}/.tmp/public/images/background/  
-ln -s {アプリケーションルート}/assets/images/background {アプリケーションルート}/.tmp/public/images/background
-
-
 ----
 
 ###【mongodbの準備と利用方法】###
