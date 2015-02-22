@@ -7,12 +7,15 @@
 
 // underscore利用準備
 var u = require('underscore');
-
 var fs = require('fs');
-
 var BACKGROUND_REL_PATH = "/images/background/";
-
 var BACKGROUND_DIR = './upload' + BACKGROUND_REL_PATH;
+
+// 資産フォルダ
+var ASSETS = "assets";
+
+// 付箋イメージフォルダ
+var TICKET_IMAGE_DIR = "/images/tickets/";
 
 // ファイルアップロードと同時に背景画像を変更したい場合にはtrueにする。
 var flagChangeBackgroundImage = false;
@@ -179,6 +182,16 @@ module.exports = {
     sails.log.debug("action: DashboardController.openBoard2["+boardId+"]");
 	var loginInfo = Utility.getLoginInfo(req, res);
     var message = null;
+
+	 // チケット個別スタイル
+	 var ticketCssString;
+
+	 //コンボボックスメニューHTML
+	 var comboMenu;
+
+	 // コンテクストメニューHTML
+	 var contextMenu = "";
+
 	if(!boardId){
 	    sails.log.debug("ボードIDが存在しないためボード選択画面に遷移。");
 		message = {type: "warn", contents: "ボードIDが指定されていません。"};
@@ -251,7 +264,7 @@ module.exports = {
 		};
 		var boardList;
 		prerequisite.push(function(next) {
-		    Board.find().where({ id: { 'not': boardId }}).exec(function(err4, boards) {
+			    Board.find().where({ id: { 'not': boardId }}).exec(function(err4, boards) {
 				if(err4) {
 					sails.log.error("ボードリストの取得: エラー発生: " + JSON.stringify(err4));
 					boardList = [];
@@ -267,10 +280,72 @@ module.exports = {
 		    });
 		})
 
+		prerequisite.push(function(next) {
+			if(ticketCssString === undefined) {
+				sails.log.info("チケット画像読み込み");
+				fs.readdir(ASSETS + TICKET_IMAGE_DIR, function(err, files){
+					if (err) {
+						throw err;
+					}
+					var fileList = [];
+					var info = {};
+					files.forEach(function (file) {
+						var path = ASSETS + TICKET_IMAGE_DIR + file;
+						if(fs.statSync(path).isFile()){
+							if(/\.txt$/.test(file)){
+								// 画像情報ファイルの場合(txt)
+								var contents = fs.readFileSync(path, 'utf-8');
+								sails.log.info("チケット個別スタイル追加[" + file + "]:" + contents);
+								info[file] = contents;
+							} else {
+								// それ以外の場合
+								var base = file.substring(0, file.indexOf("."));
+								sails.log.info("画像ファイル追加[" + file + "]:" + base);
+								// テンプレートパラメータ
+								fileList.push(file);
+							}
+						}
+					});
+					var result = [];
+					// TODO: ボードごとに利用可能付箋情報を持つ予定。
+					var ticketToUse = [
+						{name: "ticket_blue_big", display: "キープ(大)"},
+						{name: "ticket_blue_small", display: "キープ(小)"},
+						{name: "ticket_pink_big", display: "プロブレム(大)"},
+						{name: "ticket_pink_small", display: "プロブレム(小)"},
+						{name: "ticket_yellow_big", display: "トライ(大)"},
+						{name: "ticket_yellow_small", display: "トライ(小)"}
+					];
+
+					// プルダウンメニューHTML設定ン
+					comboMenu = createComboMenu(ticketToUse);
+
+					// コンテクストメニューHTML設定
+					contextMenu = createContextMenu(ticketToUse);
+
+					u.each(fileList, function(fileName){
+						var add = {fileName: fileName};
+						if(info[fileName + ".txt"]){
+							add["contents"] = info[fileName + ".txt"];
+						}
+						result.push(add);
+					});
+
+					// チケット個別スタイル
+					ticketCssString = createCss(result);
+					next();
+				});
+			} else {
+				next();
+			}
+		});
 
 		// ビュー生成関数のラッパー生成
 		var createViewWrapper = function (){
 		    var obj = {
+				ticketCss: ticketCssString, // チケット個別スタイル
+				comboMenu: comboMenu, // プルダウンメニューHTML
+				contextMenu: contextMenu, // コンテクストメニューHTML
 				boardId: boardId,
 				loginInfo: loginInfo,
 				title : found["title"],
@@ -440,3 +515,57 @@ module.exports = {
 	}
 };
 
+/**
+ * チケット個別スタイルを生成
+ * @param list
+ * @returns {String}
+ */
+function createCss(list){
+	var ret = "";
+	u.each(list, function(item){
+		ret += createCssOfImage(item);
+	});
+	return ret;
+}
+
+// チケット個別スタイル情報ファイルの内容からスタイルHTMLを作成する。
+// 各行の先頭にクラス名を追加する。空行は無視する。
+function addMainClassName(mainClassName, style){
+	var lines = style.replace(/\r/g, "").split("\n");
+	var ret = u.map(lines, function(line){
+		if(/^\s*$/.test(line)){
+			//チケット空行のためスキップ
+			return "";
+		} else {
+			return mainClassName + line;
+		}
+	}).join('\r\n');
+	return ret;
+}
+
+function createCssOfImage(item){
+	var imageFileName = item["fileName"];
+	var contents = item["contents"];
+	var extIndex = imageFileName.indexOf(".");
+	var base = imageFileName.substring(0, extIndex);
+	var ret = "";
+	if(contents){
+		ret += addMainClassName("." + base, contents);
+	}
+	ret += "."+base + " {background-image:url(/images/tickets/" + imageFileName + ");}\r\n";
+	return ret;
+}
+
+function createComboMenu(displayTickets){
+	var ret = u.map(displayTickets, function(item){
+	   return '<option value="'+ item.name + '">'+ item.display + '</option>';
+    }).join("\r\n");
+	return ret + "\r\n";
+}
+
+function createContextMenu(displayTickets){
+	var ret = u.map(displayTickets, function(item){
+	   return '{title: "'+item.display+'", cmd: "'+item.name+'"}';
+    }).join("\r\n,");
+	return ret;
+}

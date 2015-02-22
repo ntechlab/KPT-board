@@ -83,7 +83,7 @@
   function make(data) {
    var val = data["contents"];
    var nickname = data["nickname"];
-   var sticky = $('<div class="sticky"><div class="userInfo"></div><div id="close"><span class="close">×</span></div><div class="contentsArea"></div></div>');
+   var sticky = $('<div class="sticky"><div class="userInfo"></div><div class="close"><span>×</span></div><div class="contentsArea"></div></div>');
    val=t.NLtoBR(val);
 
    sticky.find('.userInfo').text(nickname);
@@ -121,7 +121,7 @@
         $('.sticky').removeClass('selected');
         $(this).addClass('selected');
       });
-     sticky.find('#close').click(function(){
+     sticky.find('.close').click(function(){
        confirmDeleteTicket(data["id"]);
     });
     return sticky;
@@ -250,16 +250,13 @@ function setUpCanvas(){
             	 $("body").contextmenu("replaceMenu",
             	   [
                      {title: "作成", children: [
-				            {title: "青", cmd: "ticket_blue_pic"},
-				            {title: "黄", cmd: "ticket_yellow_pic"},
-				            {title: "赤", cmd: "ticket_pink_pic"}
+                          <%- contextMenu %>
 			            ]
 			         }
 			       ]
 			     );
 	        }
     },
-
     select: function(event, ui) {
     	var cmd = ui.cmd;
     	console.log("CMD:["+cmd+"]");
@@ -498,41 +495,49 @@ table th {
   text-align:left;
 }
 
+/* 付箋スタイル（共通部分） */
 .sticky {
-  width: 270px;
-  height: 180px;
   position: absolute;
   cursor: pointer;
-  padding-left:20px;
-  padding-right:30px;
-  padding-top:18px;
   font-size:16pt;
 }
 
 .userInfo {
-  width:200px;
-  height:15px;
+  position: absolute;
+  width:20px;
+  height:20px;
+  top: 18px;
+  left:20px;
   float:left;
   font-size:12px;
   color:gray;
   font-family: "Meiryo UI",serif;
 }
 
+.close {
+  position:absolute;
+  top:12px;
+  right:30px;
+}
+
 .contentsArea {
-  height:75px;
+  position: absolute;
+  top:38px;
+  left:20px;
   clear: both;
   font-size:12px;
   font-family: "Meiryo UI",serif;
 }
 
 .sticky textarea {
-  margin-top: -5px;
-  margin-left: -5px;
-  width: 225px;
-  height: 115px;
+  top:30px;
+  left:15px;
   font-size: 10pt;
   font-family: "Meiryo UI",serif;
 }
+
+/* 付箋スタイル（個別部分） */
+<%- ticketCss %>
 
 .selected {
   z-index:100;
@@ -550,7 +555,7 @@ table th {
 }
 
 .ui-menu {
-  width: 90px;
+  width: 160px;
   z-index:1000;
 }
 
@@ -560,33 +565,6 @@ table th {
 
 #board {
   <%= boardAppearance %>
-}
-
-.ticket_blue {
-  background-color: blue;
-  box-shadow: 5px 5px 5px rgba(0,0,0,0.4);
-}
-
-.ticket_pink {
-  background-color: pink;
-  box-shadow: 5px 5px 5px rgba(0,0,0,0.4);
-}
-
-.ticket_yellow {
-  background-color: yellow;
-  box-shadow: 5px 5px 5px rgba(0,0,0,0.4);
-}
-
-.ticket_blue_pic {
-  background-image:url(/images/ticket_blue1.png);
-}
-
-.ticket_yellow_pic {
-  background-image:url(/images/ticket_yellow1.png);
-}
-
-.ticket_pink_pic {
-  background-image:url(/images/ticket_pink1.png);
 }
 
 </style>
@@ -602,9 +580,7 @@ table th {
   <div style="width:200px;margin:10px;">
     <div class="input-group">
    <select id="selectTicketType" name="selectTicketType" class="form-control">
-     <option value="ticket_blue_pic">青</option>
-     <option value="ticket_yellow_pic">黄</option>
-     <option value="ticket_pink_pic">赤</option>
+		<%- comboMenu %>
    </select>
       <div class="input-group-btn">
         <button id="createTicketButton" type="button" class="btn btn-default" onclick="createTicketByButton();">作成</button>
