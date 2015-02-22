@@ -236,38 +236,26 @@ module.exports = {
 		// 第1段階で終了すべき関数を格納する。
 		var prerequisite = [];
 
-		// 対象ボード上のチケットにニックネームを追加する。
-		for(var i = 0; i < tickets.length; i++) {
+		// ニックネーム対応マップ（ユーザーIDとニックネームを対応させる）
+		var userIdToNicknameMap = {};
 
-		    // インデックス番号を保持するためのクロージャー
-		    new function(num){
-			var ti = tickets[num];
-
-			// 各チケットに対するニックネーム取得処理のラッパ関数をprerequisiteに格納
-			// TODO: チケットごとにユーザー検索を行っており効率が悪い。改良予定。
-			prerequisite.push(function(next) {
-				var createUser = ti["createUser"];
-			    User.findOne(createUser).exec(function(err3, userFound) {
+		// 全ユーザーリストを取得しニックネーム対応マップを作成する。
+		prerequisite.push(function(next) {
+			 User.find().exec(function(err3, usersFound) {
 				if(err3){
-					sails.log.error("チケットのユーザーIDの検索: エラー発生: " + createUser + "," + JSON.stringify(err3));
+					sails.log.error("チケットのユーザーIDの検索: エラー発生:" + JSON.stringify(err3));
 				} else {
-					if(userFound){
-					    // ニックネームをチケットに追加。
-					    ti["nickname"] = userFound["nickname"];
-					} else {
-						ti["nickname"] = "none";
-						sails.log.warn("チケットのユーザーIDの検索: 結果なし[" + createUser + "]");
-					}
+					u.each(usersFound, function(user){
+						userIdToNicknameMap[user["id"]] = user["nickname"];
+					});
 				}
-				// コールバック関数終了時にnext()を呼び出す。
 				next();
-			    });
-			})
-		    }(i);
-		};
+			});
+		});
+
 		var boardList;
 
-		// ボードリスト取得処理関数を追加
+		// ボードリスト取得処理関数を追加（移動先ボードリストとして利用）
 		prerequisite.push(function(next) {
 			    Board.find().where({ id: { 'not': boardId }}).exec(function(err4, boards) {
 				if(err4) {
@@ -331,8 +319,8 @@ module.exports = {
 			}
 		});
 
-		// ビュー生成関数のラッパー生成（前提とするすべての処理が完了した後で実行する関数）
-		var createViewWrapper = function (){
+		// 前提とするすべての処理が完了した後で実行する関数（ビュー生成関数のラッパー生成）
+		var done = function (){
 
 			// TODO: ボードごとに利用可能付箋情報を持つ予定。
 			var ticketToUse = [
@@ -351,7 +339,15 @@ module.exports = {
 			contextMenu = createContextMenu(ticketToUse);
 
 			// チケット個別スタイル
+			// TODO: 対象ボードで利用できない付箋タイプに関するスタイルを含まないようにしたい。
 			ticketCssString = createCss(ticketTypeList);
+
+			// 各チケットにユーザーのニックネームを追加
+			u.each(tickets, function(ticket){
+				var createUser = ticket["createUser"];
+				var nickname = userIdToNicknameMap[createUser];
+				ticket["nickname"] = nickname ? nickname : "none";
+			});
 
 		    var obj = {
 				ticketCss: ticketCssString, // チケット個別スタイル
@@ -379,7 +375,7 @@ module.exports = {
 		};
 
 		// 同期処理実行
-		wait(prerequisite, createViewWrapper);
+		wait(prerequisite, done);
 	    });
     	});
     },
