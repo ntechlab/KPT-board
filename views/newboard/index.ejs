@@ -1,3 +1,4 @@
+<%- partial('../category.js') %>
 <script>
   function home(){
     submit("/dashboard/index");
@@ -14,7 +15,7 @@
   function cancel(){
     submit("/dashboard/index");
   }
-  
+
   function enableCheck(){
 	if($('#title').val().trim() == ""){
 		$('#createBtn').prop('disabled', true);
@@ -22,10 +23,14 @@
 		$('#createBtn').prop('disabled', false);
 	}
   }
-  
+
   function init(){
     enableCheck();
+    // category.jsとcategoryDialog.ejsをpartialで取り込み、
+    // setUpCategoryを実行する。
+    setUpCategory();
   }
+
 </script>
 <div class="container theme-showcase" role="main">
 <h3>新規作成</h3>
@@ -35,12 +40,18 @@
       <label for="title">タイトル</label>
       <input class="form-control" name="title" id="title" onkeyup="enableCheck()" placeholder="ボードのタイトルを入力してください。" value="<%= title %>">
     </div>
-   <div class="form-group">
+    <div class="form-group">
       <label for="description">説明</label>
       <textarea class="form-control" rows="4" name="description" id="description" placeholder="ボードの説明を入力してください。"><%= desc %></textarea>
+    </div>
+    <div class="form-group">
+      <label for="category">カテゴリー</label>
+      <select id="category" name="category" class="form-control">
+      </select>
     </div>
     <button id="createBtn" type="submit" class="btn btn-default" onclick="return create()" >新規作成</button>
     <input type="button" class="btn btn-default" onclick="cancel()" value="キャンセル"/>
   </div>
 </form>
 </div>
+<%- partial('../categoryDialog.ejs') %>

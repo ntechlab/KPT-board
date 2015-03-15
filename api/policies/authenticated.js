@@ -1,5 +1,5 @@
 module.exports = function(req, res, next) {
-    
+
     if (req.isSocket) {
 	if(req.session &&
 	   req.session.passport &&
@@ -13,9 +13,12 @@ module.exports = function(req, res, next) {
 	if (req.isAuthenticated()) {
 	    return next();
 	} else {
-	    return res.send(403, {
-		message : 'Not Authorized'
-	    });
+		var loginInfo = Utility.getLoginInfo(req, res);
+		var message = {type: "danger", contents: "ログインが必要です。"};
+		loginInfo.message = message;
+		res.view("auth/login", {
+			loginInfo: loginInfo
+		});
 	};
     }
 }

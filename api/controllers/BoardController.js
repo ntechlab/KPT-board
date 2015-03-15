@@ -11,9 +11,11 @@ module.exports = {
      * ボード作成
      */
     createBoard : function(req, res) {
-	var title = req.param('title');
+    var title = req.param('title');
+    var category = req.param('category');
     sails.log.debug("action: BoardController.createBoard[" + title + "]");
-	title = title.trim();
+    title = Utility.trim(title);
+    category = Utility.trim(category);
 	if(!title || title.length == 0){
 	  sails.log.debug("トリム後のタイトルが空のため処理を中断");
 	  Utility.openMainPage(req, res, {type: "danger", contents: "ボードの作成に失敗しました。"});
@@ -21,7 +23,8 @@ module.exports = {
 	}
 	Board.create({
 	    title: title,
-	    description : req.param('description')
+	    description : req.param('description'),
+	    category: category
 	}).exec(function(err, created){
 		if(err) {
 			sails.log.error("ボードの作成に失敗しました: " + JSON.stringify(err));
@@ -44,6 +47,8 @@ module.exports = {
     updateBoard : function(req, res) {
 	    var boardId = req.param('id');
         sails.log.debug("action: BoardController.updateBoard[" + boardId + "]");
+        var category = req.param('category');
+        category = Utility.trim(category);
         var newObj = {
     		    title:req.param('title'),
     		    description : req.param('description'),
@@ -53,6 +58,7 @@ module.exports = {
     		    bgImage : req.param('bgImage'),
     		    bgSepV : req.param('bgSepV'),
     		    bgSepH : req.param('bgSepH'),
+    		    category: category,
     		    bgSepLineWidth : req.param('bgSepLineWidth'),
     		    bgSepLineColor : req.param('bgSepLineColor')
     		};
@@ -92,7 +98,7 @@ module.exports = {
 
     // リスナ登録
     sails.log.debug("リスナ登録:socket.join[" + socket + ":" + boardId+"]");
-    var roomName = 'room_'+boardId+'_'; 
+    var roomName = 'room_'+boardId+'_';
     socket.join(roomName);
     if(req.session.passport){
     	 var userId = req.session.passport.userId;
@@ -100,7 +106,7 @@ module.exports = {
     	 var usersInRoom = BoardUserManager.getBoardUserInfo(roomName);
     	 io.sockets.in(roomName).emit('message', {action : "enter", userId: userId, users: usersInRoom});
     }
-    
+
   },
 
 	/**

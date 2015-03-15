@@ -4,7 +4,7 @@
 <script src="/js/jpicker-1.1.6.min_modified.js"></script>
 <script src="/js/jquery.validate.min.js"></script>
 <link rel="stylesheet" href="/css/jPicker-1.1.6.min.css">
-
+<%- partial('../category.js') %>
 <script>
 function home(){
   submit("/dashboard/index");
@@ -348,6 +348,9 @@ function setUpColorPicker(){
 
 function init(){
 	setUpValidation();
+    // category.jsとcategoryDialog.ejsをpartialで取り込み、
+    // setUpCategoryを実行する。
+    setUpCategory();
 }
 
 // エラーチェックバリデーター
@@ -624,11 +627,16 @@ box-sizing: border-box;
 			<label for="description">説明</label>
 			<textarea class="form-control" rows="4" name="description" id="description" placeholder="ボードの説明を修正してください。"><%= description %></textarea>
 		</div>
+		<div class="form-group">
+			<label for="category">カテゴリー</label>
+			<select id="category" name="category" class="form-control">
+			</select>
+		</div>
 		<div class="row">
 			<div class="col-sm-3">
 				<div class="form-group">
 					<label for="width">幅</label>
-	 				<input class="form-control"  name="width" id="width" value="<%= width %>"/>
+					<input class="form-control"  name="width" id="width" value="<%= width %>"/>
 				</div>
 			</div>
 			<div class="col-sm-3">
@@ -774,3 +782,4 @@ box-sizing: border-box;
 <form id="deleteImageForm">
 	<input type="hidden" id="deleteImage" name="deleteImage"/>
 </form>
+<%- partial('../categoryDialog.ejs') %>

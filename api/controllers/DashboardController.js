@@ -58,22 +58,32 @@ function showEditView(req, res, id, loginInfo){
 					backgroundFileList.push(BACKGROUND_REL_PATH + file);
 				});
 				sails.log.debug(backgroundFileList);
-				res.view('dashboard/editBoard', { id: id,
-					title :found["title"],
-					description:found["description"],
-					width: found["width"],
-					height: found["height"],
-					bgType:found["bgType"],
-					bgColor:found["bgColor"],
-					bgImage:found["bgImage"],
-					bgRepeatType: found["bgRepeatType"],
-					bgSepV: found["bgSepV"],
-					bgSepH: found["bgSepH"],
-					bgSepLineWidth: found["bgSepLineWidth"],
-					bgSepLineColor: found["bgSepLineColor"],
-					images: backgroundFileList,
-					loginInfo: loginInfo
-				});
+				var successCb = function(categories){
+					res.view('dashboard/editBoard', { id: id,
+						title :found["title"],
+						description:found["description"],
+						width: found["width"],
+						height: found["height"],
+						bgType:found["bgType"],
+						bgColor:found["bgColor"],
+						bgImage:found["bgImage"],
+						bgRepeatType: found["bgRepeatType"],
+						bgSepV: found["bgSepV"],
+						bgSepH: found["bgSepH"],
+						bgSepLineWidth: found["bgSepLineWidth"],
+						bgSepLineColor: found["bgSepLineColor"],
+						images: backgroundFileList,
+						category: found["category"] || "",
+						categories: categories,
+						loginInfo: loginInfo
+					});
+				}
+				var errorCb = function(err){
+					sails.log.error("ボード情報の取得に失敗しました。"+JSON.stringify(err));
+				    message = {type: "danger", contents: "ボード情報の取得に失敗しました。"};
+					Utility.openMainPage(req, res, message);
+				};
+				Utility.getCategoryList(successCb, errorCb);
 			});
 		}
 	});
@@ -165,8 +175,9 @@ module.exports = {
 				if(ngIds.length > 0){
 					loginInfo.message = {type: "danger", contents: "ボード情報のマイグレーションに失敗しました：[" + ngIds + "]"};
 				}
+				var categoryData = Utility.getCategoryMap(found);
 				res.view({
-					list: found,
+					categoryData: JSON.stringify(categoryData),
 					loginInfo: loginInfo
 				});
 				sails.log.debug("メイン画面表示処理 終了");
@@ -257,7 +268,7 @@ module.exports = {
 
 		// ボードリスト取得処理関数を追加（移動先ボードリストとして利用）
 		prerequisite.push(function(next) {
-			    Board.find().where({ id: { 'not': boardId }}).exec(function(err4, boards) {
+			    Board.find().where({ id: { 'not': boardId }}).sort({"title":-1}).exec(function(err4, boards) {
 				if(err4) {
 					sails.log.error("ボードリストの取得: エラー発生: " + JSON.stringify(err4));
 					boardList = [];
