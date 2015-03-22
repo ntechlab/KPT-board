@@ -5,9 +5,12 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
+var logger = require('../Log.js').getLogger("NewBoardController");
+
 module.exports = {
 
     index : function(req, res) {
+    	logger.trace("index");
 		var loginInfo = Utility.getLoginInfo(req, res);
 		var successCb = function(categories){
 			res.view("newboard/index", {
@@ -19,7 +22,7 @@ module.exports = {
 			});
 		}
 		var errorCb = function(err){
-			sails.log.error("ボード情報の取得に失敗しました。" + JSON.stringify(err));
+			logger.error("ボード情報の取得に失敗しました。" + JSON.stringify(err));
 		    message = {type: "danger", contents: "ボード情報の取得に失敗しました。"};
 			Utility.openMainPage(req, res, message);
 		};

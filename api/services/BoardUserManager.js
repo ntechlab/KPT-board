@@ -1,8 +1,9 @@
 var userIds = {};
 var u = require('underscore');
+var logger = require('../Log.js').getLogger("BoardUserManager");
 
 exports.addBoardUser = function(roomName, userId){
-	sails.log.debug("★addBoardUser["+roomName+", "+userId+"]");
+	logger.trace("addBoardUser called: ["+roomName+", "+userId+"]");
 	if(userIds[roomName] === undefined){
 		userIds[roomName] = [];
 	}
@@ -10,12 +11,11 @@ exports.addBoardUser = function(roomName, userId){
 	if(!u.contains(users, userId)){
 		userIds[roomName].push(userId);
 	}
-	sails.log.debug("ルーム内情報（追加後）");
-	sails.log.debug(userIds);
+	logger.trace("ルーム内情報（追加後）: [" + JSON.stringify(userIds) + "]");
 }
 
 exports.removeBoardUser = function(userId){
-	sails.log.debug("★removeBoardUser["+userId+"]");
+	logger.trace("removeBoardUser called: ["+userId+"]");
 	var inRoom = false;
 	var roomId;
 	u.each(userIds, function(v, k){
@@ -28,11 +28,10 @@ exports.removeBoardUser = function(userId){
 			userIds[k] = newUsers;
 		}
 	});
-	
+
 	// TODO: ボードを利用しているユーザーが削除された場合には、特定の値を返すようにする。
-	//sails.log.debug("ルーム内:inRoom["+inRoom+"]["+roomId+"]["+userIds+"]");
-	sails.log.debug("ルーム内情報（削除後）");
-	sails.log.debug(userIds);
+	//logger.debug("ルーム内:inRoom["+inRoom+"]["+roomId+"]["+userIds+"]");
+	logger.trace("ルーム内情報（削除後）: [" + JSON.stringify(userIds) + "]");
 	return roomId;
 }
 

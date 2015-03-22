@@ -1,4 +1,6 @@
+require('date-utils');
 var u = require("underscore");
+var logger = require('../Log.js').getLogger("Utility");
 
 exports.getLoginInfo = function(req, res){
 	var id = "";
@@ -18,14 +20,14 @@ exports.getLoginInfo = function(req, res){
 };
 
 exports.openMainPage = function(req, res, message){
-	sails.log.debug("Utility.openMainPage[" + message + "]");
+	logger.trace("openMainPage[" + message + "]");
 	var loginInfo = Utility.getLoginInfo(req, res);
 	if(message){
 		loginInfo.message = message;
 	}
 	Board.find({}).sort({"title":-1}).exec(function(err,found){
 		if(err){
-			sails.log.error("メイン画面オープン時にエラー発生[" + JSON.stringify(err) +"]");
+			logger.error("メイン画面オープン時にエラー発生[" + JSON.stringify(err) +"]");
 			found = [];
 			loginInfo.message = {type: "danger", contents: "エラー発生:"+JSON.stringify(err)};
 		}
@@ -66,11 +68,8 @@ exports.getBoardAppearance = function(boardData){
 
 // 現在時刻を取得
 exports.getDateTime = function(){
-	require('date-utils');
-
 	var dt = new Date();
 	var fmtDateTame = dt.toFormat("YYYY/MM/DD HH24:MI:SS");
-	console.log(fmtDateTame);
 	return fmtDateTame;
 }
 
@@ -116,13 +115,11 @@ function trim(input){
 	var work = input || "";
 	var ret = work.trim();
 	if(input !== ret){
-		sails.log.debug("トリム[" + input + "]->[" + ret + "]");
+		logger.debug("文字列トリム処理: [" + input + "]->[" + ret + "]");
 	}
 	return ret;
 }
 
 exports.getUniqueCategoryList = getUniqueCategoryList;
-
 exports.getCategoryMap = getCategoryMap;
-
 exports.trim = trim;

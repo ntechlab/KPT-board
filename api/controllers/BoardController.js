@@ -5,6 +5,9 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
+
+var logger = require('../Log.js').getLogger("BoardController");
+
 module.exports = {
 
     /**
@@ -13,11 +16,11 @@ module.exports = {
     createBoard : function(req, res) {
     var title = req.param('title');
     var category = req.param('category');
-    sails.log.debug("action: BoardController.createBoard[" + title + "]");
+    logger.trace("createBoard called:[" + title + "," + category + "]");
     title = Utility.trim(title);
     category = Utility.trim(category);
 	if(!title || title.length == 0){
-	  sails.log.debug("トリム後のタイトルが空のため処理を中断");
+	  logger.warn("トリム後のタイトルが空のため処理を中断");
 	  Utility.openMainPage(req, res, {type: "danger", contents: "ボードの作成に失敗しました。"});
 	  return;
 	}
@@ -27,7 +30,7 @@ module.exports = {
 	    category: category
 	}).exec(function(err, created){
 		if(err) {
-			sails.log.error("ボードの作成に失敗しました: " + JSON.stringify(err));
+			logger.error("ボードの作成に失敗しました: " + JSON.stringify(err));
 			var loginInfo = Utility.getLoginInfo(req, res);
 			loginInfo.message = {type: "danger", contents: "ボードの作成に失敗しました: " + JSON.stringify(err)};
 			res.view("newboard/index", {
@@ -37,6 +40,7 @@ module.exports = {
 			});
 		    return;
 		}
+		logger.info("ボード新規作成:[" + title + "," + category + "]");
 		Utility.openMainPage(req, res, {type: "success", contents: "ボードを作成しました。"});
 	});
     },
@@ -46,7 +50,6 @@ module.exports = {
      */
     updateBoard : function(req, res) {
 	    var boardId = req.param('id');
-        sails.log.debug("action: BoardController.updateBoard[" + boardId + "]");
         var category = req.param('category');
         category = Utility.trim(category);
         var newObj = {
@@ -69,10 +72,10 @@ module.exports = {
 	        	newObj[key] = req.param(key);
 	        }
         }
-
+        logger.trace("updateBoard called: [" + JSON.stringify(newObj) + "]");
 		Board.update(boardId, newObj).exec(function(err,created){
 			if(err) {
-				sails.log.error("ボード情報の更新に失敗しました: " + JSON.stringify(err));
+				logger.error("ボード情報の更新に失敗しました: [" + JSON.stringify(newObj) + "][" + JSON.stringify(err) + "]");
 				var loginInfo = Utility.getLoginInfo(req, res);
 				loginInfo.message = {type: "danger", contents: "ボード情報の更新に失敗しました: " + JSON.stringify(err)};
 				res.view("dashboard/editBoard", {
@@ -83,6 +86,7 @@ module.exports = {
 				});
 			    return;
 			}
+			logger.info("ボード情報の更新: ["+JSON.stringify(newObj)+"]");
 			Utility.openMainPage(req, res, {type: "success", contents: "ボード情報を更新しました。"});
 		});
     },
@@ -92,13 +96,13 @@ module.exports = {
 	 */
   register : function(req, res) {
     var boardId = req.param('boardId');
-    sails.log.debug("action: BoardController.register[" + boardId + "]");
+    logger.trace("register called: [" + boardId + "]");
     var socket = req.socket;
     var io = sails.io;
 
     // リスナ登録
-    sails.log.debug("リスナ登録:socket.join[" + socket + ":" + boardId+"]");
     var roomName = 'room_'+boardId+'_';
+    logger.debug("リスナ登録: [" + roomName + "]");
     socket.join(roomName);
     if(req.session.passport){
     	 var userId = req.session.passport.userId;
@@ -113,18 +117,15 @@ module.exports = {
 	 * チケットの作成、削除、更新処理アクション
 	 */
   process : function(req, res) {
-    sails.log.debug("action: BoardController.process");
     var socket = req.socket;
     var io = sails.io;
     var actionType = req.param('actionType');
     var id = req.param('id');
     var boardId = req.param('boardId');
     var roomName = "room_"+boardId+"_";
-    sails.log.debug(socket + ":roomName["+roomName+"]");
-    sails.log.debug("チケット処理：id=" + id + ",actionType=" + actionType);
+    logger.debug("チケット処理:["+actionType+"]["+id+"]["+boardId+"]["+roomName+"]");
     if (actionType == "create") {
       var userId = req.param('userId');
-      sails.log.debug("チケット作成["+userId+"]");
       User.findOne(userId).exec(function(err, foundUser) {
 	    Ticket.create({
 		boardId : boardId,
@@ -136,9 +137,9 @@ module.exports = {
 	    }).exec(function(err, ticket) {
 		if (err) {
 			// TODO: エラー通知方法検討
-		    return console.log(err);
+			logger.error("チケット作成 失敗: ["+err+"]");
 		} else {
-		    sails.log.debug("チケットを作成しました："+ JSON.stringify(ticket));
+		    logger.info("チケット作成 成功: ["+ JSON.stringify(ticket));
 		    io.sockets.in(roomName).emit('message',
 		    {
 		    action: "created",
@@ -154,12 +155,12 @@ module.exports = {
 	    });
 	});
     } else if (actionType == "destroy") {
-      sails.log.debug("チケット削除:" + id);
       Ticket.findOne({
         id : id
       }).exec(function(err, found) {
         Ticket.destroy({id: id}).exec(function destroy(err2){
           if(found){
+        	  logger.info("チケット削除 成功: ["+JSON.stringify(found)+"]");
             io.sockets.in(roomName).emit('message',{action: "destroyed", id : found.id});
           }
         });
@@ -168,7 +169,6 @@ module.exports = {
         var x = req.param('positionX');
         var y = req.param('positionY');
         var contents = req.param('contents');
-        sails.log.debug("チケット更新:" + id + ", " + x+","+y+","+contents);
         Ticket.update({
           id : id
         }, {
@@ -177,6 +177,7 @@ module.exports = {
           contents : contents
       }).exec(function update(err, updated) {
          if(updated && updated[0]){
+           logger.info("チケット更新 成功: ["+JSON.stringify(updated[0])+"]");
            io.sockets.in(roomName).emit('message',
              {
                action : "updated",
@@ -190,7 +191,6 @@ module.exports = {
       var dstBoardId = req.param('dstBoardId');
       var ticketId = req.param('id');
       var nickname = req.param('nickname');
-      sails.log.debug("チケット移動:["+ticketId + "][" + dstBoardId + "][" + nickname + "]");
       Ticket.update({
         id: id
       }, {
@@ -198,6 +198,7 @@ module.exports = {
       }).exec(function update(err, updated){
         if(updated && updated[0]){
            var ticket = updated[0];
+           logger.debug("チケット移動 成功: ["+JSON.stringify(updated[0])+"]");
            io.sockets.in(roomName).emit('message',{action: "destroyed", id : id});
            io.sockets.in("room_" + dstBoardId).emit('message',
 		    {
@@ -214,7 +215,7 @@ module.exports = {
 		}
       })
     } else {
-    	sails.log.debug("その他のaction:["+actionType+"]");
+    	logger.error("チケット処理 想定外のアクション:[" + actionType + "]");
     }
   }
 
