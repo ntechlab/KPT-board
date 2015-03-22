@@ -1,9 +1,9 @@
 var userIds = {};
 var u = require('underscore');
-var logger = require('../Log.js').getLogger("BoardUserManager");
+var logger = require('../Log.js').getLoggerWrapper("BoardUserManager");
 
-exports.addBoardUser = function(roomName, userId){
-	logger.trace("addBoardUser called: ["+roomName+", "+userId+"]");
+exports.addBoardUser = function(req, roomName, userId){
+	logger.trace(req, "addBoardUser called: ["+roomName+", "+userId+"]");
 	if(userIds[roomName] === undefined){
 		userIds[roomName] = [];
 	}
@@ -11,11 +11,11 @@ exports.addBoardUser = function(roomName, userId){
 	if(!u.contains(users, userId)){
 		userIds[roomName].push(userId);
 	}
-	logger.trace("ルーム内情報（追加後）: [" + JSON.stringify(userIds) + "]");
+	logger.trace(req, "ルーム内情報（追加後）: [" + JSON.stringify(userIds) + "]");
 }
 
-exports.removeBoardUser = function(userId){
-	logger.trace("removeBoardUser called: ["+userId+"]");
+exports.removeBoardUser = function(req, userId){
+	logger.trace(req, "removeBoardUser called: ["+userId+"]");
 	var inRoom = false;
 	var roomId;
 	u.each(userIds, function(v, k){
@@ -30,12 +30,12 @@ exports.removeBoardUser = function(userId){
 	});
 
 	// TODO: ボードを利用しているユーザーが削除された場合には、特定の値を返すようにする。
-	//logger.debug("ルーム内:inRoom["+inRoom+"]["+roomId+"]["+userIds+"]");
-	logger.trace("ルーム内情報（削除後）: [" + JSON.stringify(userIds) + "]");
+	//logger.debug(req, "ルーム内:inRoom["+inRoom+"]["+roomId+"]["+userIds+"]");
+	logger.trace(req, "ルーム内情報（削除後）: [" + JSON.stringify(userIds) + "]");
 	return roomId;
 }
 
-exports.getBoardUserInfo = function(roomName){
+exports.getBoardUserInfo = function(req, roomName){
 	var ret = userIds[roomName] || [];
 	ret = u.sortBy(ret);
 	return ret;

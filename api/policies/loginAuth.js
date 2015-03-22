@@ -1,7 +1,7 @@
-var logger = require('../Log.js').getLogger("loginAuth");
+var logger = require('../Log.js').getLoggerWrapper("loginAuth");
 
 module.exports = function(req, res, next) {
-	logger.trace("loginAuth: auth status["+req.isAuthenticated() + "]");
+	logger.trace(req, "loginAuth: auth status["+req.isAuthenticated() + "]");
 	if (req.isAuthenticated()) {
 		return next();
 	} else {

@@ -6,7 +6,7 @@
  */
 
 
-var logger = require('../Log.js').getLogger("BoardController");
+var logger = require('../Log.js').getLoggerWrapper("BoardController");
 
 module.exports = {
 
@@ -16,11 +16,11 @@ module.exports = {
     createBoard : function(req, res) {
     var title = req.param('title');
     var category = req.param('category');
-    logger.trace("createBoard called:[" + title + "," + category + "]");
-    title = Utility.trim(title);
-    category = Utility.trim(category);
+    logger.trace(req, "createBoard called:[" + title + "," + category + "]");
+    title = Utility.trim(req, title);
+    category = Utility.trim(req, category);
 	if(!title || title.length == 0){
-	  logger.warn("トリム後のタイトルが空のため処理を中断");
+	  logger.warn(req, "トリム後のタイトルが空のため処理を中断");
 	  Utility.openMainPage(req, res, {type: "danger", contents: "ボードの作成に失敗しました。"});
 	  return;
 	}
@@ -30,7 +30,7 @@ module.exports = {
 	    category: category
 	}).exec(function(err, created){
 		if(err) {
-			logger.error("ボードの作成に失敗しました: " + JSON.stringify(err));
+			logger.error(req, "ボードの作成に失敗しました: " + JSON.stringify(err));
 			var loginInfo = Utility.getLoginInfo(req, res);
 			loginInfo.message = {type: "danger", contents: "ボードの作成に失敗しました: " + JSON.stringify(err)};
 			res.view("newboard/index", {
@@ -40,7 +40,7 @@ module.exports = {
 			});
 		    return;
 		}
-		logger.info("ボード新規作成:[" + title + "," + category + "]");
+		logger.info(req, "ボード新規作成:[" + title + "," + category + "]");
 		Utility.openMainPage(req, res, {type: "success", contents: "ボードを作成しました。"});
 	});
     },
@@ -51,7 +51,7 @@ module.exports = {
     updateBoard : function(req, res) {
 	    var boardId = req.param('id');
         var category = req.param('category');
-        category = Utility.trim(category);
+        category = Utility.trim(req, category);
         var newObj = {
     		    title:req.param('title'),
     		    description : req.param('description'),
@@ -72,10 +72,10 @@ module.exports = {
 	        	newObj[key] = req.param(key);
 	        }
         }
-        logger.trace("updateBoard called: [" + JSON.stringify(newObj) + "]");
+        logger.trace(req, "updateBoard called: [" + JSON.stringify(newObj) + "]");
 		Board.update(boardId, newObj).exec(function(err,created){
 			if(err) {
-				logger.error("ボード情報の更新に失敗しました: [" + JSON.stringify(newObj) + "][" + JSON.stringify(err) + "]");
+				logger.error(req, "ボード情報の更新に失敗しました: [" + JSON.stringify(newObj) + "][" + JSON.stringify(err) + "]");
 				var loginInfo = Utility.getLoginInfo(req, res);
 				loginInfo.message = {type: "danger", contents: "ボード情報の更新に失敗しました: " + JSON.stringify(err)};
 				res.view("dashboard/editBoard", {
@@ -86,7 +86,7 @@ module.exports = {
 				});
 			    return;
 			}
-			logger.info("ボード情報の更新: ["+JSON.stringify(newObj)+"]");
+			logger.info(req, "ボード情報の更新: ["+JSON.stringify(newObj)+"]");
 			Utility.openMainPage(req, res, {type: "success", contents: "ボード情報を更新しました。"});
 		});
     },
@@ -96,18 +96,18 @@ module.exports = {
 	 */
   register : function(req, res) {
     var boardId = req.param('boardId');
-    logger.trace("register called: [" + boardId + "]");
+    logger.trace(req, "register called: [" + boardId + "]");
     var socket = req.socket;
     var io = sails.io;
 
     // リスナ登録
     var roomName = 'room_'+boardId+'_';
-    logger.debug("リスナ登録: [" + roomName + "]");
+    logger.debug(req, "リスナ登録: [" + roomName + "]");
     socket.join(roomName);
     if(req.session.passport){
     	 var userId = req.session.passport.userId;
-    	 BoardUserManager.addBoardUser(roomName, userId);
-    	 var usersInRoom = BoardUserManager.getBoardUserInfo(roomName);
+    	 BoardUserManager.addBoardUser(req, roomName, userId);
+    	 var usersInRoom = BoardUserManager.getBoardUserInfo(req, roomName);
     	 io.sockets.in(roomName).emit('message', {action : "enter", userId: userId, users: usersInRoom});
     }
 
@@ -123,7 +123,7 @@ module.exports = {
     var id = req.param('id');
     var boardId = req.param('boardId');
     var roomName = "room_"+boardId+"_";
-    logger.debug("チケット処理:["+actionType+"]["+id+"]["+boardId+"]["+roomName+"]");
+    logger.debug(req, "チケット処理:["+actionType+"]["+id+"]["+boardId+"]["+roomName+"]");
     if (actionType == "create") {
       var userId = req.param('userId');
       User.findOne(userId).exec(function(err, foundUser) {
@@ -137,9 +137,9 @@ module.exports = {
 	    }).exec(function(err, ticket) {
 		if (err) {
 			// TODO: エラー通知方法検討
-			logger.error("チケット作成 失敗: ["+err+"]");
+			logger.error(req, "チケット作成 失敗: ["+err+"]");
 		} else {
-		    logger.info("チケット作成 成功: ["+ JSON.stringify(ticket));
+		    logger.info(req, "チケット作成 成功: ["+ JSON.stringify(ticket));
 		    io.sockets.in(roomName).emit('message',
 		    {
 		    action: "created",
@@ -160,7 +160,7 @@ module.exports = {
       }).exec(function(err, found) {
         Ticket.destroy({id: id}).exec(function destroy(err2){
           if(found){
-        	  logger.info("チケット削除 成功: ["+JSON.stringify(found)+"]");
+        	  logger.info(req, "チケット削除 成功: ["+JSON.stringify(found)+"]");
             io.sockets.in(roomName).emit('message',{action: "destroyed", id : found.id});
           }
         });
@@ -177,7 +177,7 @@ module.exports = {
           contents : contents
       }).exec(function update(err, updated) {
          if(updated && updated[0]){
-           logger.info("チケット更新 成功: ["+JSON.stringify(updated[0])+"]");
+           logger.info(req, "チケット更新 成功: ["+JSON.stringify(updated[0])+"]");
            io.sockets.in(roomName).emit('message',
              {
                action : "updated",
@@ -198,7 +198,7 @@ module.exports = {
       }).exec(function update(err, updated){
         if(updated && updated[0]){
            var ticket = updated[0];
-           logger.debug("チケット移動 成功: ["+JSON.stringify(updated[0])+"]");
+           logger.debug(req, "チケット移動 成功: ["+JSON.stringify(updated[0])+"]");
            io.sockets.in(roomName).emit('message',{action: "destroyed", id : id});
            io.sockets.in("room_" + dstBoardId).emit('message',
 		    {
@@ -215,7 +215,7 @@ module.exports = {
 		}
       })
     } else {
-    	logger.error("チケット処理 想定外のアクション:[" + actionType + "]");
+    	logger.error(req, "チケット処理 想定外のアクション:[" + actionType + "]");
     }
   }
 

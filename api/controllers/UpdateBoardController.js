@@ -9,7 +9,7 @@ var logger = require('../Log.js').getLogger("UpdateBoardController");
 module.exports = {
 
     index : function(req, res) {
-    	logger.trace("index");
+    	logger.trace(req, "index");
 	res.view();
     }
 

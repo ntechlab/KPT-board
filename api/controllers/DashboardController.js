@@ -39,17 +39,17 @@ var BOARD_DEFAULT_VALUES = {
     bgSepLineColor : '#000000'
 };
 
-var logger = require('../Log.js').getLogger("DashboardController");
+var logger = require('../Log.js').getLoggerWrapper("DashboardController");
 
 function showEditView(req, res, id, loginInfo){
-	logger.trace("showEditView called: [" + id + "]");
+	logger.trace(req, "showEditView called: [" + id + "]");
 	Board.findOne(id).exec(function(err,found){
 	    if(err || !found) {
-			logger.error("ボード編集時 ボード取得失敗: エラー発生: [" + JSON.stringify(err) + "]");
+			logger.error(req, "ボード編集時 ボード取得失敗: エラー発生: [" + JSON.stringify(err) + "]");
 			Utility.openMainPage(req, res, {type: "danger", contents: "エラーが発生しました:"+JSON.stringify(err)});
 			return;
 		} else {
-			logger.debug("編集対象ボード取得[" + JSON.stringify(found) + "]");
+			logger.debug(req, "編集対象ボード取得[" + JSON.stringify(found) + "]");
 			fs.readdir(BACKGROUND_DIR, function(err, files){
 				if (err) {
 					throw err;
@@ -60,7 +60,7 @@ function showEditView(req, res, id, loginInfo){
 				}).forEach(function (file) {
 					backgroundFileList.push(BACKGROUND_REL_PATH + file);
 				});
-				logger.debug(backgroundFileList);
+				logger.debug(req, backgroundFileList);
 				var successCb = function(categories){
 					res.view('dashboard/editBoard', { id: id,
 						title :found["title"],
@@ -82,7 +82,7 @@ function showEditView(req, res, id, loginInfo){
 					});
 				}
 				var errorCb = function(err){
-					logger.error("ボード情報の取得に失敗しました。"+JSON.stringify(err));
+					logger.error(req, "ボード情報の取得に失敗しました。"+JSON.stringify(err));
 				    message = {type: "danger", contents: "ボード情報の取得に失敗しました。"};
 					Utility.openMainPage(req, res, message);
 				};
@@ -98,13 +98,13 @@ module.exports = {
 	 * ボード一覧画面を開く
 	 */
     index : function(req, res) {
-	    logger.trace("index called");
+	    logger.trace(req, "index called");
 		var loginInfo = Utility.getLoginInfo(req, res);
 		var message;
 		Board.find({}).sort({"title":-1}).exec(function(err, found) {
 			// ボードリストの取得に失敗した場合にはエラーメッセージを表示する。
 			if(err){
-				logger.error("ボード一覧画面オープン時にエラー発生[" + JSON.stringify(err) +"]");
+				logger.error(req, "ボード一覧画面オープン時にエラー発生[" + JSON.stringify(err) +"]");
 				found = [];
 				message = {type: "danger", contents: "ボード一覧画面の表示に失敗しました。"};
 				loginInfo.message = message;
@@ -143,28 +143,28 @@ module.exports = {
 					// i番目のボードに関する処理を即時評価とクロージャーで作成し、同期実行配列に追加する。
 					(function(num){
 						prerequisite.push(function(next) {
-							logger.info("マイグレーション処理 開始");
+							logger.info(req, "マイグレーション処理 開始");
 							var board = found[num];
 							var boardId = board["id"];
-							logger.info("マイグレーション対象ボード[" + boardId + "]");
-							logger.info("マイグレーション前[" + JSON.stringify(board) + "]");
+							logger.info(req, "マイグレーション対象ボード[" + boardId + "]");
+							logger.info(req, "マイグレーション前[" + JSON.stringify(board) + "]");
 
 							// 値が未指定の場合にはデフォルト値を設定する。
 							var newBoard = u.defaults(_.clone(board), BOARD_DEFAULT_VALUES);
 							delete newBoard["id"];
 							delete newBoard["createdAt"];
 							delete newBoard["updatedAt"];
-							logger.info("マイグレーション後[" + JSON.stringify(newBoard) + "]");
+							logger.info(req, "マイグレーション後[" + JSON.stringify(newBoard) + "]");
 
 							// テーブル内容の更新
 							Board.update(boardId, newBoard).exec(function(err2, updated) {
 								if(err2) {
-									logger.error("ボード情報のマイグレーションに失敗しました:[" + boardId + "]: " + JSON.stringify(err2));
+									logger.error(req, "ボード情報のマイグレーションに失敗しました:[" + boardId + "]: " + JSON.stringify(err2));
 									ngIds.push(boardId);
 								} else {
-									logger.info("ボード情報のマイグレーションに成功[" + boardId + "]");
+									logger.info(req, "ボード情報のマイグレーションに成功[" + boardId + "]");
 								}
-								logger.info("マイグレーション処理 終了");
+								logger.info(req, "マイグレーション処理 終了");
 								next();
 							});
 						})
@@ -174,7 +174,7 @@ module.exports = {
 
 			// 第２段階処理
 			var done = function() {
-				logger.trace("ボード一覧画面表示処理 開始");
+				logger.trace(req, "ボード一覧画面表示処理 開始");
 				if(ngIds.length > 0){
 					loginInfo.message = {type: "danger", contents: "ボード情報のマイグレーションに失敗しました：[" + ngIds + "]"};
 				}
@@ -183,7 +183,7 @@ module.exports = {
 					categoryData: JSON.stringify(categoryData),
 					loginInfo: loginInfo
 				});
-				logger.trace("ボード一覧画面表示処理 終了");
+				logger.trace(req, "ボード一覧画面表示処理 終了");
 			};
 
 			// 同期処理実行
@@ -196,7 +196,7 @@ module.exports = {
      */
     openBoard2 : function(req, res) {
 	var boardId = req.param("selectedId");
-    logger.trace("openBoard2 called: ["+boardId+"]");
+    logger.trace(req, "openBoard2 called: ["+boardId+"]");
 	var loginInfo = Utility.getLoginInfo(req, res);
     var message = null;
 
@@ -210,7 +210,7 @@ module.exports = {
 	 var contextMenu = "";
 
 	if(!boardId){
-	    logger.warn("ボードIDが存在しないためボード選択画面に遷移。");
+	    logger.warn(req, "ボードIDが存在しないためボード選択画面に遷移。");
 		message = {type: "warn", contents: "ボードIDが指定されていません。"};
 		Utility.openMainPage(req, res, message);
 	    return;
@@ -234,13 +234,13 @@ module.exports = {
 
 	Board.findOne(boardId).exec(function(err,found){
 		if(err){
-			logger.error("エラー発生: [" + JSON.stringify(err) + "]");
+			logger.error(req, "エラー発生: [" + JSON.stringify(err) + "]");
 		    message = {type: "danger", contents: "エラーが発生しました[" + boardId + "]"};
 			Utility.openMainPage(req, res, message);
 			return;
 		}
 		if(!found) {
-			logger.error("指定されたボードIDが存在しないため、ボード選択画面に遷移[" + boardId + "]");
+			logger.error(req, "指定されたボードIDが存在しないため、ボード選択画面に遷移[" + boardId + "]");
 			message = {type: "warn", contents: "指定したボードIDが存在しません[" + boardId + "]"};
 			Utility.openMainPage(req, res, message);
 			return;
@@ -257,7 +257,7 @@ module.exports = {
 		prerequisite.push(function(next) {
 			 User.find().exec(function(err3, usersFound) {
 				if(err3){
-					logger.error("チケットのユーザーIDの検索: エラー発生:" + JSON.stringify(err3));
+					logger.error(req, "チケットのユーザーIDの検索: エラー発生:" + JSON.stringify(err3));
 				} else {
 					u.each(usersFound, function(user){
 						userIdToNicknameMap[user["id"]] = user["nickname"];
@@ -273,7 +273,7 @@ module.exports = {
 		prerequisite.push(function(next) {
 			    Board.find().where({ id: { 'not': boardId }}).sort({"title":-1}).exec(function(err4, boards) {
 				if(err4) {
-					logger.error("ボードリストの取得: エラー発生: [" + JSON.stringify(err4) + "]");
+					logger.error(req, "ボードリストの取得: エラー発生: [" + JSON.stringify(err4) + "]");
 					boardList = [];
 					message = {type: "danger", contents: "エラーが発生しました。"};
 					Utility.openMainPage(req, res, message);
@@ -290,7 +290,7 @@ module.exports = {
 		// チケット画像読み込み処理関数を追加
 		prerequisite.push(function(next){
 			if(ticketTypeList === undefined) {
-				logger.info("チケット画像読み込み");
+				logger.info(req, "チケット画像読み込み");
 				// チケット個別スタイル情報が存在しない場合のみ処理する。
 				fs.readdir(ASSETS + TICKET_IMAGE_DIR, function(err, files){
 					if (err) {
@@ -308,11 +308,11 @@ module.exports = {
 								// 画像情報ファイルの場合(txt)
 								var contents = fs.readFileSync(path, 'utf-8');
 								var imageFileName = file.replace(/\.txt$/, "");
-								logger.info("チケット個別スタイル追加[" + imageFileName + "]:" + contents);
+								logger.info(req, "チケット個別スタイル追加[" + imageFileName + "]:" + contents);
 								imageFileTxtMap[imageFileName] = contents;
 							} else {
 								// それ以外の場合
-								logger.info("画像ファイル追加[" + file + "]");
+								logger.info(req, "画像ファイル追加[" + file + "]");
 								// テンプレートパラメータ
 								imageFileList.push(file);
 							}
@@ -417,7 +417,7 @@ module.exports = {
 	 */
     editBoard : function(req, res) {
 		var id = req.param("selectedId");
-	    logger.trace("editBoard: [" + id + "]");
+	    logger.trace(req, "editBoard: [" + id + "]");
 	    var loginInfo = Utility.getLoginInfo(req, res);
 		showEditView(req, res, id, loginInfo);
 	},
@@ -427,23 +427,23 @@ module.exports = {
 	 */
     deleteBoard : function(req, res) {
     	var id = req.param("selectedId");
-		logger.trace("deleteBoard: [" + id + "]");
+		logger.trace(req, "deleteBoard: [" + id + "]");
 		// 削除対象ボードIDが設定されていない場合には、処理を行わずメイン画面に遷移。
 		var message = null;
 		if(id != null){
-			logger.debug("ボード削除処理 削除対象[" + id + "]");
+			logger.debug(req, "ボード削除処理 削除対象[" + id + "]");
 			Board.destroy(id).exec(function(err, found){
 				if(err || (found && found.length === 0)) {
-					logger.error("ボード削除処理 失敗: [" + id + ","+ JSON.stringify(err) + "]");
+					logger.error(req, "ボード削除処理 失敗: [" + id + ","+ JSON.stringify(err) + "]");
 					message = {type: "danger", contents: "ボード削除に失敗しました[" + id + "]"};
 				} else {
-					logger.info("ボード削除処理 成功: [" + id + "]");
+					logger.info(req, "ボード削除処理 成功: [" + id + "]");
 					message = {type: "success", contents: "ボードを削除しました: [" + found[0]["title"] + "]"};
 				}
 				Utility.openMainPage(req, res, message);
 			});
 		} else {
-			logger.error("ボード削除処理 ボードID未設定");
+			logger.error(req, "ボード削除処理 ボードID未設定");
 			message = {type: "danger", contents: "ボードIDが設定されていません。"};
 			Utility.openMainPage(req, res, message);
 		}
@@ -453,7 +453,7 @@ module.exports = {
      * ボード作成画面を開く
      */
     createBoard : function(req, res) {
-    	logger.trace("createBoard");
+    	logger.trace(req, "createBoard");
     	res.redirect('/newboard/index');
     },
 
@@ -461,11 +461,11 @@ module.exports = {
      * ファイルのアップロード
      */
 	uploadImageFile: function  (req, res) {
-		logger.trace("uploadImageFile");
+		logger.trace(req, "uploadImageFile");
 
 		// GET経由でのアップロードは許可しない。
 		if(req.method === 'GET'){
-			logger.warn("GETによるファイルアップロード要求が送られました。");
+			logger.warn(req, "GETによるファイルアップロード要求が送られました。");
 			return res.json({status: 'error', message : "処理が不正です。"});
 		}
 		var uploadFile = req.file('uploadFile');
@@ -473,12 +473,12 @@ module.exports = {
 		// TODO: ファイル名のチェックロジックを実装する。jpg,png,gif以外の場合にはエラーにするなど。
 
 		var boardId = req.param("selectedId");
-		logger.info("ファイルアップロード処理: [" + boardId + "][" + uploadFile + "]");
+		logger.info(req, "ファイルアップロード処理: [" + boardId + "][" + uploadFile + "]");
 
 		// ファイルのアップロード処理
 		uploadFile.upload({dirname: BACKGROUND_DIR}, function onUploadComplete (err, files) {
 			if (err) {
-				logger.error("ファイルアップロード処理 失敗[" + JSON.stringify(err) + "]");
+				logger.error(req, "ファイルアップロード処理 失敗[" + JSON.stringify(err) + "]");
 				return res.json({status: 'error', message : "ファイルのアップロードに失敗しました。", error: err});
 			}
 
@@ -487,7 +487,7 @@ module.exports = {
 			if(files && files.length > 0){
 				filename = files[0].filename;
 			}
-			logger.info("ファイルアップロード処理 成功: [" + filename + "]");
+			logger.info(req, "ファイルアップロード処理 成功: [" + filename + "]");
 			return res.json({status: 'success', src : BACKGROUND_REL_PATH + filename});
 		});
 	},
@@ -496,11 +496,11 @@ module.exports = {
 	 * ファイル削除処理
 	 */
 	deleteImageFile: function  (req, res) {
-		logger.trace("deleteImageFile");
+		logger.trace(req, "deleteImageFile");
 
 		// GET経由での削除は許可しない。
 		if(req.method === 'GET'){
-			logger.warn("GETによるファイル削除要求が送られました。");
+			logger.warn(req, "GETによるファイル削除要求が送られました。");
 			return res.json({status: 'error', message : "処理が不正です。"});
 		}
 
@@ -511,17 +511,17 @@ module.exports = {
 			fileName = items[items.length - 1];
 		}
 
-		logger.debug("ファイル削除処理: [" + path + "][" + fileName + "]");
+		logger.debug(req, "ファイル削除処理: [" + path + "][" + fileName + "]");
 
 		// 指定された画像ファイルを削除する。
 		var deletePath = BACKGROUND_DIR + fileName;
 		var ret;
 		fs.unlink(deletePath, function (err) {
 			if (err) {
-				logger.error("ファイル削除処理 失敗: [" + JSON.stringify(err) + "]");
+				logger.error(req, "ファイル削除処理 失敗: [" + JSON.stringify(err) + "]");
 				ret = {status: 'error', message : "画像の削除に失敗しました。", error: err};
 			 } else {
-				logger.info("ファイル削除処理 成功: [" + deletePath + "]");
+				logger.info(req, "ファイル削除処理 成功: [" + deletePath + "]");
 				ret = {status: 'success', src : BACKGROUND_REL_PATH + fileName};
 			}
 			return res.json(ret);
@@ -529,10 +529,10 @@ module.exports = {
 	},
 
 	getImageFileList : function  (req, res) {
-		logger.trace("getImageFileList");
+		logger.trace(req, "getImageFileList");
 		fs.readdir(BACKGROUND_DIR, function(err, files){
 			if (err) {
-				logger.error("画像ファイルリスト取得処理 失敗: [" + JSON.stringify(err) + "]");
+				logger.error(req, "画像ファイルリスト取得処理 失敗: [" + JSON.stringify(err) + "]");
 				return res.json({status: 'error', error: err});
 			}
 			var backgroundFileList = [];
@@ -542,7 +542,7 @@ module.exports = {
 			}).forEach(function (file) {
 				backgroundFileList.push(BACKGROUND_REL_PATH + file);
 			});
-			logger.debug("画像ファイルリスト取得処理 成功: [" + backgroundFileList + "]");
+			logger.debug(req, "画像ファイルリスト取得処理 成功: [" + backgroundFileList + "]");
 			return res.json({status: 'success', images: backgroundFileList});
 		});
 	}

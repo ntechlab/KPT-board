@@ -38,10 +38,18 @@ module.exports.sockets = {
 	  var io = sails.io;
 	  if(session.passport){
 		  var userId = session.passport.userId;
-		  var roomName = BoardUserManager.removeBoardUser(userId);
-		  var usersInRoom = BoardUserManager.getBoardUserInfo(roomName);
+		  var dummyReq = {
+				  session: {
+					  passport:{
+						  userId: userId
+					  }
+				  }
+		  };
+
+		  var roomName = BoardUserManager.removeBoardUser(dummyReq, userId);
+		  var usersInRoom = BoardUserManager.getBoardUserInfo(dummyReq, roomName);
 		  if(roomName){
-			  io.sockets.in(roomName).emit('message', 
+			  io.sockets.in(roomName).emit('message',
 					  {action : "leave", userId: userId, users: usersInRoom});
 		  }
 	  }
