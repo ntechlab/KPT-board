@@ -1,7 +1,8 @@
+<meta http-equiv="Cache-Control" content="no-cache">
 <script src="/js/jquery-2.1.1.min.js"></script>
 <script src="/js/jquery-ui.min.js"></script>
 <script src="/js/underscore-min.js"></script>
-
+<link rel="stylesheet" href="/css/ticketAppearance.css?date=20131019">
 <script>
 
   function T(){
@@ -83,15 +84,28 @@
   function make(data) {
    var val = data["contents"];
    var nickname = data["nickname"];
-   var sticky = $('<div class="sticky"><div class="userInfo"></div><div class="close"><span>×</span></div><div class="contentsArea"></div></div>');
+   var sticky = $('<div class="sticky"><div class="ttl"><span class="userInfo"></span><span class="cdate"></span><div class="close"><i class="glyphicon glyphicon-trash" /></div><div class="contentsArea"></div></div>');
    val=t.NLtoBR(val);
 
    sticky.find('.userInfo').text(nickname);
+
+   //年・月・日・曜日を取得する
+   var d = new Date(data["createdAt"]);
+   console.log(d);
+//   var year = d.getFullYear();
+   var month = d.getMonth()+1;
+   var week = d.getDay();
+   var day = d.getDate();
+   var hour = d.getHours();
+   var minute = d.getMinutes();
+   var yobi= new Array("日","月","火","水","木","金","土");
+   sticky.find('.cdate').text("　　<"+month+"/"+day+"("+yobi[week]+") "+hour+":"+minute+">");
    sticky.find('.contentsArea').html(val);
    sticky.appendTo('#board')
       .attr('id', "ticket_"+data["id"])
       .attr('data-id', data["id"])
       .addClass(data["color"])
+      .addClass(data["color"]+"_shadow")
       .animate({left: data["positionX"], top: data["positionY"] })
       .draggable({stop: updateFusenListener})
       .click(function(e) {
@@ -106,7 +120,7 @@
         var id0 = data["id"];
         var c = $self.html();
         c=t.encode2(c);
-        $self.html('<textarea>' + c + '</textarea>').addClass('contents_edit')
+        $self.html('<textarea style="margin:0px;width:214px;height:142px;font-size:12px;">' + c + '</textarea>').addClass('contents_edit')
           .children()
           .focus()
           .blur(function() {
@@ -117,12 +131,25 @@
           var $sticky = $self.closest('.sticky');
           updateFusen($sticky);
         });
-      }).mousedown(function() {
-        $('.sticky').removeClass('selected');
-        $(this).addClass('selected');
+      }).mousedown(function() {                              // 付箋をマウスクリック
+        $('.selected').each(function(i, elm) {                  // 選択中選択枠を持つ付箋に影を付ける。
+          var regExp = new RegExp("ticket");
+          var type = elm.className.split(" ");
+          for (var i=1 ; i<=type.length ; i++){
+            if ( type[i].match(regExp).length !== null){
+              $(elm).addClass(type[i]+"_shadow")
+              break;
+            }
+          }
       });
-     sticky.find('.close').click(function(){
-       confirmDeleteTicket(data["id"]);
+        $('.sticky').removeClass('selected');                    // すべての付箋の選択枠を外す。
+        $(this).addClass('selected');                            // クリックした付箋に選択枠を設定する。
+        $(this).removeClass(data["color"]+"_shadow");            // クリックした付箋の影を外す。
+      })
+      .mousedown(function() {                              // 'X'をマウスクリック
+        sticky.find('.close').click(function(){
+        confirmDeleteTicket(data["id"]);
+      })
     });
     return sticky;
   }
@@ -335,8 +362,9 @@ function setUpCanvas(){
 
 /**
  * 配列内容が一致しているかを判定する。
+ *  *** match() はjsに存在するメソッドのためmatchAに変更
  */
-function match(array1, array2){
+function matchA(array1, array2){
 	console.log("配列内容比較");
 	console.log(array1);
 	console.log(array2);
@@ -369,7 +397,7 @@ function checkConsistencyOfUserList(action, displayUsers, users, userId){
 	} else {
 		return false;
 	}
-	return match(lhs, rhs);
+    return matchA(lhs, rhs);
 }
 
 /**
@@ -503,6 +531,70 @@ table th {
 }
 
 .userInfo {
+  position: static;
+  height:20px;
+  top: 3px;
+  left:20px;
+  float:left;
+  font-size:12px;
+  text-align: left;
+  line-height: 20px;
+  color:gray;
+  font-family: "Meiryo UI",serif;
+}
+
+.cdate {
+  position: static;
+  height:20px;
+  top: 3px;
+  left:20px;
+  float:left;
+  font-size:12px;
+  text-align: right;
+  line-height: 20px;
+  color:gray;
+  font-family: "Meiryo UI",serif;
+}
+
+.close {
+  position:static;
+  top:12px;
+  right:30px;
+}
+
+.contentsArea {
+  position: absolute;
+  top:20px;
+  left:20px;
+  clear: both;
+  font-size:12px;
+  font-family: "Meiryo UI",serif;
+}
+
+contentsText{
+	  margin: 0px;
+	  width:205px;
+	  height:142px;
+	  font-size:12px;
+	  font-family: "Meiryo UI",serif;
+	}
+
+
+.sticky textarea {
+  top:30px;
+  left:15px;
+  font-size: 10pt;
+  font-family: "Meiryo UI",serif;
+}
+
+/* 付箋スタイル（個別部分） */
+.sticky {
+  position: absolute;
+  cursor: pointer;
+  font-size:16pt;
+}
+/*
+.userInfo {
   position: absolute;
   height:20px;
   top: 18px;
@@ -521,28 +613,29 @@ table th {
 
 .contentsArea {
   position: absolute;
-  top:38px;
+  top:42px;
   left:20px;
   clear: both;
   font-size:12px;
   font-family: "Meiryo UI",serif;
 }
-
+*/
 .sticky textarea {
-  top:30px;
+  top:42px;
   left:15px;
   font-size: 10pt;
   font-family: "Meiryo UI",serif;
 }
 
-/* 付箋スタイル（個別部分） */
-<%- ticketCss %>
-
 .selected {
   z-index:100;
+  box-shadow: rgba(0,0,0,0.3) 0px 3px 7px 4px;
+  -webkit-box-shadow: rgba(0,0,0,0.3) 0px 3px 7px 4px;
+  -moz-box-shadow: rgba(0,0,0,0.3) 0px 3px 7px 4px;
 }
 
 .hasmenu {
+z-index:0;
 /*
   border: 1px solid #008;
   margin: 3px;

@@ -1,5 +1,0 @@
-.sticky { width: 255px; height: 180px;}
-.sticky textarea {width: 215px;height: 110px}
- .contentsArea { top:33px;width:215px;height:110px;}
- .close {right:20px}
- .userInfo {top:10px}

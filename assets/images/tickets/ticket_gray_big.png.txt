@@ -1,9 +1,0 @@
-.sticky { width: 443px; height: 332px;}
-
-
-.sticky textarea {width: 400px;height: 250px}
- .contentsArea { width:400px;height:250px;}
- .close {right:20px}
-
-
-

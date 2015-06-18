@@ -150,6 +150,7 @@ module.exports = {
 			positionX: ticket.positionX,
 			positionY: ticket.positionY,
 			color: ticket.color,
+            createdAt: ticket.createdAt,
 			nickname : foundUser["nickname"]});
 		}
 	    });

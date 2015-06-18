@@ -382,7 +382,6 @@ module.exports = {
 			});
 
 		    var obj = {
-				ticketCss: ticketCssString, // チケット個別スタイル
 				comboMenu: comboMenu, // プルダウンメニューHTML
 				contextMenu: contextMenu, // コンテクストメニューHTML
 				boardId: boardId,
@@ -592,7 +591,6 @@ function createCssOfImage(ticketType){
 	if(contents){
 		ret += addMainClassName("." + className, contents);
 	}
-	ret += "." + className + " {background-image:url(/images/tickets/" + imageFileName + ");}\r\n";
 	return ret;
 }
 
