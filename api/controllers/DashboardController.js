@@ -15,14 +15,8 @@ var BACKGROUND_DIR = './upload' + BACKGROUND_REL_PATH;
 // 資産フォルダ
 var ASSETS = "assets";
 
-// 付箋イメージフォルダ
-var TICKET_IMAGE_DIR = "/images/tickets/";
-
 // ファイルアップロードと同時に背景画像を変更したい場合にはtrueにする。
 var flagChangeBackgroundImage = false;
-
-// チケット個別スタイル情報リスト
-var ticketTypeList;
 
 // 背景情報のデフォルト値
 var BOARD_DEFAULT_VALUES = {
@@ -200,9 +194,6 @@ module.exports = {
 	var loginInfo = Utility.getLoginInfo(req, res);
     var message = null;
 
-	 // チケット個別スタイル
-	 var ticketCssString;
-
 	 //コンボボックスメニューHTML
 	 var comboMenu;
 
@@ -287,52 +278,6 @@ module.exports = {
 		    });
 		})
 
-		// チケット画像読み込み処理関数を追加
-		prerequisite.push(function(next){
-			if(ticketTypeList === undefined) {
-				logger.info(req, "チケット画像読み込み");
-				// チケット個別スタイル情報が存在しない場合のみ処理する。
-				fs.readdir(ASSETS + TICKET_IMAGE_DIR, function(err, files){
-					if (err) {
-						throw err;
-					}
-					// 個別チケット情報を保持するオブジェクト
-					var imageFileTxtMap = {};
-
-					var imageFileList = [];
-
-					files.forEach(function (file) {
-						var path = ASSETS + TICKET_IMAGE_DIR + file;
-						if(fs.statSync(path).isFile()){
-							if(/\.txt$/.test(file)){
-								// 画像情報ファイルの場合(txt)
-								var contents = fs.readFileSync(path, 'utf-8');
-								var imageFileName = file.replace(/\.txt$/, "");
-								logger.info(req, "チケット個別スタイル追加[" + imageFileName + "]:" + contents);
-								imageFileTxtMap[imageFileName] = contents;
-							} else {
-								// それ以外の場合
-								logger.info(req, "画像ファイル追加[" + file + "]");
-								// テンプレートパラメータ
-								imageFileList.push(file);
-							}
-						}
-					});
-					ticketTypeList = [];
-					u.each(imageFileList, function(imageFileName){
-						var newObj = {imageFileName: imageFileName};
-						if(imageFileTxtMap[imageFileName]){
-							newObj["contents"] = imageFileTxtMap[imageFileName];
-						}
-						ticketTypeList.push(newObj);
-					})
-					next();
-				});
-			} else {
-				next();
-			}
-		});
-
 		// 前提とするすべての処理が完了した後で実行する関数（ビュー生成関数のラッパー生成）
 		var done = function (){
 
@@ -369,10 +314,6 @@ module.exports = {
 
 			// コンテクストメニューHTML設定
 			contextMenu = createContextMenu(ticketToUse);
-
-			// チケット個別スタイル
-			// TODO: 対象ボードで利用できない付箋タイプに関するスタイルを含まないようにしたい。
-			ticketCssString = createCss(ticketTypeList);
 
 			// 各チケットにユーザーのニックネームを追加
 			u.each(tickets, function(ticket){

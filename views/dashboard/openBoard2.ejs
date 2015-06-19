@@ -84,7 +84,7 @@
   function make(data) {
    var val = data["contents"];
    var nickname = data["nickname"];
-   var sticky = $('<div class="sticky"><div class="ttl"><span class="userInfo"></span><span class="cdate"></span><div class="close"><i class="glyphicon glyphicon-trash" /></div><div class="contentsArea"></div></div>');
+   var sticky = $('<div class="sticky"><div class="ticketTitle"><span class="userInfo"></span><div class="rightItems"><span class="createDate"></span><i class="removeIcon glyphicon glyphicon-remove" /></div></div><div class="contentsArea"></div></div>');
    val=t.NLtoBR(val);
 
    sticky.find('.userInfo').text(nickname);
@@ -99,7 +99,7 @@
    var hour = d.getHours();
    var minute = d.getMinutes();
    var yobi= new Array("日","月","火","水","木","金","土");
-   sticky.find('.cdate').text("　　<"+month+"/"+day+"("+yobi[week]+") "+hour+":"+minute+">");
+   sticky.find('.createDate').text(month+"/"+day+"("+yobi[week]+") "+hour+":"+minute);
    sticky.find('.contentsArea').html(val);
    sticky.appendTo('#board')
       .attr('id', "ticket_"+data["id"])
@@ -120,7 +120,7 @@
         var id0 = data["id"];
         var c = $self.html();
         c=t.encode2(c);
-        $self.html('<textarea style="margin:0px;width:214px;height:142px;font-size:12px;">' + c + '</textarea>').addClass('contents_edit')
+        $self.html('<textarea class="editArea">' + c + '</textarea>').addClass('contents_edit')
           .children()
           .focus()
           .blur(function() {
@@ -147,7 +147,7 @@
         $(this).removeClass(data["color"]+"_shadow");            // クリックした付箋の影を外す。
       })
       .mousedown(function() {                              // 'X'をマウスクリック
-        sticky.find('.close').click(function(){
+        sticky.find('.removeIcon').click(function(){
         confirmDeleteTicket(data["id"]);
       })
     });
@@ -530,59 +530,78 @@ table th {
   font-size:16pt;
 }
 
+/* 付箋のタイトル共通　*/
+.ticketTitle {
+  position: relative;
+  margin: 0 -20px 0px;
+  height: 20px;
+}
+
+.ticketTitle:before,
+.ticketTitle:after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 1px;
+  right: 1px;
+  height: 1px;
+  border-top: 2px groove #ff0000;
+}
+
+/* 付箋のユーザ名 */
 .userInfo {
-  position: static;
-  height:20px;
-  top: 3px;
-  left:20px;
-  float:left;
+  position: absolute;
   font-size:12px;
-  text-align: left;
-  line-height: 20px;
+  top:2px;
+  left:3px;
   color:gray;
   font-family: "Meiryo UI",serif;
 }
 
-.cdate {
-  position: static;
-  height:20px;
-  top: 3px;
-  left:20px;
-  float:left;
+/* 付箋の作成日 */
+.createDate {
+  position: absolute;
+  top:2px;
+  right:20px;
   font-size:12px;
-  text-align: right;
-  line-height: 20px;
   color:gray;
   font-family: "Meiryo UI",serif;
 }
 
-.close {
-  position:static;
-  top:12px;
-  right:30px;
+/* 右寄せする要素 */
+.rightItems {
+  text-align:right;
+}
+
+/* 削除アイコン */
+.removeIcon {
+  top:2px;
+  right:3px;
+  font-size: 12px; !imortant
+  font-weight: 100;
+  color:grey;
+}
+
+/* 削除アイコン（ホバー時） */
+.removeIcon:hover {
+  color:black;
 }
 
 .contentsArea {
   position: absolute;
   top:20px;
-  left:20px;
+  left:5px;
   clear: both;
   font-size:12px;
   font-family: "Meiryo UI",serif;
 }
 
-contentsText{
-	  margin: 0px;
-	  width:205px;
-	  height:142px;
-	  font-size:12px;
-	  font-family: "Meiryo UI",serif;
-	}
-
-
-.sticky textarea {
+.editArea {
   top:30px;
-  left:15px;
+  left:0px;
+  padding: 3px;
+  width:235px;
+  height:145px;
   font-size: 10pt;
   font-family: "Meiryo UI",serif;
 }
@@ -593,39 +612,6 @@ contentsText{
   cursor: pointer;
   font-size:16pt;
 }
-/*
-.userInfo {
-  position: absolute;
-  height:20px;
-  top: 18px;
-  left:20px;
-  float:left;
-  font-size:12px;
-  color:gray;
-  font-family: "Meiryo UI",serif;
-}
-
-.close {
-  position:absolute;
-  top:12px;
-  right:30px;
-}
-
-.contentsArea {
-  position: absolute;
-  top:42px;
-  left:20px;
-  clear: both;
-  font-size:12px;
-  font-family: "Meiryo UI",serif;
-}
-*/
-.sticky textarea {
-  top:42px;
-  left:15px;
-  font-size: 10pt;
-  font-family: "Meiryo UI",serif;
-}
 
 .selected {
   z-index:100;
@@ -635,13 +621,7 @@ contentsText{
 }
 
 .hasmenu {
-z-index:0;
-/*
-  border: 1px solid #008;
-  margin: 3px;
-  padding: 5px;
-  width: 30px;
-*/
+  z-index:0;
 }
 
 .ui-widget{
