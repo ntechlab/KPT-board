@@ -30,10 +30,85 @@ var BOARD_DEFAULT_VALUES = {
     bgSepV : 1,
     bgSepH : 1,
     bgSepLineWidth : 3,
-    bgSepLineColor : '#000000'
+    bgSepLineColor : '#000000',
+    ticketData : 'ticket_blue_small:Keep:true,ticket_pink_small:Problem:true,ticket_yellow_small:Try:true,ticket_white_small:Memo:true'
 };
 
 var logger = require('../Log.js').getLoggerWrapper("DashboardController");
+
+var ticketData0 = [
+   				{id: "ticket_blue_small", label: "青（小）"},
+//				{id: "ticket_blue_big", label: "青（大）"},
+				{id: "ticket_pink_small", label: "ピンク（小）"},
+//				{id: "ticket_pink_big", label: "ピンク（大）"},
+				{id: "ticket_yellow_small", label: "黄（小）"},
+//				{id: "ticket_yellow_big", label: "黄（大）"},
+				{id: "ticket_white_small", label: "白（小）"}
+//				{id: "ticket_white_big", label: "白（大）"},
+//				{id: "ticket_brown_small", label: "茶（小）"},
+//				{id: "ticket_brown_big", label: "茶（大）"},
+//				{id: "ticket_gray_small", label: "灰色（小）"},
+//				{id: "ticket_gray_big", label: "灰（大）"},
+//				{id: "ticket_green_small", label: "緑（小）"},
+//				{id: "ticket_green_big", label: "緑（大）"},
+//				{id: "ticket_orange_small", label: "オレンジ（小）"},
+//				{id: "ticket_orange_big", label: "オレンジ（大）"},
+//				{id: "ticket_purple_small", label: "紫（小）"},
+//				{id: "ticket_purple_big", label: "紫（大）"}
+			];
+
+/**
+ * 利用可能付箋タイプ一覧のデータを作成する。
+ * @param req
+ * @param ticketData2
+ * @returns {String}
+ */
+function createTicketTypeString(req, ticketData2){
+	var ret = "";
+	var ticketData = createTicketDataArray(ticketData2);
+	u.each(ticketData, function(d){
+		var id = d["id"];
+		ret += '<tr class="ticketDataRow" id="' + id + '">'
+		+'<td style="text-align:center;vertical-align:middle;">'
+		+'<label for="check_' + id + '" style="width:100%;">'
+		+'<input class="ticketDataCheck" id="check_' + id + '" type="checkbox" ' + d["state"] + '/></label></td>'
+		+'<td style="vertical-align:middle;" class="ticketDataType">' + d["label"] + '</td>'
+		+'<td style="vertical-align:middle;"><input class="ticketDataName" style="width:100%;" value="' + d["name"] + '"/></td>';
+		+'</tr>';
+	});
+	return ret;
+}
+
+/**
+ * 利用可能付箋データ文字列を配列に変換する。
+ * @param ticketData2 利用可能付箋データ文字列
+ * @returns {Array} 利用可能付箋データ配列
+ */
+function createTicketDataArray(ticketData2) {
+	var ticketData = [];
+	var items;
+	if(ticketData){
+		if(u.contains(ticketData2, ",")){
+			items = ticketData2.split(",");
+		} else {
+			items = [ticketData2];
+		}
+	} else {
+		items = [];
+	}
+	var map = {};
+	u.each(items, function(item){
+		var items2 = item.split(":");
+		map[items2[0]] = {name: items2[1], state: items2[2] === "true" ? "checked" : ""};
+	});
+	u.each(ticketData0, function(d){
+		var m = map[d["id"]];
+		d["name"] = m ? m["name"] : "";
+		d["state"] = m ? m["state"] : "";
+		ticketData.push(d);
+	});
+	return ticketData;
+}
 
 function showEditView(req, res, id, loginInfo){
 	logger.trace(req, "showEditView called: [" + id + "]");
@@ -55,6 +130,8 @@ function showEditView(req, res, id, loginInfo){
 					backgroundFileList.push(BACKGROUND_REL_PATH + file);
 				});
 				logger.debug(req, backgroundFileList);
+				var ticketData2 = found["ticketData"] || "";
+				var ticketTypeList = createTicketTypeString(req, ticketData2);
 				var successCb = function(categories){
 					res.view('dashboard/editBoard', { id: id,
 						title :found["title"],
@@ -72,6 +149,7 @@ function showEditView(req, res, id, loginInfo){
 						images: backgroundFileList,
 						category: found["category"] || "",
 						categories: categories,
+						ticketTypeList : ticketTypeList,
 						loginInfo: loginInfo
 					});
 				}
@@ -281,33 +359,8 @@ module.exports = {
 		// 前提とするすべての処理が完了した後で実行する関数（ビュー生成関数のラッパー生成）
 		var done = function (){
 
-			// TODO: ボードごとに利用可能付箋情報を持つ予定。一旦、色指定ができるようにしてみる
-			var ticketToUse = [
-				{name: "ticket_blue_small", display: "Keep(S)"},
-				{name: "ticket_blue_big", display: "Keep(L)"},
-				{name: "ticket_pink_small", display: "Problem(S)"},
-				{name: "ticket_pink_big", display: "Plobrem(L)"},
-				{name: "ticket_yellow_small", display: "Try(S)"},
-				{name: "ticket_yellow_big", display: "Try(L)"},
-				{name: "ticket_blue_small", display: "color-blue(S)"},
-				{name: "ticket_blue_big", display: "color-blue(L)"},
-				{name: "ticket_brown_small", display: "color-brown(S)"},
-				{name: "ticket_brown_big", display: "color-brown(L)"},
-				{name: "ticket_gray_small", display: "color-gray(S)"},
-				{name: "ticket_gray_big", display: "color-gray(L)"},
-				{name: "ticket_green_small", display: "color-green(S)"},
-				{name: "ticket_green_big", display: "color-green(L)"},
-				{name: "ticket_orange_small", display: "color-orange(S)"},
-				{name: "ticket_orange_big", display: "color-orange(L)"},
-				{name: "ticket_pink_small", display: "color-pink(S)"},
-				{name: "ticket_pink_big", display: "color-pink(L)"},
-				{name: "ticket_purple_small", display: "color-purple(S)"},
-				{name: "ticket_purple_big", display: "color-purple(L)"},
-				{name: "ticket_white_small", display: "color-white(S)"},
-				{name: "ticket_white_big", display: "color-white(L)"},
-				{name: "ticket_yellow_small", display: "color-yellow(S)"},
-				{name: "ticket_yellow_big", display: "color-yellow(L)"}
-				];
+			// DBから取得した利用可能付箋データから表示用データを抽出する。
+			var ticketToUse = getTicketToUse(found["ticketData"]);
 
 			// プルダウンメニューHTML設定
 			comboMenu = createComboMenu(ticketToUse);
@@ -556,5 +609,17 @@ function createContextMenu(displayTickets){
 	var ret = u.map(displayTickets, function(item){
 	   return '{title: "'+item.display+'", cmd: "'+item.name+'"}';
     }).join("\r\n,");
+	return ret;
+}
+
+function getTicketToUse(ticketData){
+	var array = createTicketDataArray(ticketData);
+	// stateが"checked"の要素を抽出する。
+	var ret = [];
+	u.each(array, function(elem) {
+		if(elem["state"] === "checked"){
+			ret.push({name: elem["id"], display: elem["name"]});
+		}
+	});
 	return ret;
 }

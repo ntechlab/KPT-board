@@ -14,6 +14,80 @@ function back(){
   submit("/dashboard/index");
 }
 
+/**
+ * 利用可能付箋データを送信用に編集する。
+ */
+function setTicketData(){
+	var value = "";
+	var rows = $("tr.ticketDataRow");
+	var i;
+	for(i = 0; i < rows.length; i++){
+		var r = rows[i];
+		value += $(r).attr('id');
+		value += ":";
+		value += $(r).find(".ticketDataName").val();
+		value += ":";
+		value += $(r).find(".ticketDataCheck").prop('checked');
+		if(i < rows.length - 1){
+			value += ",";
+		}
+	};
+	$("#ticketDataToSend").val(value);
+}
+
+/**
+ * 利用可能付箋一覧のイベントと初期状態を設定する。
+ */
+function initTicketData(){
+	var rows = $("tr.ticketDataRow");
+	_.each(rows, function(row){
+		var r = $(row);
+		(function(dummy){
+			r.find(".ticketDataCheck").bind("change", function(e){
+				console.log("change");
+				var flag = dummy.find(".ticketDataCheck").prop("checked");
+				dummy.find(".ticketDataName").prop("disabled", !flag);
+			});
+		})(r);
+		if(!r.find(".ticketDataCheck").prop('checked')){
+			r.find(".ticketDataName").prop('disabled', true);
+		}
+	});
+}
+
+/**
+ * 利用可能状態の付箋には名前が設定されていることをチェックする。
+ */
+function checkTicketData(){
+	var rows = $("tr.ticketDataRow");
+	var i;
+	var numOfCheckedItems = 0;
+	var ngArray = [];
+	_.each(rows, function(r) {
+		var checked = $(r).find(".ticketDataCheck").prop('checked');
+		var type = $(r).find(".ticketDataType").text();
+		var name = $(r).find(".ticketDataName").val();
+		if(checked){
+			numOfCheckedItems++;
+			if(!name || name.trim() === ""){
+				ngArray.push(type);
+			}
+		}
+	});
+	if(numOfCheckedItems === 0) {
+		return {ok: false, message: "１つ以上の付箋をチェックしてください。"};
+	}
+	var ok = ngArray.length === 0;
+	var message = "表示名称を入力してください：";
+	for(i = 0; i < ngArray.length; i++){
+		message += ngArray[i];
+		if(i < ngArray.length - 1){
+			message += ", ";
+		}
+	}
+	return {ok: ok, message: message};
+}
+
 function save(){
   // エラーが存在する場合には処理を中断する。
   var res = validator.form();
@@ -29,6 +103,13 @@ function save(){
     });
   	return false;
   }
+  var result = checkTicketData();
+  if(!result["ok"]){
+    alert(result["message"]);
+    return false;
+  }
+  setTicketData();
+
   return submit("/board/updateBoard");
 }
 
@@ -481,6 +562,7 @@ var pagination;
 					.addClass('disabledButton');
 			}
 		});
+		initTicketData();
     });
 })(jQuery);
 
@@ -616,6 +698,7 @@ box-sizing: border-box;
 <form name="main" method="POST">
 <input type="hidden" name="id" value="<%= id %>"/>
 <input type="hidden" id="bgImage" name="bgImage" value="<%= bgImage %>"/>
+<input type="hidden" id="ticketDataToSend" name="ticketDataToSend" value=""/>
 <div class="panel panel-default">
 	<div class="panel-heading">基本設定</div>
 	<div class="panel-body">
@@ -739,6 +822,27 @@ box-sizing: border-box;
 						<input id="Binded2" name="bgSepLineColor" type="text" value="<%= bgSepLineColor %>" />
 					</div>
 				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="panel panel-default">
+	<div class="panel-heading">付箋種類</div>
+	<div class="panel-body">
+		<div class="row">
+			<div class="col-sm-12">
+				<table class="table table-bordered table-hover table-condensed">
+					<thead>
+						<tr>
+							<th style="width:40px;text-align:center;vertical-align:middle;"><!--<input type="checkbox"/>--></th>
+							<th style="vertical-align:middle;">タイプ</th>
+							<th style="width:400px;vertical-align:middle;">表示文字列</th>
+						</tr>
+					</thead>
+					<tbody>
+						<%- ticketTypeList %>
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>

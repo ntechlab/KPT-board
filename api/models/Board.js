@@ -21,7 +21,8 @@ module.exports = {
     bgSepV : {type : 'integer', defaultsTo: 1},
     bgSepH : {type : 'integer', defaultsTo: 1},
     bgSepLineWidth : {type : 'integer', defaultsTo: 3},
-    bgSepLineColor : {type : 'string', defaultsTo: '#000000'}
+    bgSepLineColor : {type : 'string', defaultsTo: '#000000'},
+    ticketData : {type : 'string', defaultsTo: 'ticket_blue_small:Keep:true,ticket_pink_small:Problem:true,ticket_yellow_small:Try:true,ticket_white_small:Memo:true'},
   }
 };
 

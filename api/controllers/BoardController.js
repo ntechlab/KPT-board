@@ -63,7 +63,8 @@ module.exports = {
     		    bgSepH : req.param('bgSepH'),
     		    category: category,
     		    bgSepLineWidth : req.param('bgSepLineWidth'),
-    		    bgSepLineColor : req.param('bgSepLineColor')
+    		    bgSepLineColor : req.param('bgSepLineColor'),
+    		    ticketData : req.param('ticketDataToSend')
     		};
         var list = ['bgColor', 'bgRepeatType'];
         for(var i = 0; i < list.length; i++){
