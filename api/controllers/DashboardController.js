@@ -65,7 +65,7 @@ var ticketData0 = [
  */
 function createTicketTypeString(req, ticketData2){
 	var ret = "";
-	var ticketData = createTicketDataArray(ticketData2);
+	var ticketData = createTicketDataArray(req, ticketData2);
 	u.each(ticketData, function(d){
 		var id = d["id"];
 		ret += '<tr class="ticketDataRow" id="' + id + '">'
@@ -84,10 +84,10 @@ function createTicketTypeString(req, ticketData2){
  * @param ticketData2 利用可能付箋データ文字列
  * @returns {Array} 利用可能付箋データ配列
  */
-function createTicketDataArray(ticketData2) {
+function createTicketDataArray(req, ticketData2) {
 	var ticketData = [];
 	var items;
-	if(ticketData){
+	if(ticketData2){
 		if(u.contains(ticketData2, ",")){
 			items = ticketData2.split(",");
 		} else {
@@ -112,6 +112,15 @@ function createTicketDataArray(ticketData2) {
 
 function showEditView(req, res, id, loginInfo){
 	logger.trace(req, "showEditView called: [" + id + "]");
+
+	// 管理者ロールでない場合には、ボード作成画面を表示しない。
+	if(loginInfo["roleName"] !== "admin"){
+		logger.error(req, "一般ユーザーは更新画面を表示できません。");
+		message = {type: "danger", contents: "画面の表示に失敗しました。"};
+		Utility.openMainPage(req, res, message);
+		return;
+	}
+
 	Board.findOne(id).exec(function(err,found){
 	    if(err || !found) {
 			logger.error(req, "ボード編集時 ボード取得失敗: エラー発生: [" + JSON.stringify(err) + "]");
@@ -130,7 +139,7 @@ function showEditView(req, res, id, loginInfo){
 					backgroundFileList.push(BACKGROUND_REL_PATH + file);
 				});
 				logger.debug(req, backgroundFileList);
-				var ticketData2 = found["ticketData"] || "";
+				var ticketData2 = found["ticketData"] || BOARD_DEFAULT_VALUES["ticketData"];
 				var ticketTypeList = createTicketTypeString(req, ticketData2);
 				var successCb = function(categories){
 					res.view('dashboard/editBoard', { id: id,
@@ -360,7 +369,8 @@ module.exports = {
 		var done = function (){
 
 			// DBから取得した利用可能付箋データから表示用データを抽出する。
-			var ticketToUse = getTicketToUse(found["ticketData"]);
+			var ticketData = found["ticketData"] || BOARD_DEFAULT_VALUES["ticketData"];
+			var ticketToUse = getTicketToUse(req, ticketData);
 
 			// プルダウンメニューHTML設定
 			comboMenu = createComboMenu(ticketToUse);
@@ -421,6 +431,16 @@ module.exports = {
     deleteBoard : function(req, res) {
     	var id = req.param("selectedId");
 		logger.trace(req, "deleteBoard: [" + id + "]");
+
+		// 管理者ロールでない場合には、ボードを削除できない。
+		var loginInfo = Utility.getLoginInfo(req, res);
+		if(loginInfo["roleName"] !== "admin"){
+			logger.error(req, "一般ユーザーはボードを削除できません。");
+			message = {type: "danger", contents: "処理に失敗しました。"};
+			Utility.openMainPage(req, res, message);
+			return;
+		}
+
 		// 削除対象ボードIDが設定されていない場合には、処理を行わずメイン画面に遷移。
 		var message = null;
 		if(id != null){
@@ -612,8 +632,8 @@ function createContextMenu(displayTickets){
 	return ret;
 }
 
-function getTicketToUse(ticketData){
-	var array = createTicketDataArray(ticketData);
+function getTicketToUse(req, ticketData){
+	var array = createTicketDataArray(req, ticketData);
 	// stateが"checked"の要素を抽出する。
 	var ret = [];
 	u.each(array, function(elem) {
