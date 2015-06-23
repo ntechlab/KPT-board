@@ -14,6 +14,13 @@ module.exports = {
      * ボード作成
      */
     createBoard : function(req, res) {
+    var loginInfo = Utility.getLoginInfo(req, res);
+    // 管理者ロールでない場合にはボードを作成できない。
+    if(loginInfo["roleName"] !== "admin"){
+      logger.error(req, "一般ユーザーはボードを作成できません。");
+      Utility.openMainPage(req, res, {type: "danger", contents: "ボードの作成に失敗しました。"});
+      return;
+    }
     var title = req.param('title');
     var category = req.param('category');
     logger.trace(req, "createBoard called:[" + title + "," + category + "]");
@@ -49,6 +56,13 @@ module.exports = {
      * ボード情報更新
      */
     updateBoard : function(req, res) {
+    	 var loginInfo = Utility.getLoginInfo(req, res);
+    	// 管理者ロールでない場合にはボードを更新できない。
+        if(loginInfo["roleName"] !== "admin"){
+          logger.error(req, "一般ユーザーはボード情報を更新できません。");
+          Utility.openMainPage(req, res, {type: "danger", contents: "ボード情報の更新に失敗しました。"});
+          return;
+        }
 	    var boardId = req.param('id');
         var category = req.param('category');
         category = Utility.trim(req, category);
