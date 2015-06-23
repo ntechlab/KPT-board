@@ -2,6 +2,7 @@
 <script src="/js/jquery-2.1.1.min.js"></script>
 <script src="/js/jquery-ui.min.js"></script>
 <script src="/js/underscore-min.js"></script>
+<script src="/js/underscore.string.min.js"></script>
 <link rel="stylesheet" href="/css/ticketAppearance.css?date=20131019">
 <script>
 
@@ -91,13 +92,11 @@
 
    //年・月・日・曜日を取得する
    var d = new Date(data["createdAt"]);
-   console.log(d);
-//   var year = d.getFullYear();
    var month = d.getMonth()+1;
    var week = d.getDay();
    var day = d.getDate();
-   var hour = d.getHours();
-   var minute = d.getMinutes();
+   var hour = _.str.lpad(d.getHours(), 2 ,'0');
+   var minute = _.str.lpad(d.getMinutes(), 2, '0');
    var yobi= new Array("日","月","火","水","木","金","土");
    sticky.find('.createDate').text(month+"/"+day+"("+yobi[week]+") "+hour+":"+minute);
    sticky.find('.contentsArea').html(val);
@@ -258,6 +257,8 @@ function setUpCanvas(){
   // jQueryオンロード処理
   $(function(){
 
+  _.str = s;
+
   setUpCanvas();
 
   $("body").contextmenu({
@@ -358,6 +359,36 @@ function setUpCanvas(){
       	updateUserList(data);
       }
     });
+
+	// PCでスマホ的なスクロール
+	$('#board')
+	.mousedown(function(event){
+		var grabFlag = false;
+		if($(event.target).is('#board') && !grabFlag){
+			console.log("スクロール開始");
+			grabFlag = true;
+			$('*')
+			.mousemove(scrollGrabAndDrag)
+			.mouseup(endGrabAndDrag)
+			.css("cursor", "move");
+		}
+
+		function scrollGrabAndDrag(event){
+			var nextX = window.scrollX - event.originalEvent.movementX;
+			var nextY = window.scrollY - event.originalEvent.movementY;
+			window.scroll(nextX, nextY);
+			return false;
+		}
+
+		function endGrabAndDrag(){
+			$(this).css("cursor", "auto");
+			console.log("スクロール終了");
+			$('*').unbind("mousemove", scrollGrabAndDrag);
+			$('*').unbind("mouseup", endGrabAndDrag);
+			$('*').css("cursor", "");
+			grabFlag = false;
+		}
+	});
 });
 
 /**
@@ -493,6 +524,12 @@ function updateUserList(data){
 
 </script>
 <style>
+
+body{
+	/* body開始位置の調整 */
+	padding-top: 51px;
+}
+
 .userInList{
 	color: white;
 	font-size: 14px;
@@ -512,6 +549,27 @@ function updateUserList(data){
 	border-radius: 10px;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
+}
+
+#boardTitleEtc {
+	z-index: 1000;
+	position: fixed;
+	top: 60px;
+	left: 10px;
+	width: 300px;
+	/* background-color: white; */
+	/* opacity: 0.7; */
+	background-color: rgba(255, 255, 255, 0.7);
+	/* border: 5px gray solid; */
+	border: 5px rgba(55, 55, 55, 0.7) solid;
+	padding: 3px;
+	border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+}
+
+.customContainer{
+	padding-left: 0;
 }
 
 table th {
@@ -622,6 +680,7 @@ table th {
 
 .hasmenu {
   z-index:0;
+  cursor: pointer;
 }
 
 .ui-widget{
@@ -643,25 +702,27 @@ table th {
 
 </style>
 <div class="customContainer theme-showcase" role="main">
-  <h3><%= title %></td></h3>
-  <h4 style="margin:10px;"><%= description %></h4>
+<div id="boardTitleEtc">
+	<h3><%= title %></td></h3>
+	<h4 style="margin:10px;"><%= description %></h4>
+	<div class="row">
+	  <div style="width:200px;margin: 10px 20px;">
+	    <div class="input-group">
+	   <select id="selectTicketType" name="selectTicketType" class="form-control">
+			<%- comboMenu %>
+	   </select>
+	      <div class="input-group-btn">
+	        <button id="createTicketButton" type="button" class="btn btn-default" onclick="createTicketByButton();">作成</button>
+	      </div><!-- /btn-group -->
+	    </div><!-- /input-group -->
+	  </div><!-- /.col-lg-6 -->
+	</div><!-- /.row -->
+</div><!-- /#boardTitleEtc -->
 
 <form method="POST">
   <input type="hidden" name="boardId" value="<%= boardId %>" />
   <input type="hidden" name="userId" value="<%= loginInfo.userId %>" />
 <div>
-<div class="row">
-  <div style="width:200px;margin:10px;">
-    <div class="input-group">
-   <select id="selectTicketType" name="selectTicketType" class="form-control">
-		<%- comboMenu %>
-   </select>
-      <div class="input-group-btn">
-        <button id="createTicketButton" type="button" class="btn btn-default" onclick="createTicketByButton();">作成</button>
-      </div><!-- /btn-group -->
-    </div><!-- /input-group -->
-  </div><!-- /.col-lg-6 -->
-</div><!-- /.row -->
 <canvas id="mycanvas" width="<%= width %>" height="<%= height %>" style="position:absolute;"></canvas>
 <div id="board" class="hasmenu">
 </div>
