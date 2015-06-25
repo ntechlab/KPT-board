@@ -28,7 +28,8 @@
 
     this.BRtoNL = function BRToNL(input){
       var ret = input;
-      ret=ret.replace(/<br\s*[\/]?>/gi, "\n");
+      ret=ret.replace(/<br\s[^>]*>/gi, "\n");
+      ret=ret.replace(/<br\s*\/?>/gi, "\n");
       return ret;
     };
 
@@ -676,6 +677,7 @@ table th {
   box-shadow: rgba(0,0,0,0.3) 0px 3px 7px 4px;
   -webkit-box-shadow: rgba(0,0,0,0.3) 0px 3px 7px 4px;
   -moz-box-shadow: rgba(0,0,0,0.3) 0px 3px 7px 4px;
+  border-radius: 1px; /* iOS7 Safari対応 */
 }
 
 .hasmenu {

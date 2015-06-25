@@ -1,0 +1,92 @@
+@color_pink: #FFCCCC;
+@color_blue: #99CCFF;
+@color_yellow: #FFFF66;
+@color_white: #FFFFFF;
+@shadow_normal: #101010;
+
+//-----------
+.ticket_blue_small {.baseStyle(@color_blue);}
+.ticket_blue_small_shadow {.baseShadow(@shadow_normal);}
+
+//-----------
+.ticket_pink_small {.baseStyle(@color_pink);}
+.ticket_pink_small_shadow {.baseShadow(@shadow_normal);}
+
+//-----------
+.ticket_yellow_small {.baseStyle(@color_yellow);}
+.ticket_yellow_small_shadow {.baseShadow(@shadow_normal);}
+
+//------------
+.ticket_white_small {.baseStyle(@color_white);}
+.ticket_white_small_shadow {.baseShadow(@shadow_normal);}
+
+//--------------------------
+.baseStyle(@color) {
+	// 付箋の基本
+	position: absolute;
+	margin-top: 0;
+	margin-bottom: 40px;
+	padding: 0 20px;
+	width: 245px;
+	height: 170px;
+	line-height: 16px;
+	font-size: 12px;
+	color: #080808;
+	box-shadow: rgba(0,0,0,0.3) 0px 0px 1px 1px;
+	-webkit-box-shadow: rgba(0,0,0,0.3) 0px 0px 1px 1px;
+	-moz-box-shadow: rgba(0,0,0,0.3) 0px 0px 1px 1px;
+	background-color: @color;
+	background-size: 16px 16px;
+	background-repeat: repeat;
+	background-position: 0 50px;
+
+	// 線を引く
+	&, &:after, &:before {
+		background-image: -webkit-linear-gradient(#8c8c8c 1px, transparent 1px);
+		background-image: -moz-linear-gradient(#8c8c8c 1px, transparent 1px);
+		background-image: -o-linear-gradient(#8c8c8c 1px, transparent 1px);
+		background-image: linear-gradient(#8c8c8c 1px, transparent 1px);
+	}
+}
+
+.baseShadow(@shadowColor){
+    // 付箋の左影位置傾き
+    &:before {
+      bottom: 10px;
+      left: 10px;
+      width: 50%;
+      -webkit-transform: rotate(-5deg);
+      -moz-transform: rotate(-5deg);
+      -o-transform: rotate(-5deg);
+      -ms-transform: rotate(-5deg);
+      transform: rotate(-5deg);
+    }
+
+	// 付箋の右影位置傾き
+    &:after {
+      bottom: 10px;
+      right: 10px;
+      width: 50%;
+      max-width: 250px;
+      -webkit-transform: rotate(5deg);
+      -moz-transform: rotate(5deg);
+      -o-transform: rotate(5deg);
+      -ms-transform: rotate(5deg);
+      transform: rotate(5deg);
+    }
+
+    // 付箋の影共通
+    &:before,
+    &:after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: 90%;
+      margin-top: -2px;
+      height: 4px;
+      background-size: 1px 3px, 1px 1px, 0 0;
+      -webkit-box-shadow: 0 15px 10px @shadowColor;
+      -moz-box-shadow: 0 15px 10px @shadowColor;
+      box-shadow: 0 15px 10px @shadowColor;
+    }
+}
