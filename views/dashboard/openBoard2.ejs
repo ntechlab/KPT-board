@@ -80,7 +80,7 @@
 
   function createTicketByButton() {
     var type = $('#selectTicketType').val();
-    createTicket(10, 10, type);
+    createTicket(10, 50, type);
   }
 
   function make(data) {
@@ -552,28 +552,28 @@ body{
 	width: 200px;
 	background-color: black;
 	opacity: 0.5;
-	border: 5px gray solid;
+	/* border: 5px gray solid; */
 	padding: 3px;
 	border-radius: 10px;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
 }
 
 #boardTitleEtc {
 	z-index: 1000;
 	position: fixed;
-	top: 60px;
-	left: 10px;
-	width: 300px;
+	/* top: 60px; */
+	/* left: 10px; */
+	width: 100%;
 	/* background-color: white; */
 	/* opacity: 0.7; */
 	background-color: rgba(255, 255, 255, 0.7);
 	/* border: 5px gray solid; */
-	border: 5px rgba(55, 55, 55, 0.7) solid;
+	/* border: 5px rgba(55, 55, 55, 0.7) solid;*/
 	padding: 3px;
 	border-radius: 10px;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
 }
 
 .customContainer{
@@ -686,6 +686,52 @@ table th {
 	font-family: 'fuijiPWebfont';
 }
 
+/* タイトル部分のフォーム */
+.slim-form-control {
+  display: block;
+  width: 100%;
+  height: 25px;
+  padding: 0px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* タイトル部分のボタン */
+.slim-btn {
+  display: inline-block;
+  padding: 0px 12px;
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 23.5px;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  /* background-image: none; */
+  border: 1px solid transparent;
+  border-radius: 4px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-color: #ccc;
+}
+
 /* 付箋スタイル（個別部分） */
 .sticky {
   position: absolute;
@@ -726,20 +772,18 @@ table th {
 </style>
 <div class="customContainer theme-showcase" role="main">
 <div id="boardTitleEtc">
-	<h3><%= title %></td></h3>
-	<h4 style="margin:10px;"><%= description %></h4>
-	<div class="row">
-	  <div style="width:200px;margin: 10px 20px;">
-	    <div class="input-group">
-	   <select id="selectTicketType" name="selectTicketType" class="form-control">
+	<div class="myWebFontClass" style="float:left; text-align:center; line-height:25px; font-size:14pt; margin-left:3px;"><%= title %></div>
+	<!--h4 style="margin:10px;"><%= description %></h4-->
+	<div style="width:200px; margin:0px 20px; float:right;">
+		<div class="input-group">
+			<select id="selectTicketType" name="selectTicketType" class="slim-form-control">
 			<%- comboMenu %>
-	   </select>
-	      <div class="input-group-btn">
-	        <button id="createTicketButton" type="button" class="btn btn-default" onclick="createTicketByButton();">作成</button>
-	      </div><!-- /btn-group -->
-	    </div><!-- /input-group -->
-	  </div><!-- /.col-lg-6 -->
-	</div><!-- /.row -->
+			</select>
+			<div class="input-group-btn">
+				<button id="createTicketButton" type="button" class="slim-btn btn-default" onclick="createTicketByButton();">作成</button>
+			</div><!-- /btn-group -->
+		</div><!-- /input-group -->
+	</div><!-- /.col-lg-6 -->
 </div><!-- /#boardTitleEtc -->
 
 <form method="POST">
