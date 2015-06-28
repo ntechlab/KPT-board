@@ -86,7 +86,7 @@
   function make(data) {
    var val = data["contents"];
    var nickname = data["nickname"];
-   var sticky = $('<div class="sticky"><div class="ticketTitle"><span class="userInfo"></span><div class="rightItems"><span class="createDate"></span><i class="removeIcon glyphicon glyphicon-remove" /></div></div><div class="contentsArea"></div></div>');
+   var sticky = $('<div class="sticky"><div class="ticketTitle"><span class="userInfo"></span><div class="rightItems"><span class="createDate"></span><i class="removeIcon glyphicon glyphicon-remove" /></div></div><div class="contentsArea myWebFontClass"></div></div>');
    val=t.NLtoBR(val);
 
    sticky.find('.userInfo').text(nickname);
@@ -120,7 +120,7 @@
         var id0 = data["id"];
         var c = $self.html();
         c=t.encode2(c);
-        $self.html('<textarea class="editArea">' + c + '</textarea>').addClass('contents_edit')
+        $self.html('<textarea class="editArea myWebFontClass">' + c + '</textarea>').addClass('contents_edit')
           .children()
           .focus()
           .blur(function() {
@@ -658,8 +658,8 @@ table th {
   top:20px;
   left:5px;
   clear: both;
-  font-size:12px;
-  font-family: "Meiryo UI",serif;
+  font-size:14px;
+/*  font-family: "Meiryo UI",serif; */
 }
 
 .editArea {
@@ -668,8 +668,22 @@ table th {
   padding: 3px;
   width:235px;
   height:145px;
-  font-size: 10pt;
-  font-family: "Meiryo UI",serif;
+  font-size: 12pt;
+/*  font-family: "Meiryo UI",serif; */
+}
+
+/* webフォントの指定 */
+@font-face{ 
+	font-family: 'fuijiPWebfont'; /* ふい字P */
+	src: url('/fonts/FuiFontP29Subset.eot'); /* IE9以上用 */
+	src: url('/fonts/FuiFontP29Subset.eot?#iefix') format('embedded-opentype'), /* IE8以前用 */
+		url('/fonts/FuiFontP29Subset.woff') format('woff'), /* モダンブラウザ用 */
+		url('/fonts/FuiFontP29Subset.ttf') format('truetype'); /* iOS, Android用 */
+/*	font-weight: normal; /* 念の為指定しておきます */
+	font-style: normal;
+}
+.myWebFontClass {
+	font-family: 'fuijiPWebfont';
 }
 
 /* 付箋スタイル（個別部分） */
