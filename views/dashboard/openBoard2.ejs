@@ -364,9 +364,9 @@ function setUpCanvas(){
 	// PCでスマホ的なスクロール
 	$('#board')
 	.mousedown(function(event){
+		var prevEvent;
 		var grabFlag = false;
 		if($(event.target).is('#board') && !grabFlag){
-			console.log("スクロール開始");
 			grabFlag = true;
 			$('*')
 			.mousemove(scrollGrabAndDrag)
@@ -374,22 +374,29 @@ function setUpCanvas(){
 			.css("cursor", "move");
 		}
 
-		function scrollGrabAndDrag(event){
-			var nextX = window.scrollX - event.originalEvent.movementX;
-			var nextY = window.scrollY - event.originalEvent.movementY;
+		function scrollGrabAndDrag(e){
+			if(prevEvent == null){
+				prevEvent = e;
+				return false;
+			}
+			var movementX = e.screenX - prevEvent.screenX;
+			var movementY = e.screenY - prevEvent.screenY;
+			var nextX = $(window).scrollLeft() - movementX;
+			var nextY = $(window).scrollTop() - movementY;
 			window.scroll(nextX, nextY);
+			prevEvent = e;
 			return false;
 		}
 
 		function endGrabAndDrag(){
 			$(this).css("cursor", "auto");
-			console.log("スクロール終了");
 			$('*').unbind("mousemove", scrollGrabAndDrag);
 			$('*').unbind("mouseup", endGrabAndDrag);
 			$('*').css("cursor", "");
 			grabFlag = false;
 		}
 	});
+
 });
 
 /**
