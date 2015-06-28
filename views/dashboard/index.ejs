@@ -87,9 +87,23 @@ function setUpPulldowns(){
     $('#category').trigger('change');
 
 }
+
+/**
+ * ボードが選択されていない場合には、開く・編集・削除ボタンを非活性とする。
+ */
+function disableButtonsIfNotSelected(){
+	var selectedId = $('#selectedId').val();
+	var flagDisabled = (selectedId == null);
+	$('#action_open').prop('disabled', flagDisabled);
+	$('#action_edit').prop('disabled', flagDisabled);
+	$('#action_delete').prop('disabled', flagDisabled);
+}
+
 $(function(){
     setUpPulldowns();
     showDescription();
+    disableButtonsIfNotSelected();
+    $('#selectedId').bind('change', disableButtonsIfNotSelected);
 })
 </script>
 <div class="container theme-showcase" role="main">
