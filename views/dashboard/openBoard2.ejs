@@ -123,14 +123,17 @@
         $self.html('<textarea class="editArea myWebFontClass">' + c + '</textarea>').addClass('contents_edit')
           .children()
           .focus()
+          .bind("touchstart", function(e){
+            e.stopPropagation(); // 編集状態でtextareaをクリックした際に、編集状態が解除されないようにするため追加。
+          })
           .blur(function() {
-          sticky.data("editing", false);
-          var c2 = $(this).val();
-          c2 = t.encode1(c2);
-          $(this).parent().html(c2);
-          var $sticky = $self.closest('.sticky');
-          updateFusen($sticky);
-        });
+	        sticky.data("editing", false);
+	        var c2 = $(this).val();
+	        c2 = t.encode1(c2);
+	        $(this).parent().html(c2);
+	        var $sticky = $self.closest('.sticky');
+	        updateFusen($sticky);
+	      });
       }).mousedown(function() {                              // 付箋をマウスクリック
         $('.selected').each(function(i, elm) {                  // 選択中選択枠を持つ付箋に影を付ける。
           var regExp = new RegExp("ticket");
@@ -674,7 +677,7 @@ table th {
 }
 
 /* webフォントの指定 */
-@font-face{ 
+@font-face{
 	font-family: 'fuijiPWebfont'; /* ふい字P */
 	src: url('/fonts/FuiFontP29Subset.eot'); /* IE9以上用 */
 	src: url('/fonts/FuiFontP29Subset.eot?#iefix') format('embedded-opentype'), /* IE8以前用 */
