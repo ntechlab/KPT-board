@@ -80,7 +80,7 @@
 
   function createTicketByButton() {
     var type = $('#selectTicketType').val();
-    createTicket(10, 50, type);
+    createTicket(10, 90, type);
   }
 
   function make(data) {
@@ -123,14 +123,17 @@
         $self.html('<textarea class="editArea myWebFontClass">' + c + '</textarea>').addClass('contents_edit')
           .children()
           .focus()
+          .bind("touchstart", function(e){
+            e.stopPropagation(); // 編集状態でtextareaをクリックした際に、編集状態が解除されないようにするため追加。
+          })
           .blur(function() {
-          sticky.data("editing", false);
-          var c2 = $(this).val();
-          c2 = t.encode1(c2);
-          $(this).parent().html(c2);
-          var $sticky = $self.closest('.sticky');
-          updateFusen($sticky);
-        });
+	        sticky.data("editing", false);
+	        var c2 = $(this).val();
+	        c2 = t.encode1(c2);
+	        $(this).parent().html(c2);
+	        var $sticky = $self.closest('.sticky');
+	        updateFusen($sticky);
+	      });
       }).mousedown(function() {                              // 付箋をマウスクリック
         $('.selected').each(function(i, elm) {                  // 選択中選択枠を持つ付箋に影を付ける。
           var regExp = new RegExp("ticket");
@@ -381,9 +384,10 @@ function setUpCanvas(){
 			}
 			var movementX = e.screenX - prevEvent.screenX;
 			var movementY = e.screenY - prevEvent.screenY;
-			var nextX = $(window).scrollLeft() - movementX;
-			var nextY = $(window).scrollTop() - movementY;
-			window.scroll(nextX, nextY);
+			var nextX = $('#boardArea').scrollLeft() - movementX;
+			var nextY = $('#boardArea').scrollTop() - movementY;
+			$('#boardArea').scrollTop(nextY);
+			$('#boardArea').scrollLeft(nextX);
 			prevEvent = e;
 			return false;
 		}
@@ -607,9 +611,9 @@ table th {
 .ticketTitle:after {
   content: '';
   position: absolute;
-  bottom: 2px;
-  left: 1px;
-  right: 1px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
   height: 1px;
   border-top: 2px groove #ff0000;
 }
@@ -641,7 +645,7 @@ table th {
 
 /* 削除アイコン */
 .removeIcon {
-  top:2px;
+  top:1px;
   right:3px;
   font-size: 12px; !imortant
   font-weight: 100;
@@ -673,7 +677,7 @@ table th {
 }
 
 /* webフォントの指定 */
-@font-face{ 
+@font-face{
 	font-family: 'fuijiPWebfont'; /* ふい字P */
 	src: url('/fonts/FuiFontP29Subset.eot'); /* IE9以上用 */
 	src: url('/fonts/FuiFontP29Subset.eot?#iefix') format('embedded-opentype'), /* IE8以前用 */
@@ -741,9 +745,9 @@ table th {
 
 .selected {
   z-index:100;
-  box-shadow: rgba(0,0,0,0.3) 0px 3px 7px 4px;
-  -webkit-box-shadow: rgba(0,0,0,0.3) 0px 3px 7px 4px;
-  -moz-box-shadow: rgba(0,0,0,0.3) 0px 3px 7px 4px;
+  box-shadow: rgba(0,0,0,0.5) 0px 2px 15px 4px;
+  -webkit-box-shadow: rgba(0,0,0,0.5) 0px 2px 15px 4px;
+  -moz-box-shadow: rgba(0,0,0,0.5) 0px 2px 15px 4px;
   border-radius: 1px; /* iOS7 Safari対応 */
 }
 
@@ -763,65 +767,76 @@ table th {
 
 #mycanvas {
   <%= canvasAppearance %>
+  background-position: 0px 80px;
 }
 
 #board {
   <%= boardAppearance %>
 }
 
+#boardArea {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  bottom: 0px;
+  overflow-x: scroll;
+  overflow-y: scroll;
+}
+
 </style>
 <div class="customContainer theme-showcase" role="main">
-<div id="boardTitleEtc">
-	<div class="myWebFontClass" style="float:left; text-align:center; line-height:25px; font-size:14pt; margin-left:3px;"><%= title %></div>
-	<!--h4 style="margin:10px;"><%= description %></h4-->
-	<div style="width:200px; margin:0px 20px; float:right;">
-		<div class="input-group">
-			<select id="selectTicketType" name="selectTicketType" class="slim-form-control">
-			<%- comboMenu %>
-			</select>
-			<div class="input-group-btn">
-				<button id="createTicketButton" type="button" class="slim-btn btn-default" onclick="createTicketByButton();">作成</button>
-			</div><!-- /btn-group -->
-		</div><!-- /input-group -->
-	</div><!-- /.col-lg-6 -->
-</div><!-- /#boardTitleEtc -->
+	<div id="boardTitleEtc">
+		<div class="myWebFontClass" style="float:left; text-align:center; line-height:25px; font-size:14pt; margin-left:3px;"><%= title %></div>
+		<!--h4 style="margin:10px;"><%= description %></h4-->
+		<div style="width:200px; margin:0px 20px; float:right;">
+			<div class="input-group">
+				<select id="selectTicketType" name="selectTicketType" class="slim-form-control">
+				<%- comboMenu %>
+				</select>
+				<div class="input-group-btn">
+					<button id="createTicketButton" type="button" class="slim-btn btn-default" onclick="createTicketByButton();">作成</button>
+				</div><!-- /btn-group -->
+			</div><!-- /input-group -->
+		</div><!-- /.col-lg-6 -->
+	</div><!-- /#boardTitleEtc -->
 
-<form method="POST">
-  <input type="hidden" name="boardId" value="<%= boardId %>" />
-  <input type="hidden" name="userId" value="<%= loginInfo.userId %>" />
-<div>
-<canvas id="mycanvas" width="<%= width %>" height="<%= height %>" style="position:absolute;"></canvas>
-<div id="board" class="hasmenu">
+	<form method="POST">
+		<div id="boardArea">
+			<input type="hidden" name="boardId" value="<%= boardId %>" />
+			<input type="hidden" name="userId" value="<%= loginInfo.userId %>" />
+			<canvas id="mycanvas" width="<%= width %>" height="<%= height %>" style="position:absolute;"></canvas>
+			<div id="board" class="hasmenu">
+			</div>
+			<div id="userList" class="userList" style="display:none"></div>
+			<input type="button" style="margin:10px;" value="デバッグ情報" onclick="$('#debugTable').toggle();"/>
+			<div id="debugTable" style="display:none">
+				<table id="tickets" border="1">
+				  <tr>
+				    <th>ID</th>
+				    <th>削除</th>
+				    <th>更新</th>
+				    <th>ボードID</th>
+				    <th>ユーザーID</th>
+				    <th>ニックネーム</th>
+				    <th>内容</th>
+				  </tr>
+				<% for( var i in list ) {%>
+				  <tr id="<%= list[i].id %>">
+				     <td><%= list[i].id %></td>
+				     <td><input type="button" onclick="destroyTicket(<%= list[i].id %>)" value="削除"/></td>
+				     <td><input type="button" onclick="updateTicket(<%= list[i].id %>)" value="更新"/></td>
+				     <td><%= list[i].boardId %></td>
+				     <td><%= list[i].createUser %></td>
+				     <td><%= list[i].nickname %></td>
+				     <td><textarea id="ta_<%= list[i].id %>"><%= list[i].contents %></textarea></td>
+				  </tr>
+				<% } %>
+				</table>
+			</div>
+		</div><!-- /#boardArea -->
+	</form>
 </div>
-<div id="userList" class="userList" style="display:none"></div>
-</div>
-<input type="button" style="margin:10px;" value="デバッグ情報" onclick="$('#debugTable').toggle();"/>
-<div id="debugTable" style="display:none">
-	<table id="tickets" border="1">
-	  <tr>
-	    <th>ID</th>
-	    <th>削除</th>
-	    <th>更新</th>
-	    <th>ボードID</th>
-	    <th>ユーザーID</th>
-	    <th>ニックネーム</th>
-	    <th>内容</th>
-	  </tr>
-	<% for( var i in list ) {%>
-	  <tr id="<%= list[i].id %>">
-	     <td><%= list[i].id %></td>
-	     <td><input type="button" onclick="destroyTicket(<%= list[i].id %>)" value="削除"/></td>
-	     <td><input type="button" onclick="updateTicket(<%= list[i].id %>)" value="更新"/></td>
-	     <td><%= list[i].boardId %></td>
-	     <td><%= list[i].createUser %></td>
-	     <td><%= list[i].nickname %></td>
-	     <td><textarea id="ta_<%= list[i].id %>"><%= list[i].contents %></textarea></td>
-	  </tr>
-	<% } %>
-	</table>
-</div>
-</form>
-</div>
+
 <!-- 付箋削除の確認ダイアログ -->
 <div id="confirmDeleteTicket" title="付箋削除の確認" style="display:none">
   <p>
