@@ -2,11 +2,11 @@
   function back(){
     submit("/usermanage/index");
   }
-  
+
   function home(){
     submit("/dashboard/index");
   }
-  
+
   // ユーザー作成
   function createUser(){
     console.log("createUser");
@@ -17,7 +17,7 @@
 		return false;
 	}
   };
-  
+
   function setPulldownValues() {
 	var role = '<%= role %>';
 	var valid = '<%= valid %>';
@@ -25,15 +25,15 @@
 		$('#role').val(role);
 	}
 	if(valid != ''){
-		$('#valid').val(valid); 
+		$('#valid').val(valid);
 	}
   }
-  
+
   function init(){
     setUpValidation();
     setPulldownValues();
   }
-  
+
   function setUpValidation(){
 	$("form").validate({
 		rules: {
@@ -91,7 +91,7 @@
     <label for="username">アカウント</label>
     <input class="form-control" name="username" id="username" placeholder="アカウントを入力してください。" value="<%= username %>">
   </div>
-  
+
    <div class="form-group">
     <label for="password">パスワード</label>
     <input type="password" class="form-control" name="password" id="password" placeholder="パスワードを入力してください。" value="<%= password %>">
@@ -102,12 +102,12 @@
     <input type="password" class="form-control" name="password_confirm" id="password_confirm" placeholder="確認のため、パスワードを再度入力してください。"
       value="<%= password_confirm %>" />
   </div>
-  
+
    <div class="form-group">
     <label for="nickname">ユーザー名</label>
     <input class="form-control" name="nickname" id="nickname" placeholder="ユーザー名を入力してください。" value="<%= nickname %>">
   </div>
-  
+
    <div class="form-group">
     <label for="role">ロール</label>
     <select class="form-control" name="role" id="role">
@@ -115,7 +115,7 @@
     <option value="admin">管理者</option>
     </select>
   </div>
-  
+
    <div class="form-group">
     <label for="valid">有効性</label>
     <select class="form-control" name="valid" id="valid">
@@ -123,7 +123,7 @@
     <option value="1">無効</option>
     </select>
   </div>
-  <button type="submit" class="btn btn-default" onclick="createUser()" >新規作成</button>
+  <button type="button" class="btn btn-default" onclick="createUser()" >新規作成</button>
   <input type="button" class="btn btn-default" onclick="back()" value="キャンセル" />
 </form>
 </div>

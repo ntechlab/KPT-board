@@ -2,7 +2,7 @@
   function home(){
     submit("/dashboard/index");
   }
-  
+
   function back(){
     <% if(loginInfo.roleName === 'admin') { %>
     submit("/usermanage/index");
@@ -10,14 +10,14 @@
     submit("/dashboard/index");
     <% } %>
   }
-  
+
   function autotrim(items){
     for(var i = 0; i < items.length;i++){
       var item = items[i];
       $(item).val($(item).val().trim());
     }
   }
-  
+
   function extraCheck(){
     var role = $('#role').val();
     var valid = $('#valid').val();
@@ -28,7 +28,7 @@
     	return false;
     }
   }
-  
+
   // ユーザー更新
   function updateUser(){
     autotrim(["#username", "#nickname"]);
@@ -59,9 +59,9 @@
 	} else {
 		return false;
 	}
-	
+
   }
-  
+
   function setPulldownValues() {
 	var role = '<%= role %>';
 	var valid = '<%= valid %>';
@@ -69,15 +69,15 @@
 		$('#role').val(role);
 	}
 	if(valid != ''){
-		$('#valid').val(valid); 
+		$('#valid').val(valid);
 	}
   }
-  
+
   function init(){
     setUpValidation();
     setPulldownValues();
   }
-  
+
   function setUpValidation(){
 	$("form").validate({
 		rules: {
@@ -135,22 +135,22 @@
     <label for="username">アカウント</label>
     <input class="form-control" name="username" id="username" placeholder="アカウントを入力" value="<%= username %>">
   </div>
-  
+
    <div class="form-group">
     <label for="password">パスワード</label>
     <input type="password" class="form-control" name="password" id="password" placeholder="パスワードを変更する際に入力して下さい。">
   </div>
-  
+
    <div class="form-group">
     <label for="password_confirm">パスワード（確認）</label>
     <input type="password" class="form-control" name="password_confirm" id="password_confirm" placeholder="確認のため、パスワードを再度入力してください。">
   </div>
-  
+
    <div class="form-group">
     <label for="nickname">ユーザー名</label>
     <input class="form-control" name="nickname" id="nickname" placeholder="ユーザー名を入力" value="<%= nickname %>">
   </div>
-  
+
   <% if(loginInfo != null && loginInfo.roleName === 'admin') {%>
    <div class="form-group">
     <label for="role">ロール</label>
@@ -159,7 +159,7 @@
     <option value="admin">管理者</option>
     </select>
   </div>
-  
+
    <div class="form-group">
     <label for="valid">有効性</label>
     <select class="form-control" name="valid" id="valid">
@@ -168,7 +168,7 @@
     </select>
   </div>
   <% } %>
-  <button type="submit" id="updateButton" class="btn btn-default" onclick="return updateUser()" >更新</button>
+  <button type="button" id="updateButton" class="btn btn-default" onclick="return updateUser()" >更新</button>
   <input type="button" id="cancelButton" class="btn btn-default" onclick="back()" value="キャンセル" />
   <input type="hidden" name="target" value="<%= target %>" />
 </form>

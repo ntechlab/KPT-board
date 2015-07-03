@@ -2,11 +2,11 @@
   function home(){
     submit("/dashboard/index");
   }
-  
+
   function back(){
     submit("/dashboard/index");
   }
-  
+
   // ユーザー作成
   function openCreateUser(){
     console.log("openCreate");
@@ -80,8 +80,8 @@
   <% } %>
   </table>
 </div>
-  <button type="submit" class="btn btn-default" onclick="openCreateUser()">新規ユーザー追加</button>
-  <button type="submit" class="btn btn-default" onclick="back()">キャンセル</button>
+  <button type="button" class="btn btn-default" onclick="openCreateUser()">新規ユーザー追加</button>
+  <button type="button" class="btn btn-default" onclick="back()">キャンセル</button>
   <input type="hidden" name="target" id="target" value="" />
 </form>
 <div id="confirmDeleteUser" title="ユーザー削除の確認" style="display:none">
