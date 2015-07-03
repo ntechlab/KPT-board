@@ -107,8 +107,7 @@
       .addClass(data["color"])
       .addClass(data["color"]+"_shadow")
       .animate({left: data["positionX"], top: data["positionY"] })
-      .draggable({stop: updateFusenListener})
-      .click(function(e) {
+      .draggable({stop: updateFusenListener, containment: "#board"})      .click(function(e) {
         // console.log("付箋クリックイベント発生");
       })
       .bind("dblTap",function(){
