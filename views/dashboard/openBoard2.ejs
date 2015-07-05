@@ -782,7 +782,9 @@ table th {
   overflow-x: scroll;
   overflow-y: scroll;
 }
-
+.selectbox{
+	font-size: 16px;　/* iphoneで拡大表示を回避 */
+}
 </style>
 <div class="customContainer theme-showcase" role="main">
 	<div id="boardTitleEtc">
@@ -790,7 +792,7 @@ table th {
 		<!--h4 style="margin:10px;"><%= description %></h4-->
 		<div style="width:200px; margin:0px 20px; float:right;">
 			<div class="input-group">
-				<select id="selectTicketType" name="selectTicketType" class="slim-form-control">
+				<select id="selectTicketType" name="selectTicketType" class="selectbox slim-form-control">
 				<%- comboMenu %>
 				</select>
 				<div class="input-group-btn">

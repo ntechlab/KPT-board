@@ -692,7 +692,9 @@ box-sizing: border-box;
     opacity: 1;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.75);
 }
-
+.multiText{
+	font-size: 16px;　/* iphoneで拡大表示を回避 */
+}
 </style>
 <div class="container theme-showcase" role="main">
 <form name="main" method="POST">
@@ -704,28 +706,28 @@ box-sizing: border-box;
 	<div class="panel-body">
 		<div class="form-group">
 			<label for="title">タイトル</label>
-			<input class="form-control"  name="title" id="title" placeholder="ボードのタイトルを修正してください。" value="<%= title %>">
+			<input class="multiText form-control"  name="title" id="title" placeholder="ボードのタイトルを修正してください。" value="<%= title %>">
 		</div>
 		<div class="form-group">
 			<label for="description">説明</label>
-			<textarea class="form-control" rows="4" name="description" id="description" placeholder="ボードの説明を修正してください。"><%= description %></textarea>
+			<textarea class="multiText form-control" rows="4" name="description" id="description" placeholder="ボードの説明を修正してください。"><%= description %></textarea>
 		</div>
 		<div class="form-group">
 			<label for="category">カテゴリー</label>
-			<select id="category" name="category" class="form-control">
+			<select id="category" name="category" class="multiText form-control">
 			</select>
 		</div>
 		<div class="row">
 			<div class="col-sm-3">
 				<div class="form-group">
 					<label for="width">幅</label>
-					<input class="form-control"  name="width" id="width" value="<%= width %>"/>
+					<input class="multiText form-control"  name="width" id="width" value="<%= width %>"/>
 				</div>
 			</div>
 			<div class="col-sm-3">
 				<div class="form-group">
 					<label for="height">高さ</label>
-					<input class="form-control"  name="height" id="height" value="<%= height %>"/>
+					<input class="multiText form-control"  name="height" id="height" value="<%= height %>"/>
 				</div>
 			</div>
 		</div>
@@ -798,13 +800,13 @@ box-sizing: border-box;
 			<div class="col-sm-3">
 				<div class="form-group">
 					<label for="bgSepV">縦方向分割数</label>
-					<input class="form-control" type="text"  name="bgSepV" id="bgSepV" value="<%= bgSepV %>"/>
+					<input class="multiText form-control" type="text"  name="bgSepV" id="bgSepV" value="<%= bgSepV %>"/>
 				</div>
 			</div>
 			<div class="col-sm-3">
 				<div class="form-group">
 					<label for="bgSepH">横方向分割数</label>
-					<input class="form-control" type="text" name="bgSepH" id="bgSepH" value="<%= bgSepH %>"/>
+					<input class="multiText form-control" type="text" name="bgSepH" id="bgSepH" value="<%= bgSepH %>"/>
 				</div>
 			</div>
 		</div>
@@ -812,14 +814,14 @@ box-sizing: border-box;
 			<div class="col-sm-3">
 				<div class="form-group">
 					<label for="bgSepLineWidth">線の幅</label>
-					<input class="form-control" type="text" name="bgSepLineWidth" id="bgSepLineWidth" value="<%= bgSepLineWidth %>"/>
+					<input class="multiText form-control" type="text" name="bgSepLineWidth" id="bgSepLineWidth" value="<%= bgSepLineWidth %>"/>
 				</div>
 			</div>
 			<div class="col-sm-3">
 				<div class="form-group">
 					<label for="bgSepLineColor">線の色</label>
-					<div id="forLineColor">
-						<input id="Binded2" name="bgSepLineColor" type="text" value="<%= bgSepLineColor %>" />
+					<div id="multiText forLineColor">
+						<input class="multiText" id="Binded2" name="bgSepLineColor" type="text" value="<%= bgSepLineColor %>" />
 					</div>
 				</div>
 			</div>
@@ -839,7 +841,7 @@ box-sizing: border-box;
 							<th style="width:400px;vertical-align:middle;">表示文字列</th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody class="multiText">
 						<%- ticketTypeList %>
 					</tbody>
 				</table>

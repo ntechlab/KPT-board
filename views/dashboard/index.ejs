@@ -107,13 +107,20 @@ $(function(){
     $('#selectedId').bind('change', disableButtonsIfNotSelected);
 })
 </script>
+
+<style>
+.selectbox{
+	font-size: 16px;　/* iphoneで拡大表示を回避 */
+}
+</style>
+
 <div class="container theme-showcase" role="main">
 <form name="main" method="POST">
     <div class="row" style="margin-bottom:10px;">
         <div class="form-group">
             <label for="category" class="col-xs-12 col-sm-2 control-label">カテゴリー</label>
             <div class="col-xs-12 col-sm-10">
-                <select id="category" name="category" class="form-control"></select>
+                <select id="category" name="category" class="selectbox form-control"></select>
             </div>
         </div>
     </div>
@@ -121,7 +128,7 @@ $(function(){
         <div class="form-group">
             <label for="selectedId" class="col-xs-12 col-sm-2 col-md-2 col-lg-2 control-label">タイトル</label>
             <div class="col-xs-12 col-sm-7 col-md-7 col-lg-8 btn-group">
-                <select id="selectedId" name="selectedId" class="form-control"></select>
+                <select id="selectedId" name="selectedId" class="selectbox form-control"></select>
             </div>
             <div class="col-xs-12 col-sm-3 col-md-3  col-lg-2 btn-group">
                 <button id="action_open" class="btn btn-default" onclick="openBoard2()">開く</button>

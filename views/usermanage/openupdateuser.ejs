@@ -126,35 +126,39 @@
 		}
 	});
 }
-
 </script>
+<style>
+.multiText{
+	font-size: 16px;　/* iphoneで拡大表示を回避 */
+}
+</style>
 <div class="container theme-showcase" role="main">
 <form method="POST">
 <h3>ユーザー情報更新</h3>
  <div class="form-group">
     <label for="username">アカウント</label>
-    <input class="form-control" name="username" id="username" placeholder="アカウントを入力" value="<%= username %>">
+    <input class="multiText form-control" name="username" id="username" placeholder="アカウントを入力" value="<%= username %>">
   </div>
 
    <div class="form-group">
     <label for="password">パスワード</label>
-    <input type="password" class="form-control" name="password" id="password" placeholder="パスワードを変更する際に入力して下さい。">
+    <input type="password" class="multiText form-control" name="password" id="password" placeholder="パスワードを変更する際に入力して下さい。">
   </div>
 
    <div class="form-group">
     <label for="password_confirm">パスワード（確認）</label>
-    <input type="password" class="form-control" name="password_confirm" id="password_confirm" placeholder="確認のため、パスワードを再度入力してください。">
+    <input type="password" class="multiText form-control" name="password_confirm" id="password_confirm" placeholder="確認のため、パスワードを再度入力してください。">
   </div>
 
    <div class="form-group">
     <label for="nickname">ユーザー名</label>
-    <input class="form-control" name="nickname" id="nickname" placeholder="ユーザー名を入力" value="<%= nickname %>">
+    <input class="multiText form-control" name="nickname" id="nickname" placeholder="ユーザー名を入力" value="<%= nickname %>">
   </div>
 
   <% if(loginInfo != null && loginInfo.roleName === 'admin') {%>
    <div class="form-group">
     <label for="role">ロール</label>
-    <select class="form-control" name="role" id="role">
+    <select class="multiText form-control" name="role" id="role">
     <option value="">一般</option>
     <option value="admin">管理者</option>
     </select>
@@ -162,7 +166,7 @@
 
    <div class="form-group">
     <label for="valid">有効性</label>
-    <select class="form-control" name="valid" id="valid">
+    <select class="multiText form-control" name="valid" id="valid">
     <option value="0">有効</option>
     <option value="1">無効</option>
     </select>
