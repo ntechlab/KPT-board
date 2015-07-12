@@ -532,7 +532,6 @@ function updateUserList(data){
 	}
 
 }
-
 </script>
 <style>
 
@@ -801,10 +800,11 @@ table th {
 			</div><!-- /input-group -->
 		</div><!-- /.col-lg-6 -->
 	</div><!-- /#boardTitleEtc -->
-
 	<form method="POST">
 		<div id="boardArea">
 			<input type="hidden" name="boardId" value="<%= boardId %>" />
+			<input type="hidden" name="category" value="<%= category %>" />
+			<input type="hidden" name="selectedId" value="<%= selectedId %>" />
 			<input type="hidden" name="userId" value="<%= loginInfo.userId %>" />
 			<canvas id="mycanvas" width="<%= width %>" height="<%= height %>" style="position:absolute;"></canvas>
 			<div id="board" class="hasmenu">

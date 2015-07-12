@@ -158,6 +158,7 @@ function showEditView(req, res, id, loginInfo){
 						images: backgroundFileList,
 						category: found["category"] || "",
 						categories: categories,
+						selectedId : req.param("selectedId"),
 						ticketTypeList : ticketTypeList,
 						loginInfo: loginInfo
 					});
@@ -262,6 +263,8 @@ module.exports = {
 				var categoryData = Utility.getCategoryMap(found);
 				res.view({
 					categoryData: JSON.stringify(categoryData),
+					category : req.param("category"),
+					selectedId : req.param("selectedId"),
 					loginInfo: loginInfo
 				});
 				logger.trace(req, "ボード一覧画面表示処理 終了");
@@ -389,6 +392,8 @@ module.exports = {
 				comboMenu: comboMenu, // プルダウンメニューHTML
 				contextMenu: contextMenu, // コンテクストメニューHTML
 				boardId: boardId,
+				category : req.param("category"),
+				selectedId : req.param("selectedId"),
 				loginInfo: loginInfo,
 				title : found["title"],
 				description: found["description"],

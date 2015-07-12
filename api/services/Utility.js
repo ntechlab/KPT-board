@@ -20,7 +20,7 @@ exports.getLoginInfo = function(req, res){
 };
 
 exports.openMainPage = function(req, res, message){
-	logger.trace(req, "openMainPage[" + message + "]");
+	logger.trace(req, "Utility.js openMainPage[" + message + "]");
 	var loginInfo = Utility.getLoginInfo(req, res);
 	if(message){
 		loginInfo.message = message;
@@ -32,10 +32,22 @@ exports.openMainPage = function(req, res, message){
 			loginInfo.message = {type: "danger", contents: "エラー発生:"+JSON.stringify(err)};
 		}
 		var categoryData = getCategoryMap(found);
-		res.view("dashboard/index", {
-			categoryData: JSON.stringify(categoryData),
-			loginInfo: loginInfo
-		});
+		if( req.param("category") != null && req.param("selectedId") != null ){
+			res.view("dashboard/index", {
+				categoryData: JSON.stringify(categoryData),
+				category : req.param("category"),
+				selectedId : req.param("selectedId"),
+//				title : req.param("title"),
+				loginInfo: loginInfo
+			});
+		} else {
+			res.view("dashboard/index", {
+				categoryData: JSON.stringify(categoryData),
+				category : req.param("category"),
+				selectedId : req.param("selectedId"),
+				loginInfo: loginInfo
+			});
+		}
 	});
 };
 

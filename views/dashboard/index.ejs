@@ -61,13 +61,15 @@ function setUpPulldowns(){
     var categories = data["categories"];
     var map = data["map"];
     categories = [""].concat(categories);
+if( $('#category').children().length == 0 ){
     _.each(categories, function(category){
         var $option = $('<option></option>')
             .text(category);
         $('#category').append($option);
     });
+}
     $('#category').change(function (){
-        var cat = $(this).val();
+        var cat = $('#category').val();
         var boards = map[cat];
         $('#selectedId').empty();
         _.each(boards, function(item){
@@ -99,12 +101,20 @@ function disableButtonsIfNotSelected(){
 	$('#action_edit').prop('disabled', flagDisabled);
 	$('#action_delete').prop('disabled', flagDisabled);
 }
-
+var selectedCategory ='<%= category %>';
 $(function(){
     setUpPulldowns();
     showDescription();
+		$('#category').val(selectedCategory); // カテゴリに前回選択状態をセット
+    setUpPulldowns();
+    if('<%= selectedId %>' != "undefined"){
+		var selectedId ='<%= selectedId %>';
+		$('#selectedId').val(selectedId); // カテゴリに前回選択状態をセット
+		console.log("selectedId:" + selectedId);
+    }
     disableButtonsIfNotSelected();
     $('#selectedId').bind('change', disableButtonsIfNotSelected);
+
 })
 </script>
 

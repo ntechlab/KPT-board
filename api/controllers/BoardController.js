@@ -43,12 +43,14 @@ module.exports = {
 			res.view("newboard/index", {
 				loginInfo: loginInfo,
 				title: req.param("title"),
+				category : req.param("category"),
+				selectedId : req.param("selectedId"),
 				desc: req.param('description')
 			});
 		    return;
 		}
-		logger.info(req, "ボード新規作成:[" + title + "," + category + "]");
-		Utility.openMainPage(req, res, {type: "success", contents: "ボードを作成しました。"});
+		logger.info(req, "ボード新規作成:[category:" + category + ",title:" + title + "]");
+		Utility.openMainPage(req, res, {type: "success", contents: "ボードを作成しました。［カテゴリー：" + category + "　タイトル：" + title + "］"});
 	});
     },
 
@@ -76,6 +78,7 @@ module.exports = {
     		    bgSepV : req.param('bgSepV'),
     		    bgSepH : req.param('bgSepH'),
     		    category: category,
+    		    selectedId : req.param("selectedId"),
     		    bgSepLineWidth : req.param('bgSepLineWidth'),
     		    bgSepLineColor : req.param('bgSepLineColor'),
     		    ticketData : req.param('ticketDataToSend')
@@ -90,9 +93,9 @@ module.exports = {
         logger.trace(req, "updateBoard called: [" + JSON.stringify(newObj) + "]");
 		Board.update(boardId, newObj).exec(function(err,created){
 			if(err) {
-				logger.error(req, "ボード情報の更新に失敗しました: [" + JSON.stringify(newObj) + "][" + JSON.stringify(err) + "]");
+				logger.error(req, "BoardController.js ボード情報の更新に失敗しました: [" + JSON.stringify(newObj) + "][" + JSON.stringify(err) + "]");
 				var loginInfo = Utility.getLoginInfo(req, res);
-				loginInfo.message = {type: "danger", contents: "ボード情報の更新に失敗しました: " + JSON.stringify(err)};
+				loginInfo.message = {type: "danger", contents: "BoardController.js ボード情報の更新に失敗しました: " + JSON.stringify(err)};
 				res.view("dashboard/editBoard", {
 					id: boardId,
 					loginInfo: loginInfo,
@@ -101,7 +104,7 @@ module.exports = {
 				});
 			    return;
 			}
-			logger.info(req, "ボード情報の更新: ["+JSON.stringify(newObj)+"]");
+			logger.info(req, "BoardController.js ボード情報の更新: ["+JSON.stringify(newObj)+"]");
 			Utility.openMainPage(req, res, {type: "success", contents: "ボード情報を更新しました。"});
 		});
     },
