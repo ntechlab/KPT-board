@@ -98,6 +98,7 @@ label.has-error {
   }
 
   function logout(){
+    $("#navbar_collapse").removeClass("in"); //close navbar
     showConfirmLogoutDialog();
   }
 
@@ -127,6 +128,7 @@ label.has-error {
     form.action = action;
     form.submit();
   }
+
 </script>
   </head>
 
@@ -147,7 +149,7 @@ label.has-error {
           <a class="navbar-brand" style="color:white;" href="https://github.com/ntechlab/KPT-board" tabindex=-1 ><span class="hovereffect_light">KPTボード</span></a>
         </div>
 <% if(loginInfo.userId != '') {%>
-        <div class="navbar-collapse collapse">
+        <div class="navbar-collapse collapse" id="navbar_collapse">
           <ul class="nav navbar-nav">
             <li>
               <a onclick="home()" tabindex=-1>
