@@ -1,8 +1,8 @@
 <script>
   var newCategoryString = "[新規作成]";
 
-  // プルダウンの値変更前に設定されていたカテゴリーを保持する。
-  // カテゴリー対以下ダイアログで、キャンセルボタンを押した際に、前回の選択状態を設定するために利用。
+  // プルダウンの値変更前に設定されていたカテゴリを保持する。
+  // カテゴリ対以下ダイアログで、キャンセルボタンを押した際に、前回の選択状態を設定するために利用。
   var previousSelectedCategory = "<%= category %>";
 
   var categories = [
@@ -12,10 +12,10 @@
 
   function setUpCategory(){
 
-    // カテゴリー要素の追加
+    // カテゴリ要素の追加
     addCategory(categories);
 
-	// カテゴリーの設定
+	// カテゴリの設定
 	$('#category').val(previousSelectedCategory);
 
     var dialog = $("#dialog-form").dialog({
@@ -31,7 +31,7 @@
           // 既存のプルダウン要素リストを取得。
           var values = getPulldownOptionValues();
 
-          // カテゴリー要素の追加
+          // カテゴリ要素の追加
           addCategory(values, newCategory);
 
           $('#category').val(newCategory);

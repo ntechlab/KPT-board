@@ -55,7 +55,7 @@ function showDescription(){
     $('#description-area').text(desc);
 }
 
-// カテゴリー・タイトルプルダウンを設定する。
+// カテゴリ・タイトルプルダウンを設定する。
 function setUpPulldowns(){
     var data = <%- categoryData %>;
     var categories = data["categories"];
@@ -128,7 +128,7 @@ $(function(){
 <form name="main" method="POST">
     <div class="row" style="margin-bottom:10px;">
         <div class="form-group">
-            <label for="category" class="col-xs-12 col-sm-2 control-label">カテゴリー</label>
+            <label for="category" class="col-xs-12 col-sm-2 control-label">カテゴリ</label>
             <div class="col-xs-12 col-sm-10">
                 <select id="category" name="category" class="selectbox form-control"></select>
             </div>

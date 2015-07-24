@@ -100,7 +100,7 @@ exports.getCategoryList = function(successCb, errorCb){
 	});
 }
 
-// カテゴリー情報マップ（カテゴリーリストとカテゴリーごとのボードリスト）を取得する。
+// カテゴリ情報マップ（カテゴリリストとカテゴリごとのボードリスト）を取得する。
 function getCategoryMap(boardsFound){
 	var categories = getUniqueCategoryList(boardsFound);
 	var boardInfos = _.map(boardsFound, function(item){
@@ -112,7 +112,7 @@ function getCategoryMap(boardsFound){
 	return {categories: categories, map: map};
 }
 
-// ソートし重複と空文字列を取り除いたカテゴリーのリストを取得する。
+// ソートし重複と空文字列を取り除いたカテゴリのリストを取得する。
 function getUniqueCategoryList(boardsFound){
 	var categories = u.pluck(boardsFound, 'category');
 	categories = u.filter(categories, function(category){

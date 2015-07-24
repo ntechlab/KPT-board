@@ -50,7 +50,7 @@ module.exports = {
 		    return;
 		}
 		logger.info(req, "ボード新規作成:[category:" + category + ",title:" + title + "]");
-		Utility.openMainPage(req, res, {type: "success", contents: "ボードを作成しました。［カテゴリー：" + category + "　タイトル：" + title + "］"});
+		Utility.openMainPage(req, res, {type: "success", contents: "ボードを作成しました。［カテゴリ：" + category + "　タイトル：" + title + "］"});
 	});
     },
 

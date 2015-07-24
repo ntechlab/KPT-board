@@ -706,17 +706,17 @@ box-sizing: border-box;
 	<div class="panel-heading">基本設定</div>
 	<div class="panel-body">
 		<div class="form-group">
+			<label for="category">カテゴリ</label>
+			<select id="category" name="category" class="multiText form-control">
+			</select>
+		</div>
+		<div class="form-group">
 			<label for="title">タイトル</label>
 			<input class="multiText form-control"  name="title" id="title" placeholder="ボードのタイトルを修正してください。" value="<%= title %>">
 		</div>
 		<div class="form-group">
 			<label for="description">説明</label>
 			<textarea class="multiText form-control" rows="4" name="description" id="description" placeholder="ボードの説明を修正してください。"><%= description %></textarea>
-		</div>
-		<div class="form-group">
-			<label for="category">カテゴリー</label>
-			<select id="category" name="category" class="multiText form-control">
-			</select>
 		</div>
 		<div class="row">
 			<div class="col-sm-3">

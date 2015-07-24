@@ -41,17 +41,17 @@
 <form name="main" id="main" method="POST">
   <div>
     <div class="form-group">
+      <label for="category">カテゴリ</label>
+      <select id="category" name="category" class="multiText form-control">
+      </select>
+    </div>
+    <div class="form-group">
       <label for="title">タイトル</label>
       <input class="multiText form-control" name="title" id="title" onkeyup="enableCheck()" placeholder="ボードのタイトルを入力してください。" value="<%= title %>">
     </div>
     <div class="form-group">
       <label for="description">説明</label>
       <textarea class="multiText form-control" rows="4" name="description" id="description" placeholder="ボードの説明を入力してください。"><%= desc %></textarea>
-    </div>
-    <div class="form-group">
-      <label for="category">カテゴリー</label>
-      <select id="category" name="category" class="multiText form-control">
-      </select>
     </div>
     <button id="createBtn" type="button" class="btn btn-default" onclick="return create()" >新規作成</button>
     <input type="button" class="btn btn-default" onclick="cancel()" value="キャンセル"/>
