@@ -151,6 +151,8 @@ module.exports = {
 		contents : req.param('contents'),
 		positionX : req.param('positionX'),
 		positionY : req.param('positionY'),
+		ticketHeight : req.param('ticketHeight'),
+		ticketWidth : req.param('ticketWidth'),
 		color : req.param('color')
 	    }).exec(function(err, ticket) {
 		if (err) {
@@ -167,6 +169,8 @@ module.exports = {
 			createUser : ticket.createUser,
 			positionX: ticket.positionX,
 			positionY: ticket.positionY,
+			ticketHeight: ticket.ticketHeight,
+			ticketWidth: ticket.ticketWidth,
 			color: ticket.color,
             createdAt: ticket.createdAt,
 			nickname : foundUser["nickname"]});
@@ -187,13 +191,17 @@ module.exports = {
     } else if (actionType == "update") {
         var x = req.param('positionX');
         var y = req.param('positionY');
+        var ticketHeight = req.param('ticketHeight');
+        var ticketWidth = req.param('ticketWidth');
         var contents = req.param('contents');
         Ticket.update({
           id : id
         }, {
-          positionX : x,
-          positionY : y,
-          contents : contents
+          positionX   : x,
+          positionY   : y,
+          ticketHeight: ticketHeight,
+          ticketWidth : ticketWidth,
+          contents    : contents
       }).exec(function update(err, updated) {
          if(updated && updated[0]){
            logger.info(req, "チケット更新 成功: ["+JSON.stringify(updated[0])+"]");
@@ -203,6 +211,8 @@ module.exports = {
                id : updated[0].id,
                positionX: updated[0].positionX,
                positionY: updated[0].positionY,
+               ticketHeight: updated[0].ticketHeight,
+               ticketWidth : updated[0].ticketWidth,
                contents: updated[0].contents });
          }
       });
@@ -228,6 +238,8 @@ module.exports = {
 				createUser : ticket.createUser,
 				positionX: ticket.positionX,
 				positionY: ticket.positionY,
+				ticketHeight: ticket.ticketHeight,
+				ticketWidth : ticket.ticketWidth,
 				color: ticket.color,
 				nickname : nickname
 			});

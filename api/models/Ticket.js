@@ -25,6 +25,12 @@ module.exports = {
 		},
 		color : {
 			type: 'string'
+		},
+		ticketHeight : {
+		    type : 'integer'
+		},
+		ticketWidth : {
+		    type : 'integer'
 		}
     }
 };

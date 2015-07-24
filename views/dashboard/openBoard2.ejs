@@ -83,6 +83,9 @@
     createTicket(10, 90, type);
   }
 
+  //チケットリサイズタイマー
+  var resizeTimer = false;
+
   function make(data) {
    var val = data["contents"];
    var nickname = data["nickname"];
@@ -104,10 +107,21 @@
    sticky.appendTo('#board')
       .attr('id', "ticket_"+data["id"])
       .attr('data-id', data["id"])
+      .css('width', data["ticketWidth"])
+      .css('height', data["ticketHeight"])
       .addClass(data["color"])
       .addClass(data["color"]+"_shadow")
       .animate({left: data["positionX"], top: data["positionY"] })
       .resizable({minHeight: 120, minWidth: 170, maxHeight: 300, maxWidth: 600}) //チケットサイズの最大、最小値の指定
+      .resize(function() {
+        if (resizeTimer !== false) {
+          clearTimeout(resizeTimer);
+        }
+        resizeTimer = setTimeout(function() {
+        // リサイズイベント終了から１秒後にチケットを更新
+          updateFusen(sticky);
+        }, 1000);
+      })
       .draggable({stop: updateFusenListener, containment: "#board"})      .click(function(e) {
         // console.log("付箋クリックイベント発生");
       })
@@ -174,6 +188,8 @@
     newData["id"] = $target.data('id');
     newData["positionX"] = $target.css('left');
     newData["positionY"] = $target.css('top');
+    newData["ticketHeight"] = $target.css('height');
+    newData["ticketWidth"] = $target.css('width');
     var cc = $target.find(".contentsArea").html();
     cc=t.BRtoNL(cc);
     newData["contents"] = cc;
@@ -351,6 +367,7 @@ function setUpCanvas(){
         // 他ユーザーがチケットを動かす前に編集フラグをfalseにする。
 		$sticky.data("editing", false);
         $sticky.animate({'left': data["positionX"], 'top': data["positionY"]});
+        $sticky.animate({'height': data["ticketHeight"], 'width': data["ticketWidth"]});
         var ccc = data["contents"];
         ccc=t.NLtoBR(ccc);
         $sticky.find(".contentsArea").html(ccc);
