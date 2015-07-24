@@ -107,6 +107,7 @@
       .addClass(data["color"])
       .addClass(data["color"]+"_shadow")
       .animate({left: data["positionX"], top: data["positionY"] })
+      .resizable()
       .draggable({stop: updateFusenListener, containment: "#board"})      .click(function(e) {
         // console.log("付箋クリックイベント発生");
       })
@@ -133,6 +134,10 @@
 	        var $sticky = $self.closest('.sticky');
 	        updateFusen($sticky);
 	      });
+	      var ticket_width = $( "#ticket_"+data["id"] ).width();//付箋サイズの取得
+	      var ticket_height = $( "#ticket_"+data["id"] ).height();//付箋サイズの取得
+	      $( "#ticket_"+data["id"] + " textarea" ).css("width", ticket_width +30);  //textareaのサイズ変更
+	      $( "#ticket_"+data["id"] + " textarea" ).css("height", ticket_height -20);//textareaのサイズ変更
       }).mousedown(function() {                              // 付箋をマウスクリック
         $('.selected').each(function(i, elm) {                  // 選択中選択枠を持つ付箋に影を付ける。
           var regExp = new RegExp("ticket");
