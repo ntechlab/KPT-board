@@ -112,7 +112,7 @@
       .addClass(data["color"])
       .addClass(data["color"]+"_shadow")
       .animate({left: data["positionX"], top: data["positionY"] })
-      .resizable({minHeight: 120, minWidth: 170, maxHeight: 300, maxWidth: 600}) //チケットサイズの最大、最小値の指定
+      .resizable({minHeight: 100, minWidth: 200, maxHeight: 300, maxWidth: 600}) //チケットサイズの最大、最小値の指定
       .resize(function() {
         if (resizeTimer !== false) {
           clearTimeout(resizeTimer);
