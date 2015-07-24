@@ -107,7 +107,7 @@
       .addClass(data["color"])
       .addClass(data["color"]+"_shadow")
       .animate({left: data["positionX"], top: data["positionY"] })
-      .resizable()
+      .resizable({minHeight: 120, minWidth: 170, maxHeight: 300, maxWidth: 600}) //チケットサイズの最大、最小値の指定
       .draggable({stop: updateFusenListener, containment: "#board"})      .click(function(e) {
         // console.log("付箋クリックイベント発生");
       })
