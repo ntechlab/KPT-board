@@ -114,16 +114,22 @@
       .animate({left: data["positionX"], top: data["positionY"] })
       .resizable({minHeight: 100, minWidth: 200, maxHeight: 300, maxWidth: 600}) //チケットサイズの最大、最小値の指定
       .resize(function() {
+        //console.log("付箋リサイズイベント発生");
         if (resizeTimer !== false) {
           clearTimeout(resizeTimer);
         }
-        resizeTimer = setTimeout(function() {
         // リサイズイベント終了から１秒後にチケットを更新
-          updateFusen(sticky);
+        resizeTimer = setTimeout(function() {
+          sticky.data("editing", false);
+          var c2 = $(this).val();
+          c2 = t.encode1(c2);
+          $(this).parent().html(c2);
+          var $sticky = $self.closest('.sticky');
+          updateFusen(sticky); //付箋更新
         }, 1000);
       })
       .draggable({stop: updateFusenListener, containment: "#board"})      .click(function(e) {
-        // console.log("付箋クリックイベント発生");
+        console.log("付箋クリックイベント発生");
       })
       .bind("dblTap",function(){
         if(sticky.data("editing")){
@@ -141,6 +147,7 @@
             e.stopPropagation(); // 編集状態でtextareaをクリックした際に、編集状態が解除されないようにするため追加。
           })
           .blur(function() {
+            //console.log("付箋blurイベント発生");
 	        sticky.data("editing", false);
 	        var c2 = $(this).val();
 	        c2 = t.encode1(c2);
@@ -154,6 +161,7 @@
 	      $( "#ticket_"+data["id"] + " textarea" ).css("height", ticket_height -20);//textareaのサイズ変更
       }).mousedown(function() {                              // 付箋をマウスクリック
         $('.selected').each(function(i, elm) {                  // 選択中選択枠を持つ付箋に影を付ける。
+          //console.log("付箋mousedownイベント発生");
           var regExp = new RegExp("ticket");
           var type = elm.className.split(" ");
           for (var i=1 ; i<=type.length ; i++){
