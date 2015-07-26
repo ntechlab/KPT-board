@@ -88,13 +88,17 @@
   function createTicket(x, y, color){
     console.log("createTicket:" + x + "," + y);
     io.socket.get('/board/process/',
-    {actionType:"create",
-     contents: "",
-     positionX: x + "px",
-     positionY: y + "px",
-     color: color,
-     boardId : '<%= boardId %>',
-     userId : '<%= loginInfo.userId %>'});
+      {
+        actionType:"create",
+        contents: "",
+        positionX: x + "px",
+        positionY: y + "px",
+        color: color,
+        boardId : '<%= boardId %>',
+        userId : '<%= loginInfo.userId %>'
+      }
+    );
+    hideRezizeButton();
   }
 
   function createTicketByButton() {
@@ -306,9 +310,15 @@ function setUpCanvas(){
 	}
 }
 
+// 付箋右下のリサイズボタンを強制的に背面に移動する
+function hideRezizeButton(){
+  $(".ui-icon-gripsmall-diagonal-se").each(function(i, elem) {
+     $(elem).css("z-index",0);
+  });
+}
 
-  // jQueryオンロード処理
-  $(function(){
+// jQueryオンロード処理
+$(function(){
 
   _.str = s;
 
@@ -322,36 +332,36 @@ function setUpCanvas(){
         var $menu = ui.menu,
             $target = ui.target;
             var sticky = $target.closest('.sticky');
-			console.log("sticky:["+sticky.html()+"]");
+            console.log("sticky:["+sticky.html()+"]");
             if(sticky.html() != undefined){
-            	ticketId = sticky.attr('data-id');
-            	  $("body").contextmenu("replaceMenu",
-            	   [{title: "移動", cmd: "move"}]);
+               ticketId = sticky.attr('data-id');
+                 $("body").contextmenu("replaceMenu",
+                  [{title: "移動", cmd: "move"}]);
             } else {
-            	 $("body").contextmenu("replaceMenu",
-            	   [
+               $("body").contextmenu("replaceMenu",
+                  [
                      {title: "作成", children: [
                           <%- contextMenu %>
-			            ]
-			         }
-			       ]
-			     );
-	        }
-    },
-    select: function(event, ui) {
-    	var cmd = ui.cmd;
-    	console.log("CMD:["+cmd+"]");
-    	if(cmd === "move"){
-    		showMoveTicketDialog(ticketId);
-    	} else {
-	        var $menu = $('ul.ui-menu');
-        var top = $('#board').offset().top;
-        var left = $('#board').offset().left;
-        var posX = $menu.offset().left - left;
-        var posY = $menu.offset().top - top;
-	createTicket(posX, posY, ui.cmd);
-    }
-    }
+                          ]
+                     }
+                  ]
+               );
+            }
+         },
+        select: function(event, ui) {
+           var cmd = ui.cmd;
+           console.log("CMD:["+cmd+"]");
+           if(cmd === "move"){
+              showMoveTicketDialog(ticketId);
+           } else {
+              var $menu = $('ul.ui-menu');
+              var top = $('#board').offset().top;
+              var left = $('#board').offset().left;
+              var posX = $menu.offset().left - left;
+              var posY = $menu.offset().top - top;
+              createTicket(posX, posY, ui.cmd);
+           }
+        }
   });
 
     // 付箋データ
@@ -388,6 +398,7 @@ function setUpCanvas(){
 
         var sticky = make(data);
         $('#board').append(sticky);
+        hideRezizeButton();
 
       } else if(action == "updated"){
         console.log("チケットを更新します:"+data["id"]+","+data["contents"]);
@@ -451,7 +462,7 @@ function setUpCanvas(){
 			grabFlag = false;
 		}
 	});
-
+	hideRezizeButton();
 });
 
 /**
