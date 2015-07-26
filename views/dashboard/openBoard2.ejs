@@ -14,12 +14,14 @@
       ret=ret.replace(/&/g, "&amp;");
       ret=ret.replace(/</g, "&lt;");
       ret=ret.replace(/>/g, "&gt;");
+      ret = self.URLtoLINK(ret);
       ret = self.NLtoBR(ret);
       return ret;
     };
 
     this.encode2 = function encode2(input){
       var ret = input;
+      ret=self.LINKtoURL(ret);
       ret=self.BRtoNL(ret);
       ret=ret.replace(/</g, "&lt;");
       ret=ret.replace(/>/g, "&gt;");
@@ -40,6 +42,23 @@
       ret=ret.replace(/\n/g, '<br />');
       return ret;
     }
+
+    this.URLtoLINK = function URLtoLINK(input){
+      var ret = input;
+      if( ret.indexOf("aoutlinkedit") == -1 ){
+         ret = ret.replace(/(http:\/\/[\x21-\x7e]+)/gi, "<aoutlinkedit><a href='$1'>$1</a></aoutlinkedit>");
+         ret = ret.replace(/(https:\/\/[\x21-\x7e]+)/gi, "<aoutlinkedit><a href='$1'>$1</a></aoutlinkedit>");
+      }
+      return ret;
+    }
+
+    this.LINKtoURL = function LINKtoURL(input){
+      var ret = input;
+      ret = ret.replace(/<aoutlinkedit><a href=\".*\">/,"");
+      ret = ret.replace(/<\/a><\/aoutlinkedit>/,"");
+      return ret;
+    }
+
   }
 
   var t = new T();
@@ -90,6 +109,7 @@
    var val = data["contents"];
    var nickname = data["nickname"];
    var sticky = $('<div class="sticky"><div class="ticketTitle"><span class="userInfo"></span><div class="rightItems"><span class="createDate"></span><i class="removeIcon glyphicon glyphicon-remove" /></div></div><div class="contentsArea myWebFontClass"></div></div>');
+   val=t.URLtoLINK(val);
    val=t.NLtoBR(val);
 
    sticky.find('.userInfo').text(nickname);
@@ -199,6 +219,7 @@
     newData["ticketHeight"] = $target.css('height');
     newData["ticketWidth"] = $target.css('width');
     var cc = $target.find(".contentsArea").html();
+    cc=t.LINKtoURL(cc);
     cc=t.BRtoNL(cc);
     newData["contents"] = cc;
     console.dir(newData);
@@ -377,6 +398,7 @@ function setUpCanvas(){
         $sticky.animate({'left': data["positionX"], 'top': data["positionY"]});
         $sticky.animate({'height': data["ticketHeight"], 'width': data["ticketWidth"]});
         var ccc = data["contents"];
+        ccc=t.URLtoLINK(ccc);
         ccc=t.NLtoBR(ccc);
         $sticky.find(".contentsArea").html(ccc);
       } else if(action == "destroyed"){
