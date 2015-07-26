@@ -144,11 +144,7 @@
         }
         // リサイズイベント終了から１秒後にチケットを更新
         resizeTimer = setTimeout(function() {
-          sticky.data("editing", false);
-          var c2 = $(this).val();
-          c2 = t.encode1(c2);
-          $(this).parent().html(c2);
-          var $sticky = $self.closest('.sticky');
+          //TO DO 付箋内容(textarea)更新中にリサイズするとhtmlタグが混入する不具合対応中
           updateFusen(sticky); //付箋更新
         }, 1000);
       })
