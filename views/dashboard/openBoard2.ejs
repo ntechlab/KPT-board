@@ -156,6 +156,7 @@
             return false;
         };
         sticky.data("editing", true);
+        sticky.resizable("disable");
         var $self = $(this).find('.contentsArea');
         var id0 = data["id"];
         var c = $self.html();
@@ -169,6 +170,7 @@
           .blur(function() {
             //console.log("付箋blurイベント発生");
 	        sticky.data("editing", false);
+	        sticky.resizable("enable");
 	        var c2 = $(this).val();
 	        c2 = t.encode1(c2);
 	        $(this).parent().html(c2);
