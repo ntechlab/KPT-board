@@ -6,6 +6,39 @@
 <link rel="stylesheet" href="/css/ticketAppearance.css?date=20131019">
 <script>
 
+  //----------------------------
+  var debugPanel = true;
+
+  function getTimestamp(){
+    var d = new Date();
+    var year = d.getFullYear();
+    var month = d.getMonth()+1;
+    var week = d.getDay();
+    var day = d.getDate();
+    var hour = _.str.lpad(d.getHours(), 2 ,'0');
+    var minute = _.str.lpad(d.getMinutes(), 2, '0');
+    var second = _.str.lpad(d.getSeconds(), 2, '0');
+    var millisecond = _.str.lpad(d.getMilliseconds(), 3, '0');
+    return year + "/" + month + "/" + day + " " + hour + ":" + minute + ":" + second + "." + millisecond;
+  };
+
+  $(function(){
+    $('#debugClear').click(function(){
+      $('#debugConsole').val("");
+    });
+  });
+
+  function log(message){
+    console.log(message);
+    if(debugPanel){
+      var $console = $('#debugConsole');
+      $console.val($console.val()+"\r\n"+getTimestamp()+": "+message);
+      $console.animate({scrollTop: $console[0].scrollHeight}, 'fast');
+    }
+  }
+
+  //----------------------------
+
   function T(){
     var self = this;
 
@@ -73,20 +106,20 @@
 
   // チケット削除
   function destroyTicket(id){
-    console.log("destroyTicket:" + id);
+    log("destroyTicket:" + id);
     io.socket.get('/board/process/', {actionType:"destroy", boardId : '<%= boardId %>', id: id});
   }
 
   // チケット更新
   function updateTicket(id){
-    console.log("updateTicket:"+id);
+    log("updateTicket:"+id);
     var newContents = $('#ta_'+id).val();
     io.socket.get('/board/process/', {actionType:"update", boardId : '<%= boardId %>', id: id, contents: newContents});
   }
 
   // チケット作成
   function createTicket(x, y, color){
-    console.log("createTicket:" + x + "," + y);
+    log("createTicket:" + x + "," + y);
     io.socket.get('/board/process/',
       {
         actionType:"create",
@@ -109,6 +142,16 @@
   //チケットリサイズタイマー
   var resizeTimer = false;
 
+  function getTicketTime(d){
+    var month = d.getMonth()+1;
+    var week = d.getDay();
+    var day = d.getDate();
+    var hour = _.str.lpad(d.getHours(), 2 ,'0');
+    var minute = _.str.lpad(d.getMinutes(), 2, '0');
+    var yobi= new Array("日","月","火","水","木","金","土");
+    return month+"/"+day+"("+yobi[week]+") "+hour+":"+minute;
+  };
+
   function make(data) {
    var val = data["contents"];
    var nickname = data["nickname"];
@@ -119,15 +162,56 @@
    sticky.find('.userInfo').text(nickname);
 
    //年・月・日・曜日を取得する
-   var d = new Date(data["createdAt"]);
-   var month = d.getMonth()+1;
-   var week = d.getDay();
-   var day = d.getDate();
-   var hour = _.str.lpad(d.getHours(), 2 ,'0');
-   var minute = _.str.lpad(d.getMinutes(), 2, '0');
-   var yobi= new Array("日","月","火","水","木","金","土");
-   sticky.find('.createDate').text(month+"/"+day+"("+yobi[week]+") "+hour+":"+minute);
+   sticky.find('.createDate').text(getTicketTime(new Date(data["createdAt"])));
    sticky.find('.contentsArea').html(val);
+
+   function dblTapHandler(){
+     var state = 0;
+     return function(event){
+       var type = event.type;
+       switch(state){
+       case 0:
+         if(type == "touchstart"){
+           state = 1;
+         }
+         break;
+       case 1:
+         if(type == "touchend"){
+           state = 2;
+         }
+         break;
+       case 2:
+         if(type == "touchstart"){
+           state = 3;
+         }
+         break;
+       case 3:
+         if(type === "touchend"){
+           $(this).trigger('dbltap');
+           state = 0;
+         }
+         break;
+       };
+       setTimeout(function(){state = 0;}, 500);
+     }
+  }
+
+  function dblClickHandler(){
+     var flag = false;
+     return function(){
+       if(flag){
+         $(this).trigger('dbltap');
+         flag = false;
+       } else {
+         flag = true;
+       }
+       setTimeout(function(){flag = false;}, 500);
+     }
+  }
+
+   var dblTapHandler = dblTapHandler();
+   var dblClickHandler = dblClickHandler();
+
    sticky.appendTo('#board')
       .attr('id', "ticket_"+data["id"])
       .attr('data-id', data["id"])
@@ -138,7 +222,7 @@
       .animate({left: data["positionX"], top: data["positionY"] })
       .resizable({minHeight: 100, minWidth: 200, maxHeight: 300, maxWidth: 600}) //チケットサイズの最大、最小値の指定
       .resize(function() {
-        //console.log("付箋リサイズイベント発生");
+        //log("付箋リサイズイベント発生");
         if (resizeTimer !== false) {
           clearTimeout(resizeTimer);
         }
@@ -148,10 +232,11 @@
           updateFusen(sticky); //付箋更新
         }, 1000);
       })
-      .draggable({stop: updateFusenListener, containment: "#board"})      .click(function(e) {
-        console.log("付箋クリックイベント発生");
-      })
-      .bind("dblTap",function(){
+      .draggable({stop: updateFusenListener, containment: "#board"})
+      .click(dblClickHandler)
+      .bind("touchstart touchend", dblTapHandler)
+      .bind("dbltap",function(){
+        log("dbltap called");
         if(sticky.data("editing")){
             return false;
         };
@@ -168,7 +253,7 @@
             e.stopPropagation(); // 編集状態でtextareaをクリックした際に、編集状態が解除されないようにするため追加。
           })
           .blur(function() {
-            //console.log("付箋blurイベント発生");
+            //log("付箋blurイベント発生");
 	        sticky.data("editing", false);
 	        sticky.resizable("enable");
 	        var c2 = $(this).val();
@@ -183,7 +268,7 @@
 	      $( "#ticket_"+data["id"] + " textarea" ).css("height", ticket_height -20);//textareaのサイズ変更
       }).mousedown(function() {                              // 付箋をマウスクリック
         $('.selected').each(function(i, elm) {                  // 選択中選択枠を持つ付箋に影を付ける。
-          //console.log("付箋mousedownイベント発生");
+          //log("付箋mousedownイベント発生");
           var regExp = new RegExp("ticket");
           var type = elm.className.split(" ");
           for (var i=1 ; i<=type.length ; i++){
@@ -192,16 +277,14 @@
               break;
             }
           }
-      });
+        });
         $('.sticky').removeClass('selected');                    // すべての付箋の選択枠を外す。
         $(this).addClass('selected');                            // クリックした付箋に選択枠を設定する。
         $(this).removeClass(data["color"]+"_shadow");            // クリックした付箋の影を外す。
-      })
-      .mousedown(function() {                              // 'X'をマウスクリック
-        sticky.find('.removeIcon').click(function(){
+      });
+      sticky.find('.removeIcon').bind('touchstart click', (function(){     // 'X'をマウスクリック
         confirmDeleteTicket(data["id"]);
-      })
-    });
+      }));
     return sticky;
   }
 
@@ -252,7 +335,7 @@ function confirmDeleteTicket(id){
 
 // 付箋移動処理
 function moveTicket(ticketId, dstBoardId){
-	console.log('ticketid['+ticketId+']');
+	log('ticketid['+ticketId+']');
 	var newData = {};
     newData["actionType"] = "move";
     newData["boardId"] = '<%= boardId %>';
@@ -330,7 +413,7 @@ $(function(){
         var $menu = ui.menu,
             $target = ui.target;
             var sticky = $target.closest('.sticky');
-            console.log("sticky:["+sticky.html()+"]");
+            log("sticky:["+sticky.html()+"]");
             if(sticky.html() != undefined){
                ticketId = sticky.attr('data-id');
                  $("body").contextmenu("replaceMenu",
@@ -348,7 +431,7 @@ $(function(){
          },
         select: function(event, ui) {
            var cmd = ui.cmd;
-           console.log("CMD:["+cmd+"]");
+           log("CMD:["+cmd+"]");
            if(cmd === "move"){
               showMoveTicketDialog(ticketId);
            } else {
@@ -372,17 +455,17 @@ $(function(){
       $('#board').append(sticky);
     }
 
-    console.log("リスナ登録");
+    log("リスナ登録");
     io.socket.get('/board/register/',{boardId : '<%= boardId %>'});
 
     // メッセージ受信時に呼び出される関数
     io.socket.on('message', function(data) {
-      console.log("メッセージ受信", data);
+      log("メッセージ受信", data);
       var id = data["id"];
       var action = data['action'];
-      console.log("action["+action+"]");
+      log("action["+action+"]");
       if(action == "created"){
-        console.log("チケットを作成します");
+        log("チケットを作成します");
         var ms = "<tr id='"+id+"'>"
                 +"<td>"+id+"</td>"
                 +"<td><input type='button' onclick='destroyTicket("+id+")' value='削除'/></td>"
@@ -399,7 +482,7 @@ $(function(){
         hideRezizeButton();
 
       } else if(action == "updated"){
-        console.log("チケットを更新します:"+data["id"]+","+data["contents"]);
+        log("チケットを更新します:"+data["id"]+","+data["contents"]);
         $('#ta_'+data["id"]).val(data["contents"]);
         var $sticky = $(".sticky[data-id='"+data['id']+"']");
         // 他ユーザーがチケットを動かす前に編集フラグをfalseにする。
@@ -411,15 +494,15 @@ $(function(){
         ccc=t.NLtoBR(ccc);
         $sticky.find(".contentsArea").html(ccc);
       } else if(action == "destroyed"){
-        console.log("チケットを削除します:"+data["id"]);
+        log("チケットを削除します:"+data["id"]);
         console.dir(data);
         $('tr#'+data["id"]).remove();
         $(".sticky[data-id='"+data['id']+"']").remove();
       } else if(action == "enter"){
-      	console.log("ユーザーが入室しました:"+JSON.stringify(data));
+      	log("ユーザーが入室しました:"+JSON.stringify(data));
       	updateUserList(data);
       } else if(action == "leave"){
-      	console.log("ユーザーが退室しました:"+JSON.stringify(data));
+      	log("ユーザーが退室しました:"+JSON.stringify(data));
       	updateUserList(data);
       }
     });
@@ -468,9 +551,9 @@ $(function(){
  *  *** match() はjsに存在するメソッドのためmatchAに変更
  */
 function matchA(array1, array2){
-	console.log("配列内容比較");
-	console.log(array1);
-	console.log(array2);
+	log("配列内容比較");
+	log(array1);
+	log(array2);
 	if(array1.length !== array2.length){
 		return false;
 	}
@@ -507,7 +590,7 @@ function checkConsistencyOfUserList(action, displayUsers, users, userId){
  * ユーザー一覧を更新する。
  */
 function updateUserList(data){
-	console.log("ユーザー一覧更新");
+	log("ユーザー一覧更新");
 
 	// 一覧に追加するユーザーの作成
 	function getNewUser(userId){
@@ -547,7 +630,7 @@ function updateUserList(data){
 
 	// 初期表示時には全利用ユーザーを追加する。
 	if(refreshUserList || displayUsers.length == 0){
-		console.log("ボード利用ユーザー一覧を再表示");
+		log("ボード利用ユーザー一覧を再表示");
 		$('#userList').hide()
 			.empty();
 		_.forEach(users, function(user){
@@ -722,6 +805,8 @@ table th {
   left:5px;
   clear: both;
   font-size:14px;
+  width:100%;
+  height:100%;
 /*  font-family: "Meiryo UI",serif; */
 }
 
@@ -843,7 +928,7 @@ table th {
   overflow-y: scroll;
 }
 .selectbox{
-	font-size: 16px;　/* iphoneで拡大表示を回避 */
+	font-size: 16px; /* iphoneで拡大表示を回避 */
 }
 </style>
 <div class="customContainer theme-showcase" role="main">
@@ -856,7 +941,9 @@ table th {
 				<%- comboMenu %>
 				</select>
 				<div class="input-group-btn">
-					<button id="createTicketButton" type="button" class="slim-btn btn-default glyphicon glyphicon-plus" onclick="createTicketByButton();"/>
+					<button id="createTicketButton" type="button" class="slim-btn" onclick="createTicketByButton();">
+						<i class="glyphicon glyphicon-plus"></i>
+					</button>
 				</div><!-- /btn-group -->
 			</div><!-- /input-group -->
 		</div><!-- /.col-lg-6 -->
@@ -869,9 +956,14 @@ table th {
 			<input type="hidden" name="userId" value="<%= loginInfo.userId %>" />
 			<canvas id="mycanvas" width="<%= width %>" height="<%= height %>" style="position:absolute;"></canvas>
 			<div id="board" class="hasmenu">
+				<div id="debugControl" style="display:none;top:100px;left:10px;position: fixed;width:500px;height:300px;">
+					<textarea id="debugConsole" style="width:100%;height:100%"></textarea>
+					<input type="button" id="debugClear" value="クリア"/>
+				</div>
 			</div>
 			<div id="userList" class="userList" style="display:none"></div>
 			<input type="button" style="margin:10px;" value="デバッグ情報" onclick="$('#debugTable').toggle();"/>
+			<input type="button" style="margin:10px;" value="ログ表示" onclick="$('#debugControl').toggle();"/>
 			<div id="debugTable" style="display:none">
 				<table id="tickets" border="1">
 				  <tr>

@@ -50,31 +50,6 @@
 }
 
 .baseShadow(@shadowColor){
-    // 付箋の左影位置傾き
-    &:before {
-      bottom: 10px;
-      left: 10px;
-      width: 50%;
-      -webkit-transform: rotate(-5deg);
-      -moz-transform: rotate(-5deg);
-      -o-transform: rotate(-5deg);
-      -ms-transform: rotate(-5deg);
-      transform: rotate(-5deg);
-    }
-
-	// 付箋の右影位置傾き
-    &:after {
-      bottom: 10px;
-      right: 10px;
-      width: 50%;
-      max-width: 250px;
-      -webkit-transform: rotate(5deg);
-      -moz-transform: rotate(5deg);
-      -o-transform: rotate(5deg);
-      -ms-transform: rotate(5deg);
-      transform: rotate(5deg);
-    }
-
     // 付箋の影共通
     &:before,
     &:after {
