@@ -237,6 +237,9 @@
       .bind("touchstart touchend", dblTapHandler)
       .bind("dbltap",function(){
         log("dbltap called");
+        if (resizeTimer !== false) {
+          return false;
+        }
         if(sticky.data("editing")){
             return false;
         };
@@ -295,6 +298,9 @@
 
   // 付箋更新処理
   function updateFusen($target) {
+    // リサイズタイマーをリセット
+    clearTimeout(resizeTimer);
+    resizeTimer = false;
     var newData = {};
     newData["actionType"] = "update";
     newData["boardId"] = '<%= boardId %>';
