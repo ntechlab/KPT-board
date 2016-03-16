@@ -42,7 +42,7 @@ passport.use(new LocalStrategy(function(username, password, done) {
 }));
 
 module.exports = {
-	express : {
+	http : {
 		customMiddleware : function(app) {
 			sails.log.info('express midleware for passport');
 			app.use(passport.initialize());

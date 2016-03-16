@@ -9,7 +9,7 @@ module.exports = {
 
     attributes: {
 		boardId : {
-		    type : 'integer'
+		    type : 'string'
 		},
 		createUser : {
 		    type: 'string'

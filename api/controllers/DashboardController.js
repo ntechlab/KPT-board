@@ -278,9 +278,9 @@ module.exports = {
     /**
      * ボード画面を開く
      */
-    openBoard2 : function(req, res) {
+    openboard : function(req, res) {
 	var boardId = req.param("selectedId");
-    logger.trace(req, "openBoard2 called: ["+boardId+"]");
+    logger.trace(req, "openboard called: ["+boardId+"]");
 	var loginInfo = Utility.getLoginInfo(req, res);
     var message = null;
 

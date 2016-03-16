@@ -3,13 +3,9 @@
 
 <script>
 
-function openBoard(){
-    submit("/dashboard/openBoard");
-}
-
-function openBoard2(){
+function openboard(){
     var selectedId = $('#selectedId').val();
-    submit("/dashboard/openBoard2/" + selectedId);
+    submit("/dashboard/openboard/" + selectedId);
 }
 
 function editBoard(){
@@ -141,7 +137,7 @@ $(function(){
                 <select id="selectedId" name="selectedId" class="selectbox form-control"></select>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-3  col-lg-2 btn-group">
-                <button id="action_open" class="btn btn-default" onclick="openBoard2()">開く</button>
+                <button id="action_open" class="btn btn-default" onclick="openboard()">開く</button>
                 <% if(loginInfo.roleName === 'admin') { %>
                 <button id="action_edit" class="btn btn-default" onclick="editBoard()">編集</button>
                 <button id="action_delete" class="btn btn-default" onclick="return deleteBoard()">削除</button>

@@ -21,6 +21,15 @@ module.exports = {
     connection: 'mongodbServer'
   },
 
+  session: {
+    adapter: 'connect-mongo',
+    adapter: 'mongo',
+    host: 'localhost',
+    port: 27017,
+    db: 'sails',
+    collection: 'sessions'
+  }
+  
   /***************************************************************************
    * Set the port in the production environment to 80                        *
    ***************************************************************************/

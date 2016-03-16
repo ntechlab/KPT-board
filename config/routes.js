@@ -36,7 +36,7 @@ module.exports.routes = {
 	'get /login': "AuthController.login",
 	'post /login': 'AuthController.process',
 	'get /logout': 'AuthController.logout',
-	'get /dashboard/openBoard2/:selectedId': 'DashboardController.openBoard2',
+	'get /dashboard/openboard/:selectedId': 'DashboardController.openboard',
 	'get /dashboard/editBoard/:selectedId': 'DashboardController.editBoard',
 	'get /dashboard/deleteBoard/:selectedId': 'DashboardController.deleteBoard',
 	'get /usermanage/destroyUser/:target': 'UsermanageController.destroyUser', // �b��B���p���Ȃ��\��iURL�ɍ폜��̃��[�U�[ID���c�������Ȃ��j
