@@ -77,18 +77,12 @@
     }
 
     this.URLtoLINK = function URLtoLINK(input){
-      var ret = input;
-      if( ret.indexOf("aoutlinkedit") == -1 ){
-         ret = ret.replace(/(http:\/\/[\x21-\x7e]+)/gi, "<aoutlinkedit><a href='$1' target='_balnk'>$1</a></aoutlinkedit>");
-         ret = ret.replace(/(https:\/\/[\x21-\x7e]+)/gi, "<aoutlinkedit><a href='$1' target='_balnk'>$1</a></aoutlinkedit>");
-      }
+      var ret = input.replace(/(https?:\/\/[\x21-\x7e]+)/gi, "<aoutlinkedit><a href='$1' target='_blank'>$1</a></aoutlinkedit>");
       return ret;
     }
 
     this.LINKtoURL = function LINKtoURL(input){
-      var ret = input;
-      ret = ret.replace(/<aoutlinkedit><a href=\".*\">/,"");
-      ret = ret.replace(/<\/a><\/aoutlinkedit>/,"");
+      var ret = input.replace(/<aoutlinkedit><a [^>]+>(https?:\/\/[\x21-\x7e]+)<\/a><\/aoutlinkedit>/gi,"$1");
       return ret;
     }
 
