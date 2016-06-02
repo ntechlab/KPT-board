@@ -58,6 +58,7 @@ module.exports = {
 				req.session.passport["userId"] = user[0]["username"];
 				req.session.passport["name"] = user[0]["nickname"];
 				req.session.passport["role"] = user[0]["role"];
+				req.session.passport["projectId"] = user[0]["projectId"];
 				req.session.passport["modelId"] = user[0]["id"];
 				return res.redirect('/dashboard');
 			});

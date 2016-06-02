@@ -19,7 +19,7 @@ function openUserManageIndexPage(req, res, message){
 		loginInfo.message = message;
 	}
 	if(loginInfo["roleName"] === "admin"){
-		User.find({}).sort('username').exec(function(err, usersFound) {
+		User.find({projectId: loginInfo["projectId"]}).sort('username').exec(function(err, usersFound) {
 			if(err || !usersFound){
 				logger.error(req, "ユーザー管理画面オープン 失敗: [" + JSON.stringify(err) + "]");
 				loginInfo.message = {type: "danger", contents: "システムエラーが発生しました。"};
@@ -93,6 +93,7 @@ module.exports = {
 		    password: req.param('password'),
 		    nickname: req.param('nickname'),
 		    role: req.param('role'),
+		    projectId: loginInfo["projectId"], // 当該ユーザーを作成した管理者のプロジェクトＩＤを引き継ぐ
 		    flag1: req.param('valid')
 		}).exec(function(err, obj) {
 			if(err){
@@ -135,18 +136,27 @@ module.exports = {
 		// 指定されたユーザーIDを持つユーザーを削除する。
 		// 削除対象ユーザーIDが指定されていない場合には、処理を行わずにユーザー一覧画面に遷移する。
 		if(target){
-			User.destroy(target).exec(function(err, obj) {
-				// 以下、ハッシュ化したパスワードが表示されるため通常コメントアウト。
-				// logger.info("ユーザー削除結果[" + JSON.stringify(obj) + "]");
-
-				if(err || !obj || obj.length === 0){
+			// 同一プロジェクトＩＤのユーザーでない場合には処理を中断する
+			User.findOne(target).exec(function(err, obj) {
+				if(err || !obj || obj.length === 0 || loginInfo["projectId"] !== obj["projectId"]){
 					// 削除処理に失敗した場合には、ユーザ一覧画面に遷移する。
-					logger.error(req, "ユーザー削除処理 失敗: [" + JSON.stringify(err) + "]");
+					logger.error(req, "ユーザー削除処理 失敗(同一プロジェクトＩＤ判定): [" + JSON.stringify(err) + "]");
 					openUserManageIndexPage(req, res, {type:"danger", contents:"ユーザー削除処理に失敗しました。"});
 					return;
 				}
-				logger.info(req, "ユーザー削除処理 成功: [" + JSON.stringify(obj) + "]");
-				openUserManageIndexPage(req, res, {type: "success", contents: "ユーザー" + obj[0]["username"] + "(" + obj[0]["nickname"] + ")を削除しました。"});
+				User.destroy(target).exec(function(err, obj) {
+					// 以下、ハッシュ化したパスワードが表示されるため通常コメントアウト。
+					// logger.info("ユーザー削除結果[" + JSON.stringify(obj) + "]");
+
+					if(err || !obj || obj.length === 0){
+						// 削除処理に失敗した場合には、ユーザ一覧画面に遷移する。
+						logger.error(req, "ユーザー削除処理 失敗: [" + JSON.stringify(err) + "]");
+						openUserManageIndexPage(req, res, {type:"danger", contents:"ユーザー削除処理に失敗しました。"});
+						return;
+					}
+					logger.info(req, "ユーザー削除処理 成功: [" + JSON.stringify(obj) + "]");
+					openUserManageIndexPage(req, res, {type: "success", contents: "ユーザー" + obj[0]["username"] + "(" + obj[0]["nickname"] + ")を削除しました。"});
+				});
 			});
 		} else {
 			logger.warn(req, "ユーザー削除処理 失敗: [削除ユーザーIDが未設定]");
@@ -177,9 +187,10 @@ module.exports = {
 			// 以下、ハッシュ化したパスワードが表示されるため通常コメントアウト。
 			// logger.info("更新ユーザー検索結果[" + JSON.stringify(oldUser) + "]");
 
-			// エラー発生、もしくは、更新対象ユーザーが存在しない場合、ユーザー管理画面に遷移し、メッセージを表示する。
+			// エラー発生、更新対象ユーザーが存在しない場合、プロジェクトＩＤが異なる場合、
+			// ユーザー管理画面に遷移し、メッセージを表示する。
 			// （検索結果が存在しない場合には、targetはundefinedが設定される。）
-			if(err || !oldUser){
+			if(err || !oldUser || loginInfo["projectId"] != oldUser["projectId"]){
 				logger.error(req, "ユーザー更新処理 ユーザー情報取得 失敗: [" + JSON.stringify(err) + "]");
 				openUserManageIndexPage(req, res, {type:"danger", contents: "ユーザの更新に失敗しました。"});
 				return;
@@ -266,7 +277,8 @@ module.exports = {
 		}
 
 		User.findOne(id).exec(function(err, found){
-			if(err || !found) {
+			// 同一プロジェクトＩＤでない場合にはエラーとする。
+			if(err || !found || loginInfo["projectId"] != found["projectId"]) {
 				logger.error(req, "ユーザー情報更新画面オープン 失敗: [" + JSON.stringify(err) +"]");
 				Utility.openMainPage(req, res, {type: "danger", contents: "ユーザー情報更新画面の表示に失敗"});
 				return;

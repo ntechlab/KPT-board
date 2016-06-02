@@ -10,6 +10,7 @@ module.exports = {
   attributes: {
     title : {type : 'string', required : true},
     description : {type : 'string'},
+	projectId : {type : 'string', required : true},
     category : {type : 'string'},
     version : {type : 'string', defaultsTo: '1.1'},
     width : {type : 'integer', defaultsTo: 3840},

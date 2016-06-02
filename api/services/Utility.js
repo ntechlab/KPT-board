@@ -6,17 +6,26 @@ exports.getLoginInfo = function(req, res){
 	var id = "";
 	var nickname = "";
 	var modelId = "";
+	var projectId = "";
 	if(req.session != null && req.session.passport != null){
 	    id = req.session.passport.user || "";
 	    nickname = req.session.passport.name || "";
 	    modelId = req.session.passport.modelId || "";
 	    role = req.session.passport.role || "";
+	    projectId = req.session.passport.projectId || "";
 	}
 	var roleDesc = "";
 	if(role === 'admin') {
 		roleDesc = "&nbsp;（管理者）";
 	}
-	return {id: modelId, userId: id, userName: nickname, roleName: role, roleDesc : roleDesc};
+	return {
+		id: modelId,
+		userId: id,
+		userName: nickname,
+		roleName: role,
+		roleDesc : roleDesc,
+		projectId: projectId
+	};
 };
 
 exports.openMainPage = function(req, res, message){

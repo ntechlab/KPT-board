@@ -336,7 +336,8 @@ module.exports = {
 
 		// 全ユーザーリストを取得しニックネーム対応マップを作成する。
 		prerequisite.push(function(next) {
-			 User.find().exec(function(err3, usersFound) {
+			// ログインユーザーと同一のプロジェクトＩＤをもつユーザーを取得
+			 User.find({projectId: loginInfo["projectId"]}).exec(function(err3, usersFound) {
 				if(err3){
 					logger.error(req, "チケットのユーザーIDの検索: エラー発生:" + JSON.stringify(err3));
 				} else {

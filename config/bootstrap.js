@@ -12,18 +12,19 @@
 module.exports.bootstrap = function(cb) {
 
 	//=========================================
-	// デフォルト管理アカウント                
-	// パスワードを適宜変更してください。      
+	// デフォルト管理アカウント
+	// パスワードを適宜変更してください。
 	// ========================================
 	var defaultAdmin = {
 				username: "admin",
 				password: "password",
 				nickname: "Administrator",
 				role: "admin",
+				projectId: "P00", // デフォルトプロジェクトＩＤ
 				flag1: 0
 			};
-	
-	sails.log("初期データセットアップ");		
+
+	sails.log("初期データセットアップ");
 	User.find({username : defaultAdmin["username"]}).exec(function (err, users){
 		if(users.length == 0){
 			sails.log("デフォルト管理アカウント作成");

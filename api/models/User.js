@@ -26,6 +26,10 @@ module.exports = {
 			type : 'string',
 			defaultsTo : ''
 		},
+		projectId : {
+			type : 'string',
+			required : true
+		},
 		status : {
 			type : 'string',
 			defaultsTo : ''
