@@ -34,6 +34,7 @@ module.exports = {
 	Board.create({
 	    title: title,
 	    description : req.param('description'),
+	    projectId: loginInfo["projectId"], // 作成者のプロジェクトＩＤを引き継ぐ
 	    category: category
 	}).exec(function(err, created){
 		if(err) {
@@ -66,34 +67,12 @@ module.exports = {
           return;
         }
 	    var boardId = req.param('id');
-        var category = req.param('category');
-        category = Utility.trim(req, category);
-        var newObj = {
-    		    title:req.param('title'),
-    		    description : req.param('description'),
-    		    width : req.param('width'),
-    		    height : req.param('height'),
-    		    bgType : req.param('bgType'),
-    		    bgImage : req.param('bgImage'),
-    		    bgSepV : req.param('bgSepV'),
-    		    bgSepH : req.param('bgSepH'),
-    		    category: category,
-    		    selectedId : req.param("selectedId"),
-    		    bgSepLineWidth : req.param('bgSepLineWidth'),
-    		    bgSepLineColor : req.param('bgSepLineColor'),
-    		    ticketData : req.param('ticketDataToSend')
-    		};
-        var list = ['bgColor', 'bgRepeatType'];
-        for(var i = 0; i < list.length; i++){
-        	var key = list[i];
-	        if(req.param(key)){
-	        	newObj[key] = req.param(key);
-	        }
-        }
-        logger.trace(req, "updateBoard called: [" + JSON.stringify(newObj) + "]");
-		Board.update(boardId, newObj).exec(function(err,created){
-			if(err) {
-				logger.error(req, "BoardController.js ボード情報の更新に失敗しました: [" + JSON.stringify(newObj) + "][" + JSON.stringify(err) + "]");
+
+	    // 同一プロジェクトＩＤでない場合にはエラーとする。
+	    Board.findOne(boardId).exec(function(err, found){
+	    	// FIXME: projectInfo is not found in loginInfo.
+	    	if(err || loginInfo["projectId"] != found["projectId"]){
+	    		logger.error(req, "BoardController.js ボード情報の更新に失敗しました（プロジェクトＩＤチェック時）: [" + JSON.stringify(newObj) + "][" + JSON.stringify(err) + "]");
 				var loginInfo = Utility.getLoginInfo(req, res);
 				loginInfo.message = {type: "danger", contents: "BoardController.js ボード情報の更新に失敗しました: " + JSON.stringify(err)};
 				res.view("dashboard/editBoard", {
@@ -103,10 +82,50 @@ module.exports = {
 					description: req.param('description')
 				});
 			    return;
-			}
-			logger.info(req, "BoardController.js ボード情報の更新: ["+JSON.stringify(newObj)+"]");
-			Utility.openMainPage(req, res, {type: "success", contents: "ボード情報を更新しました。"});
-		});
+	    	}
+
+		    var category = req.param('category');
+	        category = Utility.trim(req, category);
+	        var newObj = {
+	    		    title:req.param('title'),
+	    		    description : req.param('description'),
+	    		    width : req.param('width'),
+	    		    height : req.param('height'),
+	    		    bgType : req.param('bgType'),
+	    		    bgImage : req.param('bgImage'),
+	    		    bgSepV : req.param('bgSepV'),
+	    		    bgSepH : req.param('bgSepH'),
+	    		    category: category,
+	    		    selectedId : req.param("selectedId"),
+	    		    bgSepLineWidth : req.param('bgSepLineWidth'),
+	    		    bgSepLineColor : req.param('bgSepLineColor'),
+	    		    ticketData : req.param('ticketDataToSend')
+	    		};
+	        var list = ['bgColor', 'bgRepeatType'];
+	        for(var i = 0; i < list.length; i++){
+	        	var key = list[i];
+		        if(req.param(key)){
+		        	newObj[key] = req.param(key);
+		        }
+	        }
+	        logger.trace(req, "updateBoard called: [" + JSON.stringify(newObj) + "]");
+			Board.update(boardId, newObj).exec(function(err,created){
+				if(err) {
+					logger.error(req, "BoardController.js ボード情報の更新に失敗しました: [" + JSON.stringify(newObj) + "][" + JSON.stringify(err) + "]");
+					var loginInfo = Utility.getLoginInfo(req, res);
+					loginInfo.message = {type: "danger", contents: "BoardController.js ボード情報の更新に失敗しました: " + JSON.stringify(err)};
+					res.view("dashboard/editBoard", {
+						id: boardId,
+						loginInfo: loginInfo,
+						title: req.param("title"),
+						description: req.param('description')
+					});
+				    return;
+				}
+				logger.info(req, "BoardController.js ボード情報の更新: ["+JSON.stringify(newObj)+"]");
+				Utility.openMainPage(req, res, {type: "success", contents: "ボード情報を更新しました。"});
+			});
+	    });
     },
 
 	/**

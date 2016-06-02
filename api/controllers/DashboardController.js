@@ -183,7 +183,7 @@ module.exports = {
 	    logger.trace(req, "index called");
 		var loginInfo = Utility.getLoginInfo(req, res);
 		var message;
-		Board.find({}).sort({"title":-1}).exec(function(err, found) {
+		Board.find({projectId: loginInfo["projectId"]}).sort({"title":-1}).exec(function(err, found) {
 			// ボードリストの取得に失敗した場合にはエラーメッセージを表示する。
 			if(err){
 				logger.error(req, "ボード一覧画面オープン時にエラー発生[" + JSON.stringify(err) +"]");
@@ -353,7 +353,10 @@ module.exports = {
 
 		// ボードリスト取得処理関数を追加（移動先ボードリストとして利用）
 		prerequisite.push(function(next) {
-			    Board.find().where({ id: { 'not': boardId }}).sort({"title":-1}).exec(function(err4, boards) {
+				Board.find({projectId: loginInfo["projectId"]})
+				.where({ id: { 'not': boardId }})
+				.sort({"title":-1})
+				.exec(function(err4, boards) {
 				if(err4) {
 					logger.error(req, "ボードリストの取得: エラー発生: [" + JSON.stringify(err4) + "]");
 					boardList = [];
