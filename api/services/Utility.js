@@ -34,7 +34,7 @@ exports.openMainPage = function(req, res, message){
 	if(message){
 		loginInfo.message = message;
 	}
-	Board.find({}).sort({"title":-1}).exec(function(err,found){
+	Board.find({projectId: loginInfo["projectId"]}).sort({"title":-1}).exec(function(err,found){
 		if(err){
 			logger.error(req, "メイン画面オープン時にエラー発生[" + JSON.stringify(err) +"]");
 			found = [];
@@ -95,8 +95,9 @@ exports.getDateTime = function(){
 }
 
 // カテゴリーのリストを取得する。
-exports.getCategoryList = function(successCb, errorCb){
-	Board.find({}).exec(function(err, found) {
+exports.getCategoryList = function(req, res, successCb, errorCb){
+	var loginInfo = Utility.getLoginInfo(req, res);
+	Board.find({projectId: loginInfo["projectId"]}).exec(function(err, found) {
 		// ボードリストの取得に失敗した場合にはエラー処理コールバック関数を実行。
 		if(err){
 			if(errorCb){

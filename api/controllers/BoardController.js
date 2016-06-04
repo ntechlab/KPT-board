@@ -60,7 +60,8 @@ module.exports = {
      */
     updateBoard : function(req, res) {
     	 var loginInfo = Utility.getLoginInfo(req, res);
-    	// 管理者ロールでない場合にはボードを更新できない。
+
+    	 // 管理者ロールでない場合にはボードを更新できない。
         if(loginInfo["roleName"] !== "admin"){
           logger.error(req, "一般ユーザーはボード情報を更新できません。");
           Utility.openMainPage(req, res, {type: "danger", contents: "ボード情報の更新に失敗しました。"});
@@ -70,10 +71,9 @@ module.exports = {
 
 	    // 同一プロジェクトＩＤでない場合にはエラーとする。
 	    Board.findOne(boardId).exec(function(err, found){
-	    	// FIXME: projectInfo is not found in loginInfo.
+	    	var loginInfo = Utility.getLoginInfo(req, res);
 	    	if(err || loginInfo["projectId"] != found["projectId"]){
 	    		logger.error(req, "BoardController.js ボード情報の更新に失敗しました（プロジェクトＩＤチェック時）: [" + JSON.stringify(newObj) + "][" + JSON.stringify(err) + "]");
-				var loginInfo = Utility.getLoginInfo(req, res);
 				loginInfo.message = {type: "danger", contents: "BoardController.js ボード情報の更新に失敗しました: " + JSON.stringify(err)};
 				res.view("dashboard/editBoard", {
 					id: boardId,

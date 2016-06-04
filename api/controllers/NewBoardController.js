@@ -34,7 +34,7 @@ module.exports = {
 		    message = {type: "danger", contents: "ボード情報の取得に失敗しました。"};
 			Utility.openMainPage(req, res, message);
 		};
-		Utility.getCategoryList(successCb, errorCb);
+		Utility.getCategoryList(req, res, successCb, errorCb);
     }
 };
 

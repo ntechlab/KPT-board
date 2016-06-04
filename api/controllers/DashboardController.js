@@ -122,7 +122,7 @@ function showEditView(req, res, id, loginInfo){
 	}
 
 	Board.findOne(id).exec(function(err,found){
-	    if(err || !found) {
+	    if(err || !found || loginInfo["projectId"] !== found["projectId"]) {
 			logger.error(req, "ボード編集時 ボード取得失敗: エラー発生: [" + JSON.stringify(err) + "]");
 			Utility.openMainPage(req, res, {type: "danger", contents: "エラーが発生しました:"+JSON.stringify(err)});
 			return;
@@ -168,7 +168,7 @@ function showEditView(req, res, id, loginInfo){
 				    message = {type: "danger", contents: "ボード情報の取得に失敗しました。"};
 					Utility.openMainPage(req, res, message);
 				};
-				Utility.getCategoryList(successCb, errorCb);
+				Utility.getCategoryList(req, res, successCb, errorCb);
 			});
 		}
 	});
@@ -320,7 +320,7 @@ module.exports = {
 			Utility.openMainPage(req, res, message);
 			return;
 		}
-		if(!found) {
+		if(!found || loginInfo["projectId"] !== found["projectId"]) {
 			logger.error(req, "指定されたボードIDが存在しないため、ボード選択画面に遷移[" + boardId + "]");
 			message = {type: "warn", contents: "指定したボードIDが存在しません[" + boardId + "]"};
 			Utility.openMainPage(req, res, message);
@@ -454,15 +454,24 @@ module.exports = {
 		var message = null;
 		if(id != null){
 			logger.debug(req, "ボード削除処理 削除対象[" + id + "]");
-			Board.destroy(id).exec(function(err, found){
-				if(err || (found && found.length === 0)) {
-					logger.error(req, "ボード削除処理 失敗: [" + id + ","+ JSON.stringify(err) + "]");
+
+			Board.findOne(id).exec(function(err2, found2){
+				if(err2 || !found2 || found2.length === 0 || loginInfo["projectId"] !== found2["projectId"]) {
+					logger.error(req, "ボード削除処理 失敗: [" + id + ","+ JSON.stringify(err2) + "]");
 					message = {type: "danger", contents: "ボード削除に失敗しました[" + id + "]"};
-				} else {
-					logger.info(req, "ボード削除処理 成功: [" + id + "]");
-					message = {type: "success", contents: "ボードを削除しました: [" + found[0]["title"] + "]"};
+					Utility.openMainPage(req, res, message);
+					return;
 				}
-				Utility.openMainPage(req, res, message);
+				Board.destroy(id).exec(function(err, found){
+					if(err || (found && found.length === 0)) {
+						logger.error(req, "ボード削除処理 失敗: [" + id + ","+ JSON.stringify(err) + "]");
+						message = {type: "danger", contents: "ボード削除に失敗しました[" + id + "]"};
+					} else {
+						logger.info(req, "ボード削除処理 成功: [" + id + "]");
+						message = {type: "success", contents: "ボードを削除しました: [" + found[0]["title"] + "]"};
+					}
+					Utility.openMainPage(req, res, message);
+				});
 			});
 		} else {
 			logger.error(req, "ボード削除処理 ボードID未設定");
