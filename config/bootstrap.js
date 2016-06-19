@@ -10,6 +10,11 @@
  */
 
 module.exports.bootstrap = function(cb) {
+	var u = require('underscore');
+	var fs = require('fs');
+	var async = require('async');
+
+	var BACKGROUND_REL_PATH = "/images/background/";
 
 	//=========================================
 	// デフォルト管理アカウント
@@ -35,12 +40,40 @@ module.exports.bootstrap = function(cb) {
 				} else {
 					sails.log("管理アカウント作成に成功");
 				};
-				cb();
 			});
 		} else {
 			// It's very important to trigger this callback method when you are finished
 			// with the bootstrap!  (otherwise your server will never lift, since it's waiting on the bootstrap)
-			cb();
 		}
+		createImageDirs(cb);
 	});
+
+
+	function createImageDirs(cb){
+		User.find().exec(function (err, users){
+			var ids = u.unique(u.pluck(users, "projectId"));
+			sails.log.info("存在するプロジェクトＩＤリスト:["+ids+"]");
+
+			// 同期処理で各プロジェクトＩＤの画像格納フォルダを作成する。
+			var functions = [];
+			u.each(ids, function(projectId){
+				functions.push(function (callback){
+					var path = './upload' + BACKGROUND_REL_PATH+ projectId + "/";
+					fs.mkdir(path, function(err) {
+						if (err) {
+							sails.log.info("画像格納フォルダ作成時しない:[" + path + "]");
+						} else {
+							sails.log.info("画像格納フォルダ新規作成:[" + path + "]");
+						}
+						callback(null, projectId);
+					});
+				});
+			});
+
+			async.series(functions, function (err, values) {
+				sails.log.info("画像格納フォルダ作成結果:["+values+"]");
+				cb();
+			});
+		});
+	}
 };

@@ -156,6 +156,10 @@ function uploadImageFile() {
 				$('#bgImage').val(src);
 				$('#selected').attr('src', src);
 
+				// 	アップロード結果がエラーの場合にはメッセージを表示する。
+				if(data != null && data.status === "error"){
+					alert(data.message);
+				}
 				// 画面ブロックの解除
             	$.unblockUI();
             }, duration);

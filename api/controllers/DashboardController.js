@@ -5,12 +5,25 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
-// underscore利用準備
 var u = require('underscore');
+var us = require('underscore.string');
 var fs = require('fs');
+var path = require('path');
 
+var logger = require('../Log.js').getLoggerWrapper("DashboardController");
+
+// 背景画像を格納するパス
 var BACKGROUND_REL_PATH = "/images/background/";
-var BACKGROUND_DIR = './upload' + BACKGROUND_REL_PATH;
+
+// 画像ファイルとして許容する拡張子
+var IMAGE_FILE_EXTENSIONS = ["JPG", "GIF", "PNG", "BMP"];
+
+function getBackgroundDir(req, res){
+	var loginInfo = Utility.getLoginInfo(req, res);
+	var projectId = loginInfo["projectId"];
+	var path = './upload' + BACKGROUND_REL_PATH+ projectId + "/";
+	return path;
+}
 
 // 資産フォルダ
 var ASSETS = "assets";
@@ -33,8 +46,6 @@ var BOARD_DEFAULT_VALUES = {
     bgSepLineColor : '#000000',
     ticketData : 'ticket_blue_small:Keep:true,ticket_pink_small:Problem:true,ticket_yellow_small:Try:true,ticket_white_small:Memo:true'
 };
-
-var logger = require('../Log.js').getLoggerWrapper("DashboardController");
 
 var ticketData0 = [
    				{id: "ticket_blue_small", label: "青（小）"},
@@ -128,15 +139,15 @@ function showEditView(req, res, id, loginInfo){
 			return;
 		} else {
 			logger.debug(req, "編集対象ボード取得[" + JSON.stringify(found) + "]");
-			fs.readdir(BACKGROUND_DIR, function(err, files){
+			fs.readdir(getBackgroundDir(req, res), function(err, files){
 				if (err) {
 					throw err;
 				}
 				var backgroundFileList = [];
 				files.filter(function(file){
-					return fs.statSync(BACKGROUND_DIR + file).isFile();
+					return fs.statSync(getBackgroundDir(req, res) + file).isFile();
 				}).forEach(function (file) {
-					backgroundFileList.push(BACKGROUND_REL_PATH + file);
+					backgroundFileList.push(BACKGROUND_REL_PATH + loginInfo["projectId"]+"/" +file);
 				});
 				logger.debug(req, backgroundFileList);
 				var ticketData2 = found["ticketData"] || BOARD_DEFAULT_VALUES["ticketData"];
@@ -501,13 +512,23 @@ module.exports = {
 		}
 		var uploadFile = req.file('uploadFile');
 
-		// TODO: ファイル名のチェックロジックを実装する。jpg,png,gif以外の場合にはエラーにするなど。
+		// 画像ファイルとして指定した拡張子以外の場合には、アップロードを行わない。
+		var fileName = uploadFile._files[0].stream.filename;
+		logger.info(req, "アップロード対象ファイル名:["+fileName+"]");
+		if(!isImageFile(fileName)){
+			logger.error(req, "ファイルアップロード処理 失敗: 不正な拡張子[" + fileName + "]");
+			var message = "ファイル["+fileName+"]のアップロードに失敗しました。"
+			+ "アップロードできる画像ファイルの拡張子は以下です：\n"
+			+ IMAGE_FILE_EXTENSIONS;
+			return res.json({status: 'error', message : message});
+		}
+
 
 		var boardId = req.param("selectedId");
 		logger.info(req, "ファイルアップロード処理: [" + boardId + "][" + uploadFile + "]");
 
 		// ファイルのアップロード処理
-		uploadFile.upload({dirname: BACKGROUND_DIR}, function onUploadComplete (err, files) {
+		uploadFile.upload({dirname: getBackgroundDir(req, res)}, function onUploadComplete (err, files) {
 			if (err) {
 				logger.error(req, "ファイルアップロード処理 失敗[" + JSON.stringify(err) + "]");
 				return res.json({status: 'error', message : "ファイルのアップロードに失敗しました。", error: err});
@@ -545,7 +566,7 @@ module.exports = {
 		logger.debug(req, "ファイル削除処理: [" + path + "][" + fileName + "]");
 
 		// 指定された画像ファイルを削除する。
-		var deletePath = BACKGROUND_DIR + fileName;
+		var deletePath = getBackgroundDir(req, res) + fileName;
 		var ret;
 		fs.unlink(deletePath, function (err) {
 			if (err) {
@@ -561,7 +582,8 @@ module.exports = {
 
 	getImageFileList : function  (req, res) {
 		logger.trace(req, "getImageFileList");
-		fs.readdir(BACKGROUND_DIR, function(err, files){
+		var loginInfo = Utility.getLoginInfo(req, res);
+		fs.readdir(getBackgroundDir(req, res), function(err, files){
 			if (err) {
 				logger.error(req, "画像ファイルリスト取得処理 失敗: [" + JSON.stringify(err) + "]");
 				return res.json({status: 'error', error: err});
@@ -569,15 +591,30 @@ module.exports = {
 			var backgroundFileList = [];
 			files.filter(function(file){
 				// .で始まるファイルは表示対象外とする。
-				return fs.statSync(BACKGROUND_DIR + file).isFile() && /^[^\.]/.test(file);
+				return fs.statSync(getBackgroundDir(req, res) + file).isFile() && isImageFile(file);
 			}).forEach(function (file) {
-				backgroundFileList.push(BACKGROUND_REL_PATH + file);
+				backgroundFileList.push(BACKGROUND_REL_PATH + loginInfo["projectId"] +"/"+file);
 			});
 			logger.debug(req, "画像ファイルリスト取得処理 成功: [" + backgroundFileList + "]");
 			return res.json({status: 'success', images: backgroundFileList});
 		});
 	}
 };
+
+/**
+ * 画像ファイルか否かを判定する。
+ * @param file ファイル名
+ * @returns 画像ファイルであればtrue, そうでない場合はfalse.
+ */
+function isImageFile(file){
+	if(us.startsWith(file, ".") || file.indexOf('.') < 0){
+		return false;
+	}
+	var ext = path.extname(file).toUpperCase();
+	ext = us.strRightBack(ext, ".");
+	var ret = u.contains(IMAGE_FILE_EXTENSIONS, ext);
+	return ret;
+}
 
 /**
  * チケット個別スタイルを生成
