@@ -5,30 +5,48 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
-
 var logger = require('../Log.js').getLoggerWrapper("BoardController");
 
-module.exports = {
+var u = require('underscore');
+var us = require('underscore.string');
 
-    /**
-     * ボード作成
-     */
-    createBoard : function(req, res) {
-    var loginInfo = Utility.getLoginInfo(req, res);
-    // 管理者ロールでない場合にはボードを作成できない。
-    if(loginInfo["roleName"] !== "admin"){
-      logger.error(req, "一般ユーザーはボードを作成できません。");
-      Utility.openMainPage(req, res, {type: "danger", contents: "ボードの作成に失敗しました。"});
-      return;
-    }
-    var title = req.param('title');
-    var category = req.param('category');
-    logger.trace(req, "createBoard called:[" + title + "," + category + "]");
-    title = Utility.trim(req, title);
-    category = Utility.trim(req, category);
+/**
+ * ボード作成内部処理.<br>
+ *
+ * @param req リクエスト
+ * @param res レスポンス
+ * @param cb 呼び出し方式（ブラウザ/REST）に応じて処理を分岐するためのコールバック関数
+ */
+function createBoardInner(req, res, cb) {
+	var loginInfo = Utility.getLoginInfo(req, res);
+
+	// 管理者ロールでない場合にはボードを作成できない。
+	if(loginInfo["roleName"] !== "admin"){
+	  cb(req, res, {
+		  type: "main",
+		  data: {
+			  type: "danger",
+			  contents: "一般ユーザーはボードを作成できません。"
+		  }
+	  });
+	  return;
+	}
+
+	// タイトルとカテゴリをトリムする。
+	var title = req.param('title');
+	var category = req.param('category');
+	logger.trace(req, "createBoard called:[" + title + "," + category + "]");
+	title = Utility.trim(req, title);
+	category = Utility.trim(req, category);
+
 	if(!title || title.length == 0){
-	  logger.warn(req, "トリム後のタイトルが空のため処理を中断");
-	  Utility.openMainPage(req, res, {type: "danger", contents: "ボードの作成に失敗しました。"});
+	  cb(req, res, {
+		  type: "main",
+		  data: {
+			  type: "danger",
+			  contents: "トリム後のタイトルが空のため処理を中断"
+		  }
+	  });
 	  return;
 	}
 	Board.create({
@@ -38,94 +56,231 @@ module.exports = {
 	    category: category
 	}).exec(function(err, created){
 		if(err) {
-			logger.error(req, "ボードの作成に失敗しました: " + JSON.stringify(err));
-			var loginInfo = Utility.getLoginInfo(req, res);
-			loginInfo.message = {type: "danger", contents: "ボードの作成に失敗しました: " + JSON.stringify(err)};
-			res.view("newboard/index", {
-				loginInfo: loginInfo,
-				title: req.param("title"),
-				category : req.param("category"),
-				selectedId : req.param("selectedId"),
-				desc: req.param('description')
-			});
+			cb(req, res, {
+		    	  type: "stay",
+		    	  data: {
+		    		  type: "danger",
+		    		  contents: "ボードの作成に失敗しました: " + JSON.stringify(err)
+		    	  }
+		      });
 		    return;
 		}
-		logger.info(req, "ボード新規作成:[category:" + category + ",title:" + title + "]");
-		Utility.openMainPage(req, res, {type: "success", contents: "ボードを作成しました。［カテゴリ：" + category + "　タイトル：" + title + "］"});
+		cb(req, res, {
+			type: "main",
+			data: {
+				type: "success",
+				contents: "ボードを作成しました。［カテゴリ：" + category + "　タイトル：" + title + "］"
+				}
+		});
 	});
+}
+
+/**
+ * ブラウザから呼び出された場合に利用するコールバック関数.
+ *
+ * @param req リクエスト
+ * @param res レスポンス
+ * @param params パラメータ
+ */
+function getBrowserCallback(req, res, params){
+	logger.trace(req, "getCreateBoardCallbackUI start");
+	var type = params.type;
+	var data = params.data;
+	logger.trace(req, "結果処理コールバック関数呼び出し（ブラウザ）:" + JSON.stringify(data));
+	switch(type){
+	case "main":
+		Utility.openMainPage(req, res, data);
+		break;
+	case "stay":
+		var loginInfo = Utility.getLoginInfo(req, res);
+		loginInfo.message = data;
+		res.view("newboard/index", {
+			loginInfo: loginInfo,
+			title: req.param("title"),
+			category : req.param("category"),
+			selectedId : req.param("selectedId"),
+			desc: req.param('description')
+		});
+	case "stay2":
+		var loginInfo = Utility.getLoginInfo(req, res);
+		loginInfo.message = data;
+		res.view("dashboard/editBoard", {
+			id: boardId,
+			loginInfo: loginInfo,
+			title: req.param("title"),
+			description: req.param('description')
+		});
+	default:
+		logger.error(req, "結果処理コールバックに与えられたタイプが想定外:[" + type + "]");
+	}
+	logger.trace(req, "getCreateBoardCallbackUI end");
+}
+
+/**
+ * RESTから呼び出された場合に利用するコールバック関数.
+ *
+ * @param req リクエスト
+ * @param res レスポンス
+ * @param params パラメータ
+ */
+function getRESTCallback(req, res, params){
+	logger.trace(req, "getCreateBoardCallbackREST start");
+	var type = params.type;
+	var data = params.data;
+	logger.trace(req, "結果処理コールバック関数呼び出し（REST）:" + JSON.stringify(data));
+	res.json(data);
+	logger.trace(req, "getCreateBoardCallbackREST end");
+}
+
+/**
+ * 結果処理コールバック関数取得.<br>
+ *
+ * ブラウザからの呼び出しか、RESTからの呼び出し化を判断し、適切なコールバック関数を返却する。
+ *
+ * @param req リクエスト
+ * @param res レスポンス
+ * @returns 結果処理コールバック関数
+ */
+function getCallback(req, res){
+	logger.trace(req, "getCallback start");
+	var loginInfo = Utility.getLoginInfo(req, res);
+
+	// 処理実行がブラウザかRESTかに応じてコールバック関数を選択する。
+	logger.trace(req, "アクセスモード:"+loginInfo.mode);
+	var cb;
+	if(loginInfo.mode == "browser"){
+		cb = getBrowserCallback;
+	} else {
+		cb = getRESTCallback;
+	}
+	logger.trace(req, "getCallback end");
+	return cb;
+}
+
+/**
+ * ボード更新内部処理.<br>
+ *
+ * @param req リクエスト
+ * @param res レスポンス
+ * @param cb 呼び出し方式（ブラウザ/REST）に応じて処理を分岐するためのコールバック関数
+ */
+function updateBoardInner(req, res, cb) {
+	logger.trace(req, "updateBoardInner start");
+	var loginInfo = Utility.getLoginInfo(req, res);
+
+	 // 管理者ロールでない場合にはボードを更新できない。
+	if(loginInfo["roleName"] !== "admin"){
+		cb(req, res, {
+			type: main,
+			data: {
+				type: "danger",
+				contents: "一般ユーザーはボード情報を更新できません。"
+			}
+		});
+		return;
+	}
+
+	// ボードIDが指定されていない場合にはエラーとする。
+	var boardId = req.param('id');
+	if(boardId == null){
+		cb(req, res, {
+			type: "main",
+			data: {
+				type: "danger",
+				contents: "ボードIDが指定されていません。"
+			}
+		});
+		return;
+	}
+
+	// 同一プロジェクトＩＤでない場合にはエラーとする。
+	Board.findOne(boardId).exec(function(err, found){
+		var loginInfo = Utility.getLoginInfo(req, res);
+		if(err || loginInfo["projectId"] != found["projectId"]){
+			cb(req, res, {
+				type: "stay2",
+				data: {
+					type: "danger",
+					contents: "BoardController.js ボード情報の更新に失敗しました（プロジェクトID不一致）: " + JSON.stringify(err)
+				}
+			});
+			return;
+	   	}
+
+		// カテゴリ文字列をトリムする。
+		var category = req.param('category');
+		req.params["category"] = Utility.trim(req, category);
+
+		// 更新したい値を設定するオブジェクト
+		var newObj = {};
+
+		// 変更対象項目キー配列
+		var keys = [
+					'title',
+					'description',
+					'width',
+					'height',
+					'bgType',
+					'bgImage',
+					'bgSepV',
+					'bgSepH',
+					'category',
+					'selectedId',
+					'bgSepLineWidth',
+					'bgSepLineColor',
+					'ticketDataToSend',
+					'bgColor',
+					'bgRepeatType'
+				];
+
+		// 送信された値を更新する。
+		u.each(keys, function(key){
+			if(req.param(key)){
+				newObj[key] = req.param(key);
+			}
+		});
+
+		// ボードの更新処理
+		Board.update(boardId, newObj).exec(function(err,created){
+			if(err) {
+				cb(req, res, {
+					type: "stay2",
+					data: {
+						type: "danger",
+						contents: "ボード情報の更新に失敗しました: " + JSON.stringify(err)
+					}
+				});
+			    return;
+			}
+			cb(req, res, {
+				type: "main",
+				data: {
+					type: "success",
+					contents: "ボード情報を更新しました。"
+				}
+			});
+			return;
+		});
+   });
+}
+
+module.exports = {
+
+    /**
+     * ボード作成
+     */
+    createBoard : function(req, res) {
+    	var cb = getCallback(req, res);
+    	createBoardInner(req, res, cb);
     },
+
 
     /**
      * ボード情報更新
      */
     updateBoard : function(req, res) {
-    	 var loginInfo = Utility.getLoginInfo(req, res);
-
-    	 // 管理者ロールでない場合にはボードを更新できない。
-        if(loginInfo["roleName"] !== "admin"){
-          logger.error(req, "一般ユーザーはボード情報を更新できません。");
-          Utility.openMainPage(req, res, {type: "danger", contents: "ボード情報の更新に失敗しました。"});
-          return;
-        }
-	    var boardId = req.param('id');
-
-	    // 同一プロジェクトＩＤでない場合にはエラーとする。
-	    Board.findOne(boardId).exec(function(err, found){
-	    	var loginInfo = Utility.getLoginInfo(req, res);
-	    	if(err || loginInfo["projectId"] != found["projectId"]){
-	    		logger.error(req, "BoardController.js ボード情報の更新に失敗しました（プロジェクトＩＤチェック時）: [" + JSON.stringify(newObj) + "][" + JSON.stringify(err) + "]");
-				loginInfo.message = {type: "danger", contents: "BoardController.js ボード情報の更新に失敗しました: " + JSON.stringify(err)};
-				res.view("dashboard/editBoard", {
-					id: boardId,
-					loginInfo: loginInfo,
-					title: req.param("title"),
-					description: req.param('description')
-				});
-			    return;
-	    	}
-
-		    var category = req.param('category');
-	        category = Utility.trim(req, category);
-	        var newObj = {
-	    		    title:req.param('title'),
-	    		    description : req.param('description'),
-	    		    width : req.param('width'),
-	    		    height : req.param('height'),
-	    		    bgType : req.param('bgType'),
-	    		    bgImage : req.param('bgImage'),
-	    		    bgSepV : req.param('bgSepV'),
-	    		    bgSepH : req.param('bgSepH'),
-	    		    category: category,
-	    		    selectedId : req.param("selectedId"),
-	    		    bgSepLineWidth : req.param('bgSepLineWidth'),
-	    		    bgSepLineColor : req.param('bgSepLineColor'),
-	    		    ticketData : req.param('ticketDataToSend')
-	    		};
-	        var list = ['bgColor', 'bgRepeatType'];
-	        for(var i = 0; i < list.length; i++){
-	        	var key = list[i];
-		        if(req.param(key)){
-		        	newObj[key] = req.param(key);
-		        }
-	        }
-	        logger.trace(req, "updateBoard called: [" + JSON.stringify(newObj) + "]");
-			Board.update(boardId, newObj).exec(function(err,created){
-				if(err) {
-					logger.error(req, "BoardController.js ボード情報の更新に失敗しました: [" + JSON.stringify(newObj) + "][" + JSON.stringify(err) + "]");
-					var loginInfo = Utility.getLoginInfo(req, res);
-					loginInfo.message = {type: "danger", contents: "BoardController.js ボード情報の更新に失敗しました: " + JSON.stringify(err)};
-					res.view("dashboard/editBoard", {
-						id: boardId,
-						loginInfo: loginInfo,
-						title: req.param("title"),
-						description: req.param('description')
-					});
-				    return;
-				}
-				logger.info(req, "BoardController.js ボード情報の更新: ["+JSON.stringify(newObj)+"]");
-				Utility.openMainPage(req, res, {type: "success", contents: "ボード情報を更新しました。"});
-			});
-	    });
+     	var cb = getCallback(req, res);
+     	updateBoardInner(req, res, cb);
     },
 
 	/**
@@ -153,7 +308,9 @@ module.exports = {
 	/**
 	 * チケットの作成、削除、更新処理アクション
 	 */
-  process : function(req, res) {
+	process : function(req, res) {
+		var loginInfo = Utility.getLoginInfo(req, res);
+
     var socket = req.socket;
     var io = sails.io;
     var actionType = req.param('actionType');

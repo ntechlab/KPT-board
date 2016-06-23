@@ -7,6 +7,14 @@ exports.getLoginInfo = function(req, res){
 	var nickname = "";
 	var modelId = "";
 	var projectId = "";
+
+	// REST認証の場合、リクエストに設定された情報を利用する。
+	var info = req.rest;
+	if(info != null){
+		return info;
+	}
+
+	// Passport認証を利用する場合
 	if(req.session != null && req.session.passport != null){
 	    id = req.session.passport.user || "";
 	    nickname = req.session.passport.name || "";
@@ -24,7 +32,8 @@ exports.getLoginInfo = function(req, res){
 		userName: nickname,
 		roleName: role,
 		roleDesc : roleDesc,
-		projectId: projectId
+		projectId: projectId,
+		mode: "browser"
 	};
 };
 

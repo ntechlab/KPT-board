@@ -63,26 +63,36 @@
 
     this.BRtoNL = function BRToNL(input){
       var ret = input;
-      ret=ret.replace(/<br\s[^>]*>/gi, "\n");
-      ret=ret.replace(/<br\s*\/?>/gi, "\n");
+      if(ret != null){
+        ret=ret.replace(/<br\s[^>]*>/gi, "\n");
+        ret=ret.replace(/<br\s*\/?>/gi, "\n");
+      }
       return ret;
     };
 
     this.NLtoBR = function NLtoBR(input){
       var ret = input;
-      ret=ret.replace(/\r\n/g, '<br />');
-      ret=ret.replace(/\r/g, '<br />');
-      ret=ret.replace(/\n/g, '<br />');
+      if(ret != null){
+        ret=ret.replace(/\r\n/g, '<br />');
+        ret=ret.replace(/\r/g, '<br />');
+        ret=ret.replace(/\n/g, '<br />');
+      }
       return ret;
     }
 
     this.URLtoLINK = function URLtoLINK(input){
-      var ret = input.replace(/(https?:\/\/[\x21-\x7e]+)/gi, "<aoutlinkedit><a href='$1' target='_blank'>$1</a></aoutlinkedit>");
+      var ret = input;
+      if(ret != null){
+        ret = ret.replace(/(https?:\/\/[\x21-\x7e]+)/gi, "<aoutlinkedit><a href='$1' target='_blank'>$1</a></aoutlinkedit>");
+      }
       return ret;
     }
 
     this.LINKtoURL = function LINKtoURL(input){
-      var ret = input.replace(/<aoutlinkedit><a [^>]+>(https?:\/\/[\x21-\x7e]+)<\/a><\/aoutlinkedit>/gi,"$1");
+      var ret = input;
+      if(ret != null){
+        ret = ret.replace(/<aoutlinkedit><a [^>]+>(https?:\/\/[\x21-\x7e]+)<\/a><\/aoutlinkedit>/gi,"$1");
+      }
       return ret;
     }
 

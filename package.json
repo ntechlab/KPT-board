@@ -30,7 +30,8 @@
     "grunt-symlink": "^0.4.0",
     "log4js": "^0.6.22",
     "async": "^2.0.0-rc.6",
-    "underscore.string": "^3.3.4"
+    "underscore.string": "^3.3.4",
+    "jsonwebtoken": "^7.0.1"
   },
   "scripts": {
     "start": "node app.js",

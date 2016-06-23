@@ -28,6 +28,13 @@ module.exports.policies = {
 
 	// デフォルトではすべてのアクセスに認証が必要。
 	'*': "authenticated",
+	RESTController: {
+		"createTicket": true,
+		"createBoard": true,
+		"updateBoard": true,
+		"getTicket": true,
+		"getToken": true
+	},
 	UserController: {
 		// 暫定的に、ログインしていない場合にも、
 		// ユーザー作成できるようにしている。
@@ -40,8 +47,8 @@ module.exports.policies = {
 	DashboardController: {
 		// ダッシュボードコントローラーに対するアクセスは、
 		// loginAuthで決定する。処理は、api/policies/loginAuth.js
-		// に記述。 
-		'*':"loginAuth" 
+		// に記述。
+		'*':"loginAuth"
 	}
 
 
