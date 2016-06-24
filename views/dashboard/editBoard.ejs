@@ -32,7 +32,7 @@ function setTicketData(){
 			value += ",";
 		}
 	};
-	$("#ticketDataToSend").val(value);
+	$("#ticketData").val(value);
 }
 
 /**
@@ -704,7 +704,7 @@ box-sizing: border-box;
 <form name="main" method="POST">
 <input type="hidden" name="id" value="<%= id %>"/>
 <input type="hidden" id="bgImage" name="bgImage" value="<%= bgImage %>"/>
-<input type="hidden" id="ticketDataToSend" name="ticketDataToSend" value=""/>
+<input type="hidden" id="ticketData" name="ticketData" value=""/>
 <input type="hidden" name="selectedId" value="<%= selectedId %>" />
 <div class="panel panel-default">
 	<div class="panel-heading">基本設定</div>

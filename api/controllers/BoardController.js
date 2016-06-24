@@ -101,15 +101,17 @@ function getBrowserCallback(req, res, params){
 			selectedId : req.param("selectedId"),
 			desc: req.param('description')
 		});
+		break;
 	case "stay2":
 		var loginInfo = Utility.getLoginInfo(req, res);
 		loginInfo.message = data;
 		res.view("dashboard/editBoard", {
-			id: boardId,
+			id: req.param("boardId"),
 			loginInfo: loginInfo,
 			title: req.param("title"),
 			description: req.param('description')
 		});
+		break;
 	default:
 		logger.error(req, "結果処理コールバックに与えられたタイプが想定外:[" + type + "]");
 	}
@@ -218,19 +220,18 @@ function updateBoardInner(req, res, cb) {
 		var keys = [
 					'title',
 					'description',
+					'category',
 					'width',
 					'height',
 					'bgType',
+					'bgColor',
 					'bgImage',
+					'bgRepeatType'
 					'bgSepV',
 					'bgSepH',
-					'category',
-					'selectedId',
 					'bgSepLineWidth',
 					'bgSepLineColor',
-					'ticketDataToSend',
-					'bgColor',
-					'bgRepeatType'
+					'ticketData'
 				];
 
 		// 送信された値を更新する。

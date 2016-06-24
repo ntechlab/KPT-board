@@ -193,14 +193,14 @@ module.exports = {
 			}
 
 			// デフォルト値データ
-			var defaultValues = [
-					{contents: ""},
-					{positionX: 0},
-					{positionY: 0},
-					{color: "ticket_blue_small"},
-					{ticketHeight: 170},
-					{ticketWidth: 244}
-				];
+			var defaultValues = {
+				contents: "",
+				positionX: 0,
+				positionY: 0,
+				color: "ticket_blue_small",
+				ticketHeight: 170,
+				ticketWidth: 244
+			};
 
 			// 値が未設定の場合には、デフォルト値を設定する。
 			u.each(defaultValues, function(value, key){
