@@ -33,8 +33,11 @@ module.exports.routes = {
   ***************************************************************************/
 
 	'post /api/getToken': 'RESTController.getToken',
-	'post /api/tickets': 'RESTController.createTicket',
-	'get /api/tickets/:id': 'RESTController.getTicket',
+	'post /api/ticket': 'RESTController.createTicket',
+	'put /api/ticket': 'RESTController.updateTicket',
+	'DELETE /api/ticket': 'RESTController.deleteTicket',
+	'put /api/ticketMove': 'RESTController.moveTicket',
+	'get /api/ticket/:id': 'RESTController.getTicket',
 	'post /api/board': 'RESTController.createBoard',
 	'put /api/board': 'RESTController.updateBoard',
 

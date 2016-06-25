@@ -10,70 +10,6 @@ var logger = require('../Log.js').getLoggerWrapper("BoardController");
 var u = require('underscore');
 var us = require('underscore.string');
 
-/**
- * ボード作成内部処理.<br>
- *
- * @param req リクエスト
- * @param res レスポンス
- * @param cb 呼び出し方式（ブラウザ/REST）に応じて処理を分岐するためのコールバック関数
- */
-function createBoardInner(req, res, cb) {
-	var loginInfo = Utility.getLoginInfo(req, res);
-
-	// 管理者ロールでない場合にはボードを作成できない。
-	if(loginInfo["roleName"] !== "admin"){
-	  cb(req, res, {
-		  type: "main",
-		  data: {
-			  type: "danger",
-			  contents: "一般ユーザーはボードを作成できません。"
-		  }
-	  });
-	  return;
-	}
-
-	// タイトルとカテゴリをトリムする。
-	var title = req.param('title');
-	var category = req.param('category');
-	logger.trace(req, "createBoard called:[" + title + "," + category + "]");
-	title = Utility.trim(req, title);
-	category = Utility.trim(req, category);
-
-	if(!title || title.length == 0){
-	  cb(req, res, {
-		  type: "main",
-		  data: {
-			  type: "danger",
-			  contents: "トリム後のタイトルが空のため処理を中断"
-		  }
-	  });
-	  return;
-	}
-	Board.create({
-	    title: title,
-	    description : req.param('description'),
-	    projectId: loginInfo["projectId"], // 作成者のプロジェクトＩＤを引き継ぐ
-	    category: category
-	}).exec(function(err, created){
-		if(err) {
-			cb(req, res, {
-		    	  type: "stay",
-		    	  data: {
-		    		  type: "danger",
-		    		  contents: "ボードの作成に失敗しました: " + JSON.stringify(err)
-		    	  }
-		      });
-		    return;
-		}
-		cb(req, res, {
-			type: "main",
-			data: {
-				type: "success",
-				contents: "ボードを作成しました。［カテゴリ：" + category + "　タイトル：" + title + "］"
-				}
-		});
-	});
-}
 
 /**
  * ブラウザから呼び出された場合に利用するコールバック関数.
@@ -94,7 +30,7 @@ function getBrowserCallback(req, res, params){
 	case "stay":
 		var loginInfo = Utility.getLoginInfo(req, res);
 		loginInfo.message = data;
-		res.view("newboard/index", {
+		return res.view("newboard/index", {
 			loginInfo: loginInfo,
 			title: req.param("title"),
 			category : req.param("category"),
@@ -106,11 +42,37 @@ function getBrowserCallback(req, res, params){
 		var loginInfo = Utility.getLoginInfo(req, res);
 		loginInfo.message = data;
 		res.view("dashboard/editBoard", {
-			id: req.param("boardId"),
-			loginInfo: loginInfo,
-			title: req.param("title"),
-			description: req.param('description')
+//			id: req.param("boardId"),
+//			loginInfo: loginInfo,
+//			category: req.param("category"),
+//			categories: [],
+//			title: req.param("title"),
+//			description: req.param('description')
+
+			id: id,
+			title :found["title"],
+			description:found["description"],
+			width: found["width"],
+			height: found["height"],
+			bgType:found["bgType"],
+			bgColor:found["bgColor"],
+			bgImage:found["bgImage"],
+			bgRepeatType: found["bgRepeatType"],
+			bgSepV: found["bgSepV"],
+			bgSepH: found["bgSepH"],
+			bgSepLineWidth: found["bgSepLineWidth"],
+			bgSepLineColor: found["bgSepLineColor"],
+			images: backgroundFileList,
+			category: found["category"] || "",
+			categories: categories,
+			selectedId : req.param("selectedId"),
+			ticketTypeList : ticketTypeList,
+			loginInfo: loginInfo
+
 		});
+
+
+
 		break;
 	default:
 		logger.error(req, "結果処理コールバックに与えられたタイプが想定外:[" + type + "]");
@@ -159,6 +121,139 @@ function getCallback(req, res){
 	return cb;
 }
 
+
+function trim(req, trimKeys){
+	u.each(trimKeys, function(key){
+		var value = req.param(key);
+		req.params[key] = Utility.trim(req, value);
+	});
+}
+
+function requiredItemCheck(req, res, requiredKeys, errorCb){
+	var nullKeys = [];
+	u.each(requiredKeys, function(obj){
+		logger.debug(req, "必須チェック:"+obj.key+","+obj.name);
+		var value = req.param(obj.key);
+		logger.debug(req, "値["+value+"]");
+		if(value == null || value === ""){
+			nullKeys.push(obj.name);
+		}
+	});
+	logger.debug(req, "数["+JSON.stringify(nullKeys)+"->"+nullKeys.length+"]");
+	if(nullKeys.length > 0){
+		// エラー用コールバックの実行
+		errorCb(req, res, nullKeys);
+		return false;
+	}
+	return true;
+}
+
+function setDefaultValues(req, newObj, defaultValues){
+	u.each(defaultValues, function(v, k){
+		var value = req.param(k)
+		if(value == null){
+			logger.debug(req, "デフォルト値の補完:" + k+" -> "+ v);
+			value = v;
+		}
+		newObj[k] = value;
+	});
+}
+
+function adminCheck(req, res, loginInfo, message){
+	if(loginInfo["roleName"] !== "admin"){
+		cb(req, res, {
+			type: "main",
+			data: {
+				type: "danger",
+				contents: message
+			}
+		});
+		return;
+	}
+}
+
+/**
+ * ボード作成内部処理.<br>
+ *
+ * @param req リクエスト
+ * @param res レスポンス
+ * @param cb 呼び出し方式（ブラウザ/REST）に応じて処理を分岐するためのコールバック関数
+ */
+function createBoardInner(req, res, cb) {
+	var loginInfo = Utility.getLoginInfo(req, res);
+
+	// 管理者ロールでない場合にはボードを作成できない。
+	adminCheck(req, res, loginInfo, "一般ユーザーはボードを作成できません。");
+
+	// タイトルとカテゴリをトリムする。
+	var trimKeys = ["title", "category"];
+
+	var requiredKeys = [{key: "title", name: "タイトル"}];
+
+	var defaultValues = {
+			"description": "",
+			"category": "",
+			"version": "1.1",
+			"width": 3840,
+			"height": 2160,
+			"bgType": "image",
+			"bgColor": "",
+			"bgImage": "/images/background/P00/l_101.png",
+			"bgRepeatType": "repeat",
+			"bgSepV": 1,
+			"bgSepH": 1,
+			"bgSepLineWidth": 3,
+			"bgSepLineColor": "#000000",
+			"ticketData": "ticket_blue_small:Keep:true,ticket_pink_small:Problem:true,ticket_yellow_small:Try:true,ticket_white_small:Memo:true",
+	};
+
+	trim(req, trimKeys);
+
+	// 必須チェックエラーコールバック
+	var errorCb = function(req, res, nullKeys){
+		cb(req, res, {
+			type: "main",
+			data: {
+				type: "danger",
+				contents: "必須項目が未入力です：[" + nullKeys + "]"
+			}
+		});
+	};
+
+	if(!requiredItemCheck(req, res, requiredKeys, errorCb)){
+		return;
+	}
+
+	// 値が未設定の場合には、デフォルト値を設定する。
+	var newObj = {};
+	setDefaultValues(req, newObj, defaultValues);
+
+	// 内部設定項目
+	newObj["title"] = req.param("title");
+	newObj["projectId"] = loginInfo["projectId"], // 作成者のプロジェクトＩＤを引き継ぐ
+
+	logger.debug(req, "★オブジェクト："+JSON.stringify(newObj));
+	Board.create(newObj).exec(function(err, created){
+		if(err) {
+			cb(req, res, {
+		    	  type: "stay",
+		    	  data: {
+		    		  type: "danger",
+		    		  contents: "ボードの作成に失敗しました: " + JSON.stringify(err)
+		    	  }
+		      });
+		    return;
+		}
+		cb(req, res, {
+			type: "main",
+			data: {
+				type: "success",
+				contents: "ボードを作成しました。［カテゴリ：" + req.param("category") + "　タイトル：" + req.param("title") + "］"
+				}
+		});
+	});
+}
+
 /**
  * ボード更新内部処理.<br>
  *
@@ -170,30 +265,35 @@ function updateBoardInner(req, res, cb) {
 	logger.trace(req, "updateBoardInner start");
 	var loginInfo = Utility.getLoginInfo(req, res);
 
-	 // 管理者ロールでない場合にはボードを更新できない。
-	if(loginInfo["roleName"] !== "admin"){
-		cb(req, res, {
-			type: main,
-			data: {
-				type: "danger",
-				contents: "一般ユーザーはボード情報を更新できません。"
-			}
-		});
-		return;
-	}
+	// 管理者ロールでない場合にはボードを更新できない。
+	adminCheck(req, res, loginInfo, "一般ユーザーはボード情報を更新できません。");
 
 	// ボードIDが指定されていない場合にはエラーとする。
-	var boardId = req.param('id');
-	if(boardId == null){
+	var requiredKeys = [
+	                    {key: "id", name: "ボードＩＤ"}
+	                    ];
+
+	if(req.param("title") === ""){
+		req.params.title = null;
+	};
+	logger.debug(req, "★★"+req.param("title"));
+
+	// 必須チェックエラーコールバック
+	var errorCb = function(req, res, nullKeys){
 		cb(req, res, {
 			type: "main",
 			data: {
 				type: "danger",
-				contents: "ボードIDが指定されていません。"
+				contents: "必須項目が未入力です：[" + nullKeys + "]"
 			}
 		});
+	};
+
+	if(!requiredItemCheck(req, res, requiredKeys, errorCb)){
 		return;
 	}
+
+	var boardId = req.param('id');
 
 	// 同一プロジェクトＩＤでない場合にはエラーとする。
 	Board.findOne(boardId).exec(function(err, found){
@@ -210,8 +310,8 @@ function updateBoardInner(req, res, cb) {
 	   	}
 
 		// カテゴリ文字列をトリムする。
-		var category = req.param('category');
-		req.params["category"] = Utility.trim(req, category);
+		var trimKeys = ["category"];
+		trim(req, trimKeys);
 
 		// 更新したい値を設定するオブジェクト
 		var newObj = {};
@@ -226,7 +326,7 @@ function updateBoardInner(req, res, cb) {
 					'bgType',
 					'bgColor',
 					'bgImage',
-					'bgRepeatType'
+					'bgRepeatType',
 					'bgSepV',
 					'bgSepH',
 					'bgSepLineWidth',
@@ -245,7 +345,7 @@ function updateBoardInner(req, res, cb) {
 		Board.update(boardId, newObj).exec(function(err,created){
 			if(err) {
 				cb(req, res, {
-					type: "stay2",
+					type: "main",
 					data: {
 						type: "danger",
 						contents: "ボード情報の更新に失敗しました: " + JSON.stringify(err)
@@ -265,150 +365,251 @@ function updateBoardInner(req, res, cb) {
    });
 }
 
-module.exports = {
+/**
+ * チケット作成処理.
+ *
+ * @param req リクエスト
+ * @param res レスポンス
+ * @param cb 結果処理コールバック
+ * @param loginInfo ログイン情報
+ * @param boardId ボードＩＤ
+ */
+function createTicket(req, res, cb, loginInfo, boardId){
+	var userId = req.param('userId');
+	var socket = req.socket;
+	var io = sails.io;
+	var roomName = "room_"+boardId+"_";
 
-    /**
-     * ボード作成
-     */
-    createBoard : function(req, res) {
-    	var cb = getCallback(req, res);
-    	createBoardInner(req, res, cb);
-    },
+	// デフォルト値データ
+	var defaultValues = {
+		contents: "",
+		positionX: 0,
+		positionY: 0,
+		color: "ticket_blue_small",
+		ticketHeight: 170,
+		ticketWidth: 244
+	};
+	var newObj = {};
+	setDefaultValues(req, newObj, defaultValues);
+	newObj["boardId"] = boardId;
+	newObj["createUser"] = userId;
 
-
-    /**
-     * ボード情報更新
-     */
-    updateBoard : function(req, res) {
-     	var cb = getCallback(req, res);
-     	updateBoardInner(req, res, cb);
-    },
-
-	/**
-	 * リスナ登録
-	 */
-  register : function(req, res) {
-    var boardId = req.param('boardId');
-    logger.trace(req, "register called: [" + boardId + "]");
-    var socket = req.socket;
-    var io = sails.io;
-
-    // リスナ登録
-    var roomName = 'room_'+boardId+'_';
-    logger.debug(req, "リスナ登録: [" + roomName + "]");
-    socket.join(roomName);
-    if(req.session.passport){
-    	 var userId = req.session.passport.userId;
-    	 BoardUserManager.addBoardUser(req, roomName, userId);
-    	 var usersInRoom = BoardUserManager.getBoardUserInfo(req, roomName);
-    	 io.sockets.in(roomName).emit('message', {action : "enter", userId: userId, users: usersInRoom});
-    }
-
-  },
-
-	/**
-	 * チケットの作成、削除、更新処理アクション
-	 */
-	process : function(req, res) {
-		var loginInfo = Utility.getLoginInfo(req, res);
-
-    var socket = req.socket;
-    var io = sails.io;
-    var actionType = req.param('actionType');
-    var id = req.param('id');
-    var boardId = req.param('boardId');
-    var roomName = "room_"+boardId+"_";
-    logger.debug(req, "チケット処理:["+actionType+"]["+id+"]["+boardId+"]["+roomName+"]");
-    if (actionType == "create") {
-      var userId = req.param('userId');
-      User.findOne(userId).exec(function(err, foundUser) {
-	    Ticket.create({
-		boardId : boardId,
-		createUser : userId,
-		contents : req.param('contents'),
-		positionX : req.param('positionX'),
-		positionY : req.param('positionY'),
-		ticketHeight : req.param('ticketHeight'),
-		ticketWidth : req.param('ticketWidth'),
-		color : req.param('color')
-	    }).exec(function(err, ticket) {
-		if (err) {
-			// TODO: エラー通知方法検討
-			logger.error(req, "チケット作成 失敗: ["+err+"]");
-		} else {
-		    logger.info(req, "チケット作成 成功: ["+ JSON.stringify(ticket));
-		    io.sockets.in(roomName).emit('message',
-		    {
-		    action: "created",
-			id: ticket.id,
-			contents: ticket.contents,
-			boardId: ticket.boardId,
-			createUser : ticket.createUser,
-			positionX: ticket.positionX,
-			positionY: ticket.positionY,
-			ticketHeight: ticket.ticketHeight,
-			ticketWidth: ticket.ticketWidth,
-			color: ticket.color,
-            createdAt: ticket.createdAt,
-			nickname : foundUser["nickname"]});
-		}
-	    });
+	User.findOne(userId).exec(function(err, foundUser) {
+		Ticket.create(newObj).exec(function(err, ticket) {
+			if (err) {
+				cb(req, res, {
+					type: "main",
+					data:{
+						type: "danger",
+						contents: "チケット作成に失敗しました。"+JSON.stringify(err)
+					}
+				});
+			} else {
+				io.sockets.in(roomName).emit('message', {
+					action: "created",
+					id: ticket.id,
+					contents: ticket.contents,
+					boardId: ticket.boardId,
+					createUser : ticket.createUser,
+					positionX: ticket.positionX,
+					positionY: ticket.positionY,
+					ticketHeight: ticket.ticketHeight,
+					ticketWidth: ticket.ticketWidth,
+					color: ticket.color,
+					createdAt: ticket.createdAt,
+					nickname : foundUser["nickname"]});
+				cb(req, res, {
+					type: "main",
+					data:{
+						type: "success",
+						contents: "チケット作成に成功しました。"+JSON.stringify(ticket)
+					}
+				});
+			}
+		});
 	});
-    } else if (actionType == "destroy") {
-      Ticket.findOne({
-        id : id
-      }).exec(function(err, found) {
-        Ticket.destroy({id: id}).exec(function destroy(err2){
-          if(found){
-        	  logger.info(req, "チケット削除 成功: ["+JSON.stringify(found)+"]");
-            io.sockets.in(roomName).emit('message',{action: "destroyed", id : found.id});
-          }
-        });
-      });
-    } else if (actionType == "update") {
-        var x = req.param('positionX');
-        var y = req.param('positionY');
-        var ticketHeight = req.param('ticketHeight');
-        var ticketWidth = req.param('ticketWidth');
-        var contents = req.param('contents');
-        Ticket.update({
-          id : id
-        }, {
-          positionX   : x,
-          positionY   : y,
-          ticketHeight: ticketHeight,
-          ticketWidth : ticketWidth,
-          contents    : contents
-      }).exec(function update(err, updated) {
-         if(updated && updated[0]){
-           logger.info(req, "チケット更新 成功: ["+JSON.stringify(updated[0])+"]");
-           io.sockets.in(roomName).emit('message',
-             {
-               action : "updated",
-               id : updated[0].id,
-               positionX: updated[0].positionX,
-               positionY: updated[0].positionY,
-               ticketHeight: updated[0].ticketHeight,
-               ticketWidth : updated[0].ticketWidth,
-               contents: updated[0].contents });
-         }
-      });
-    } else if (actionType == "move") {
-      var dstBoardId = req.param('dstBoardId');
-      var ticketId = req.param('id');
-      var nickname = req.param('nickname');
-      Ticket.update({
-        id: id
-      }, {
-        boardId : dstBoardId
-      }).exec(function update(err, updated){
-        if(updated && updated[0]){
-           var ticket = updated[0];
-           logger.debug(req, "チケット移動 成功: ["+JSON.stringify(updated[0])+"]");
-           io.sockets.in(roomName).emit('message',{action: "destroyed", id : id});
-           io.sockets.in("room_" + dstBoardId).emit('message',
-		    {
-			    action: "created",
+}
+
+/**
+ * チケット削除処理.
+ *
+ * @param req リクエスト
+ * @param res レスポンス
+ * @param cb 結果処理コールバック
+ * @param loginInfo ログイン情報
+ * @param boardId ボードＩＤ
+ */
+function deleteTicket(req, res, cb, loginInfo, boardId){
+	var socket = req.socket;
+	var io = sails.io;
+	var roomName = "room_"+boardId+"_";
+	var id = req.param('id');
+
+	Ticket.findOne({boardId: boardId, id: id}).exec(function(err, found) {
+		if(err){
+			cb(req, res, {
+				type: "main",
+				data:{
+					type: "danger",
+					contents: "削除対象チケット取得に失敗しました。" + JSON.stringify(err)
+				}
+			});
+			return;
+		}
+		Ticket.destroy({boardId: boardId, id: id}).exec(function(err2){
+			if(err2){
+				cb(req, res, {
+					type: "main",
+					data:{
+						type: "danger",
+						contents: "チケットの削除に失敗しました。" + JSON.stringify(err2)
+					}
+				});
+				return;
+			}
+			if(found){
+				io.sockets.in(roomName).emit('message', {
+					action: "destroyed",
+					id : found.id
+				});
+				cb(req, res, {
+					type: "main",
+					data:{
+						type: "success",
+						contents: "チケットを削除しました。"
+					}
+				});
+			}
+		});
+	});
+}
+
+/**
+ * チケット更新処理.
+ *
+ * @param req リクエスト
+ * @param res レスポンス
+ * @param cb 結果処理コールバック
+ * @param loginInfo ログイン情報
+ * @param boardId ボードＩＤ
+ */
+function updateTicket(req, res, cb, loginInfo, boardId){
+	var socket = req.socket;
+	var io = sails.io;
+	var roomName = "room_"+boardId+"_";
+	var id = req.param('id');
+
+	var x = req.param('positionX');
+	var y = req.param('positionY');
+	var ticketHeight = req.param('ticketHeight');
+	var ticketWidth = req.param('ticketWidth');
+	var contents = req.param('contents');
+
+	var newObj = {};
+	var keys = ["positionX", "positionY", "ticketHeight", "ticketWidth", "contents"];
+	u.each(keys, function(key){
+		var value = req.param(key);
+		if(value != null){
+			newObj[key] = value;
+		}
+	});
+	Ticket.update({boardId: boardId, id : id}, newObj).exec(function update(err, updated) {
+
+		if(err){
+			cb(req, res, {
+				type: "main",
+				data:{
+					type: "danger",
+					contents: "チケットの更新に失敗しました。" + JSON.stringify(err)
+				}
+			});
+			return;
+		}
+		logger.info(req, "チケット更新 成功: ["+JSON.stringify(updated[0])+"]");
+		io.sockets.in(roomName).emit('message', {
+			action : "updated",
+			id : updated[0].id,
+			positionX: updated[0].positionX,
+			positionY: updated[0].positionY,
+			ticketHeight: updated[0].ticketHeight,
+			ticketWidth : updated[0].ticketWidth,
+			contents: updated[0].contents
+		});
+		cb(req, res, {
+			type: "main",
+			data:{
+				type: "success",
+				contents: "チケットを更新しました。"
+			}
+		});
+	});
+
+}
+
+/**
+ * チケット移動処理.
+ *
+ * チケットをボードから別なボードに移動する。
+ *
+ * @param req リクエスト
+ * @param res レスポンス
+ * @param cb 結果処理コールバック
+ * @param loginInfo ログイン情報
+ * @param boardId ボードＩＤ
+ */
+function moveTicket(req, res, cb, loginInfo, boardId){
+	var socket = req.socket;
+	var io = sails.io;
+	var roomName = "room_"+boardId+"_";
+	var id = req.param('id');
+	var nickname = req.param('nickname');
+
+	// 移動先ボード
+	var dstBoardId = req.param('dstBoardId');
+
+	// 移動先ボードのプロジェクトＩＤがユーザーのプロジェクトＩＤに一致していない場合にはエラーとする。
+	Board.findOne(dstBoardId).exec(function(err, found){
+		if(err){
+			cb(req, res, {
+				type: "main",
+				data:{
+					type: "danger",
+					contents: "チケット移動先ボードの取得に失敗しました。"+JSON.stringify(err)
+				}
+			});
+			return
+		}
+		logger.debug(req, "移動先ボードのプロジェクトＩＤチェック:"+found["projectId"] +","+ loginInfo["projectId"]);
+		if(found["projectId"] !== loginInfo["projectId"]){
+			cb(req, res, {
+				type: "main",
+				data:{
+					type: "danger",
+					contents: "移動先ボードが存在しません。"
+				}
+			});
+			return;
+		}
+		Ticket.update({boardId: boardId, id: id}, {boardId : dstBoardId}).exec(function update(err, updated){
+			if(err){
+				cb(req, res, {
+					type: "main",
+					data:{
+						type: "danger",
+						contents: "チケットの移動に失敗しました。" + JSON.stringify(err)
+					}
+				});
+				return;
+			}
+			var ticket = updated[0];
+			logger.debug(req, "チケット移動 成功: ["+JSON.stringify(ticket)+"]");
+
+			// 移動元ボードに対してメッセージ通知
+			io.sockets.in(roomName).emit('message',{action: "destroyed", id : id});
+
+			// 移動先ボードに対してメッセージ通知
+			io.sockets.in("room_" + dstBoardId).emit('message', {
+				action: "created",
 				id: id,
 				contents: ticket.contents,
 				boardId: ticket.boardId,
@@ -420,12 +621,150 @@ module.exports = {
 				color: ticket.color,
 				nickname : nickname
 			});
-		}
-      })
-    } else {
-    	logger.error(req, "チケット処理 想定外のアクション:[" + actionType + "]");
-    }
-  }
+			cb(req, res, {
+				type: "main",
+				data:{
+					type: "success",
+					contents: "チケットを移動しました。"
+				}
+			});
+		})
+	})
+}
 
-};
+module.exports = {
+
+	/**
+	 * リスナ登録
+	 */
+	register : function(req, res) {
+		var boardId = req.param('boardId');
+		logger.trace(req, "register called: [" + boardId + "]");
+		var socket = req.socket;
+		var io = sails.io;
+
+		// リスナ登録
+		var roomName = 'room_'+boardId+'_';
+		logger.debug(req, "リスナ登録: [" + roomName + "]");
+		socket.join(roomName);
+		if(req.session.passport){
+			var userId = req.session.passport.userId;
+			BoardUserManager.addBoardUser(req, roomName, userId);
+			var usersInRoom = BoardUserManager.getBoardUserInfo(req, roomName);
+			io.sockets.in(roomName).emit('message', {action : "enter", userId: userId, users: usersInRoom});
+		}
+	},
+
+    /**
+     * ボード作成
+     */
+    createBoard : function(req, res) {
+    	var cb = getCallback(req, res);
+    	createBoardInner(req, res, cb);
+    },
+
+    /**
+     * ボード情報更新
+     */
+    updateBoard : function(req, res) {
+     	var cb = getCallback(req, res);
+     	updateBoardInner(req, res, cb);
+    },
+
+	/**
+	 * チケット共通処理.
+	 *
+	 * @param req リクエスト
+	 * @param res レスポンス
+	 */
+	process : function(req, res) {
+		var loginInfo = Utility.getLoginInfo(req, res);
+
+		// 結果処理コールバックを取得
+		var cb;
+		logger.debug(req, "モード["+loginInfo.mode+"]");
+		if(loginInfo.mode === "rest"){
+			cb = getRESTCallback;
+		} else {
+			cb = function(req, res, params){
+				logger.debug(req, "チケット処理:"+JSON.stringify(params));
+			};
+		}
+
+		var actionType = req.param('actionType');
+
+		// チケット新規作成以外の場合には、チケットＩＤの必須チェックを行う。
+		if(actionType !== "create"){
+			var id = req.param('id');
+			if(id == null){
+				cb(req, res, {
+					type: "main",
+					data:{
+						type: "danger",
+						contents: "チケットＩＤが指定されていません。"
+					}
+				});
+				return;
+			}
+		}
+
+		var boardId = req.param('boardId');
+		// ボードＩＤの必須チェック
+		if(boardId == null || boardId === ""){
+			cb(req, res, {
+				type: "main",
+				data:{
+					type: "danger",
+					contents: "ボードIDが指定されていません"
+				}
+			});
+			return;
+		}
+
+		// ボードのプロジェクトＩＤがユーザーのプロジェクトＩＤに一致していない場合にはエラーとする。
+		Board.findOne(boardId).exec(function(err, found){
+			if(err){
+				cb(req, res, {
+					type: "main",
+					data:{
+						type: "danger",
+						contents: "チケット作成ボードの取得に失敗しました。"+JSON.stringify(err)
+					}
+				});
+				return
+			}
+			logger.debug(req, "プロジェクトＩＤチェック:"+found["projectId"] +","+ loginInfo["projectId"]);
+			if(found["projectId"] !== loginInfo["projectId"]){
+				cb(req, res, {
+					type: "main",
+					data:{
+						type: "danger",
+						contents: "チケット作成ボードが存在しません。"
+					}
+				});
+				return;
+			}
+
+			logger.debug(req, "チケット処理:["+actionType+"]["+id+"]["+boardId+"]");
+
+			switch(actionType){
+			case "create":
+				// チケット作成
+				createTicket(req, res, cb, loginInfo, boardId);
+				break;
+			case "destroy":
+				deleteTicket(req, res, cb, loginInfo, boardId);
+				break;
+			case "update":
+				updateTicket(req, res, cb, loginInfo, boardId);
+				break;
+			case "move":
+				moveTicket(req, res, cb, loginInfo, boardId);
+				break;
+			default:
+				logger.error(req, "チケット処理 想定外のアクション:[" + actionType + "]");
+			}
+		});
+	}
+}
 

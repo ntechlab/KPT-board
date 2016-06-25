@@ -111,6 +111,28 @@ function authenticateToken(req, cb){
 	}
 }
 
+function getTicketProcessCallback(req, res, actionType){
+	return function(err, data){
+		logger.info(req, "err:"+JSON.stringify(err));
+		logger.info(req, "data:"+JSON.stringify(data));
+		if(err){
+			return res.json({message : "チケット処理失敗"});
+		}
+
+		// アクションタイプを設定する
+		req.params.actionType = actionType;
+
+		// トークンデータからuserIdを取得する。
+		req.params.userId = data.info.userId;
+
+		// トークデータから取得したユーザー情報をリクエストに追加
+		req.rest = data.info;
+
+		// チケット関連処理
+		BoardController.process(req, res);
+	};
+}
+
 module.exports = {
 
 	/**
@@ -165,61 +187,34 @@ module.exports = {
 	 */
 	createTicket : function(req, res) {
 		logger.info(req, "createTicket called");
-		var cb = function(err, data){
-			logger.info(req, "err:"+JSON.stringify(err));
-			logger.info(req, "data:"+JSON.stringify(data));
-			if(err){
-				return res.json({message : "チケット作成失敗"});
-			}
+		var cb = getTicketProcessCallback(req, res, "create");
+		authenticateToken(req, cb);
+	},
 
-			// トークンデータからuserIdを取得する。
-			var userId = data.info.userId;
+	/**
+	 * チケット削除API.
+	 */
+	deleteTicket : function(req, res) {
+		logger.info(req, "deleteTicket called");
+		var cb = getTicketProcessCallback(req, res, "destroy");
+		authenticateToken(req, cb);
+	},
 
-			var boardId = req.param("boardId");
-			// TODO: ここにボードの存在チェックを行う。
+	/**
+	 * チケット更新API.
+	 */
+	updateTicket : function(req, res) {
+		logger.info(req, "updateTicket called");
+		var cb = getTicketProcessCallback(req, res, "update");
+		authenticateToken(req, cb);
+	},
 
-			// TODO: 同一プロジェクトIDに属しているボードしか操作できない。
-			// RESTapi用のデータチェックを行う。
-
-			// 必須チェック
-
-			// ボードID未指定の場合はエラーとする。
-			// TODO: ボード名でも指定できるようにするかもしれない。
-			if(boardId == null){
-				return res.json({
-					success: false,
-					message: "ボードIDが指定されていません"
-				});
-			}
-
-			// デフォルト値データ
-			var defaultValues = {
-				contents: "",
-				positionX: 0,
-				positionY: 0,
-				color: "ticket_blue_small",
-				ticketHeight: 170,
-				ticketWidth: 244
-			};
-
-			// 値が未設定の場合には、デフォルト値を設定する。
-			u.each(defaultValues, function(value, key){
-				if(req.param(key) == null){
-					req.params[key] = value;
-				}
-			});
-
-			req.params.actionType = "create";
-			req.params.userId = userId;
-
-			// TODO: チケット作成処理に失敗した場合にどのように結果を取得するか？
-			BoardController.process(req, res);
-
-			// RESTで処理する場合にはここで結果を返す。
-			return res.json({
-				success: true,
-				message: "OK"});
-		};
+	/**
+	 * チケット移動API.
+	 */
+	moveTicket : function(req, res) {
+		logger.info(req, "moveTicket called");
+		var cb = getTicketProcessCallback(req, res, "move");
 		authenticateToken(req, cb);
 	},
 
@@ -235,46 +230,6 @@ module.exports = {
 				return res.json({message : "ボード作成失敗"});
 			}
 			req.rest = data.info;
-
-			// 必須チェック
-			var title = req.param("title");
-			if(title == null || title.trim() === ""){
-				return res.json({success: false, message: "タイトルが設定されていません。"});
-			}
-			var category = req.param("category");
-			if(category == null){
-				return res.json({success: false, message: "カテゴリが設定されていません。"});
-			}
-
-			var defaultValues = {
-//					"title": "board1a",// 必須
-					"description": "",
-//					"projectId": "P00", // ユーザーのプロジェクトIDを自動設定。
-//					"category": "cat1",// 必須
-					"version": "1.1",
-					"width": 3840,
-					"height": 2160,
-					"bgType": "image",
-					"bgColor": "",
-					"bgImage": "/images/background/P00/l_101.png",
-					"bgRepeatType": "repeat",
-					"bgSepV": 1,
-					"bgSepH": 1,
-					"bgSepLineWidth": 3,
-					"bgSepLineColor": "#000000",
-					"ticketData": "ticket_blue_small:Keep:true,ticket_pink_small:Problem:true,ticket_yellow_small:Try:true,ticket_white_small:Memo:true",
-//					"id": 1,
-//					"selectedId": "1"
-			};
-
-			// 値が未設定の場合には、デフォルト値を設定する。
-			u.each(defaultValues, function(value, key){
-				if(req.param(key) == null){
-					req.params[key] = value;
-				}
-			});
-
-			// TODO: チケット作成処理に失敗した場合にどのように結果を取得するか？
 			BoardController.createBoard(req, res);
 		};
 		authenticateToken(req, cb);

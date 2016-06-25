@@ -29,11 +29,14 @@ module.exports.policies = {
 	// デフォルトではすべてのアクセスに認証が必要。
 	'*': "authenticated",
 	RESTController: {
+		"getToken": true,
 		"createTicket": true,
-		"createBoard": true,
-		"updateBoard": true,
 		"getTicket": true,
-		"getToken": true
+		"updateTicket": true,
+		"deleteTicket": true,
+		"moveTicket": true,
+		"createBoard": true,
+		"updateBoard": true
 	},
 	UserController: {
 		// 暫定的に、ログインしていない場合にも、
