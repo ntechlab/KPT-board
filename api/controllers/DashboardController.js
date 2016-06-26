@@ -1,6 +1,7 @@
 /**
  * DashboardController
  *
+ * @module DashboardController ボードコントローラー２
  * @description :: Server-side logic for managing dashboards
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
@@ -627,10 +628,10 @@ module.exports = {
 				logger.error(req, "画像ファイルリスト取得処理 失敗: [" + JSON.stringify(err) + "]");
 				return res.json({status: 'error', error: err});
 			}
-			
+
 			// デフォルト背景画像
 			var defaultImages = ["background02.gif", "kpt.png", "todo.gif"];
-			
+
 			var backgroundFileList = [];
 
 			// デフォルト画像を追加

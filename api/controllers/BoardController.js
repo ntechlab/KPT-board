@@ -1,6 +1,7 @@
 /**
  * BoardController
  *
+ * @module BoardController ボードコントローラー
  * @description :: Server-side logic for managing Boards
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */

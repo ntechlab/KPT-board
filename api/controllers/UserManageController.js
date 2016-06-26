@@ -1,6 +1,7 @@
 /**
  * UserManageController
  *
+ * @module UserManageController ユーザー管理コントローラー
  * @description :: Server-side logic for managing Usermanages
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
