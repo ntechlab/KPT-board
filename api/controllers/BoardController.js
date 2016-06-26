@@ -159,8 +159,10 @@ function setDefaultValues(req, newObj, defaultValues){
 	});
 }
 
-function adminCheck(req, res, loginInfo, message){
+function adminCheck(req, res, cb, loginInfo, message){
+	logger.debug(req, "管理者権限チェック 開始");
 	if(loginInfo["roleName"] !== "admin"){
+		logger.debug(req, "管理者権限がないためエラーとする。");
 		cb(req, res, {
 			type: "main",
 			data: {
@@ -168,8 +170,10 @@ function adminCheck(req, res, loginInfo, message){
 				contents: message
 			}
 		});
-		return;
+		return false;
 	}
+	logger.debug(req, "管理者権限チェック 終了");
+	return true;
 }
 
 /**
@@ -183,7 +187,9 @@ function createBoardInner(req, res, cb) {
 	var loginInfo = Utility.getLoginInfo(req, res);
 
 	// 管理者ロールでない場合にはボードを作成できない。
-	adminCheck(req, res, loginInfo, "一般ユーザーはボードを作成できません。");
+	if(!adminCheck(req, res, cb, loginInfo, "一般ユーザーはボードを作成できません。")){
+		return;
+	};
 
 	// タイトルとカテゴリをトリムする。
 	var trimKeys = ["title", "category"];
@@ -198,7 +204,7 @@ function createBoardInner(req, res, cb) {
 			"height": 2160,
 			"bgType": "image",
 			"bgColor": "",
-			"bgImage": "/images/background/P00/l_101.png",
+			"bgImage": "/images/background/common/background02.gif",
 			"bgRepeatType": "repeat",
 			"bgSepV": 1,
 			"bgSepH": 1,
@@ -266,17 +272,19 @@ function updateBoardInner(req, res, cb) {
 	var loginInfo = Utility.getLoginInfo(req, res);
 
 	// 管理者ロールでない場合にはボードを更新できない。
-	adminCheck(req, res, loginInfo, "一般ユーザーはボード情報を更新できません。");
+	if(!adminCheck(req, res, cb, loginInfo, "一般ユーザーはボード情報を更新できません。")){
+		return;
+	};
 
 	// ボードIDが指定されていない場合にはエラーとする。
 	var requiredKeys = [
 	                    {key: "id", name: "ボードＩＤ"}
 	                    ];
 
+	// タイトルが空文字の場合には、値をnullに設定することで更新対象から外す。
 	if(req.param("title") === ""){
 		req.params.title = null;
 	};
-	logger.debug(req, "★★"+req.param("title"));
 
 	// 必須チェックエラーコールバック
 	var errorCb = function(req, res, nullKeys){
@@ -300,7 +308,7 @@ function updateBoardInner(req, res, cb) {
 		var loginInfo = Utility.getLoginInfo(req, res);
 		if(err || loginInfo["projectId"] != found["projectId"]){
 			cb(req, res, {
-				type: "stay2",
+				type: "main",
 				data: {
 					type: "danger",
 					contents: "BoardController.js ボード情報の更新に失敗しました（プロジェクトID不一致）: " + JSON.stringify(err)

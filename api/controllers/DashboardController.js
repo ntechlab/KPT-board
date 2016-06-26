@@ -185,6 +185,27 @@ function showEditView(req, res, id, loginInfo){
 	});
 }
 
+function processDeleteImagePath(path){
+	var ret = null;
+	if(path == null){
+		return ret;
+	}
+	if(!us.startsWith(path, "/")){
+		return ret;
+	}
+	if(us.contains(path, "..")){
+		return ret;
+	}
+	var items = path.split("/");
+	if(items.length != 5){
+		return ret;
+	}
+	var dirName = items[3];
+	var fileName = items[4];
+	ret = {dirName: dirName, fileName: fileName};
+	return ret;
+
+}
 module.exports = {
 
 	/**
@@ -525,8 +546,10 @@ module.exports = {
 
 
 		var boardId = req.param("selectedId");
-		logger.info(req, "ファイルアップロード処理: [" + boardId + "][" + uploadFile + "]");
+		var loginInfo = Utility.getLoginInfo(req, res);
 
+		var projectId = loginInfo["projectId"];
+		logger.info(req, "ファイルアップロード処理: [" + boardId + "][" + uploadFile + "]["+projectId+"]");
 		// ファイルのアップロード処理
 		uploadFile.upload({dirname: getBackgroundDir(req, res)}, function onUploadComplete (err, files) {
 			if (err) {
@@ -540,7 +563,7 @@ module.exports = {
 				filename = files[0].filename;
 			}
 			logger.info(req, "ファイルアップロード処理 成功: [" + filename + "]");
-			return res.json({status: 'success', src : BACKGROUND_REL_PATH + filename});
+			return res.json({status: 'success', src : BACKGROUND_REL_PATH + projectId + "/" + filename});
 		});
 	},
 
@@ -557,10 +580,25 @@ module.exports = {
 		}
 
 		var path = req.param("deleteImage");
-		var fileName = "";
-		if(path){
-			var items = path.split("/");
-			fileName = items[items.length - 1];
+		logger.debug(req, "削除対象ファイル:[" + path + "]");
+
+		// 削除対象ファイルのチェックを行う。
+		// チェックＯＫの場合には、画像フォルダ名とファイル名が返される。
+		var result = processDeleteImagePath(path);
+		if(result == null){
+			logger.error(req, "画像ファイル名が不正です:[" + path + "]");
+			return res.json({status: 'error', message : "画像ファイル名が不正です:[" + path + "]"});
+		}
+
+		// 画像ファイル名
+		var fileName = result.fileName;
+
+		// 画像フォルダ名
+		var imageDir = result.dirName;
+
+		// デフォルト画像（commonフォルダに入っている画像）は削除できない。
+		if(imageDir === "common"){
+			return res.json({status: 'error', message : "デフォルト画像は削除できません。"});
 		}
 
 		logger.debug(req, "ファイル削除処理: [" + path + "][" + fileName + "]");
@@ -580,20 +618,31 @@ module.exports = {
 		});
 	},
 
-	getImageFileList : function  (req, res) {
+	getImageFileList : function(req, res) {
 		logger.trace(req, "getImageFileList");
 		var loginInfo = Utility.getLoginInfo(req, res);
+		var projectId = loginInfo["projectId"];
 		fs.readdir(getBackgroundDir(req, res), function(err, files){
 			if (err) {
 				logger.error(req, "画像ファイルリスト取得処理 失敗: [" + JSON.stringify(err) + "]");
 				return res.json({status: 'error', error: err});
 			}
+			
+			// デフォルト背景画像
+			var defaultImages = ["background02.gif", "kpt.png", "todo.gif"];
+			
 			var backgroundFileList = [];
+
+			// デフォルト画像を追加
+			u.each(defaultImages, function(fileName){
+				backgroundFileList.push(BACKGROUND_REL_PATH + "common/" + fileName);
+			});
+
 			files.filter(function(file){
 				// .で始まるファイルは表示対象外とする。
 				return fs.statSync(getBackgroundDir(req, res) + file).isFile() && isImageFile(file);
 			}).forEach(function (file) {
-				backgroundFileList.push(BACKGROUND_REL_PATH + loginInfo["projectId"] +"/"+file);
+				backgroundFileList.push(BACKGROUND_REL_PATH + projectId +"/"+file);
 			});
 			logger.debug(req, "画像ファイルリスト取得処理 成功: [" + backgroundFileList + "]");
 			return res.json({status: 'success', images: backgroundFileList});

@@ -195,15 +195,18 @@ function deleteImageFile() {
         success: function(data) {
         	var duration = getWaitDuration(1000, start);
             setTimeout(function(){
-	            // 削除された画像が指定されていた場合には、背景タイプを「単色」に変更する。
-	            var src = data.src;
-	            var oldSrc = $('#bgImage').val();
-				if(oldSrc === src){
-					$('#bgImage').val("");
-					$('#selected').attr('src', "");
-					$('#bgTypeColor').prop('checked', true);
+            	if(data.status === "error"){
+            		alert( "ファイルの削除に失敗しました：" + data.message);
+            	} else {
+		            // 削除された画像が指定されていた場合には、背景タイプを「単色」に変更する。
+		            var src = data.src;
+		            var oldSrc = $('#bgImage').val();
+					if(oldSrc === src){
+						$('#bgImage').val("");
+						$('#selected').attr('src', "");
+						$('#bgTypeColor').prop('checked', true);
+					}
 				}
-
 				// 画面ブロックの解除
             	$.unblockUI();
             }, duration);
@@ -211,7 +214,7 @@ function deleteImageFile() {
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             // 画面ブロックの解除
 			$.unblockUI();
-            alert( "ファイルのアップロードに失敗しました。" );
+            alert("ファイルの削除に失敗しました。");
             console.log(textStatus);
             console.log(errorThrown);
         }

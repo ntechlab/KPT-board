@@ -9,10 +9,11 @@ module.exports = function(grunt) {
 			options: {type: 'dir'}
 		},
 		dev: {
-			dest: './assets/images/background',
-			relativeSrc: '../../upload/images/background',
+			dest: './.tmp/public/images/background',
+			relativeSrc: '../../../upload/images/background',
 			options: {type: 'dir'}
 		}
 	});
 	grunt.loadNpmTasks('grunt-symlink');
+
 };
