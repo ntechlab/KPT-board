@@ -29,3 +29,16 @@ coverage/lcov-report/index.html
 【その他】
 ・sails起動に時間がかかるためmochaのタイムアウト時間を10秒としている(test/mocha.opts)
 
+
+【curlコマンドの例】
+POST
+curl http://localhost:1337/api/getToken -X POST -d "user=admin1" -d "password=password"
+
+GET
+curl "http://localhost:1337/api/board?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0Njc1NjMyNTcsImV4cCI6MTQ2NzU3NDA1N30.2TBSqAWn6WcmJZ5F5SjfCfy6F7lJQso3qDtDtnhszOA&projectId=P01"
+
+PUT
+...
+
+DELETE
+...

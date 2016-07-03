@@ -84,6 +84,27 @@
         "id": 4,
         "createdAt": "2016-06-26T08:29:26.455Z",
         "updatedAt": "2016-06-26T08:29:26.455Z"
+      },
+      {
+        "title": "board1C",
+        "description": "",
+        "projectId": "P01",
+        "category": "cat1",
+        "version": "1.1",
+        "width": 3840,
+        "height": 2160,
+        "bgType": "image",
+        "bgColor": "",
+        "bgImage": "/images/background/common/background02.gif",
+        "bgRepeatType": "repeat",
+        "bgSepV": 1,
+        "bgSepH": 1,
+        "bgSepLineWidth": 3,
+        "bgSepLineColor": "#000000",
+        "ticketData": "ticket_blue_small:Keep:true,ticket_pink_small:Problem:true,ticket_yellow_small:Try:true,ticket_white_small:Memo:true",
+        "id": 5,
+        "createdAt": "2016-06-26T08:29:26.455Z",
+        "updatedAt": "2016-06-26T08:29:26.455Z"
       }
     ],
     "room": [],

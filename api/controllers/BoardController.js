@@ -404,6 +404,161 @@ function updateBoardInner(req, res, cb) {
 }
 
 /**
+ * ボード削除処理
+ */
+function deleteBoardInner(req, res, cb) {
+	logger.trace(req, "deleteBoardInner start");
+	var loginInfo = Utility.getLoginInfo(req, res);
+
+	// 管理者ロールでない場合にはボードを更新できない。
+	if(!adminCheck(req, res, cb, loginInfo, "一般ユーザーはボード情報を更新できません。")){
+		return;
+	};
+
+	// ボードIDが指定されていない場合にはエラーとする。
+	var requiredKeys = [
+	                    {key: "boardId", name: "ボードＩＤ"}
+	                    ];
+
+	// 必須チェックエラーコールバック
+	var errorCb = function(req, res, nullKeys){
+		cb(req, res, {
+			type: "main",
+			data: {
+				type: "danger",
+				contents: "必須項目が未入力です：[" + nullKeys + "]"
+			}
+		});
+	};
+
+	if(!requiredItemCheck(req, res, requiredKeys, errorCb)){
+		return;
+	}
+
+	var boardId = req.param('boardId');
+
+	// 同一プロジェクトＩＤでない場合にはエラーとする。
+	Board.findOne(boardId).exec(function(err, found){
+		var loginInfo = Utility.getLoginInfo(req, res);
+		if(err) {
+			cb(req, res, {
+				type: "main",
+				data: {
+					type: "danger",
+					contents: "ボード情報の削除に失敗しました: " + JSON.stringify(err)
+				}
+			});
+			return;
+	   	}
+		if(loginInfo["projectId"] != found["projectId"]){
+			cb(req, res, {
+				type: "main",
+				data: {
+					type: "danger",
+					contents: "ボード情報の削除に失敗しました（プロジェクトID不一致）"
+				}
+			});
+			return;
+		}
+
+		Board.destroy(boardId).exec(function(err, found2){
+			if(err || (found2 && found2.length === 0)) {
+				logger.error(req, "ボード削除処理 失敗: [" + boardId + ","+ JSON.stringify(err) + "]");
+				cb(req, res, {
+					type: "main",
+					data: {
+						type: "danger",
+						contents: "ボード削除に失敗しました[" + boardId + "]"
+					}
+				});
+				return;
+			} else {
+				logger.info(req, "ボード削除処理 成功: [" + boardId + "]");
+				cb(req, res, {
+					type: "main",
+					data: {
+						type: "success",
+						contents: "ボードを削除しました: [" + found2[0]["title"] + "]"
+					}
+				});
+				return;
+			}
+
+		});
+   });
+}
+
+
+/**
+ * ボード一覧取得処理
+ */
+function listBoardInner(req, res, cb) {
+	logger.trace(req, "listBoardInner start");
+	var loginInfo = Utility.getLoginInfo(req, res);
+
+
+	// ボードIDが指定されていない場合にはエラーとする。
+	var requiredKeys = [
+	                    {key: "projectId", name: "プロジェクトＩＤ"}
+	                    ];
+
+	// 必須チェックエラーコールバック
+	var errorCb = function(req, res, nullKeys){
+		cb(req, res, {
+			type: "main",
+			data: {
+				type: "danger",
+				contents: "必須項目が未入力です：[" + nullKeys + "]"
+			}
+		});
+	};
+
+	if(!requiredItemCheck(req, res, requiredKeys, errorCb)){
+		return;
+	}
+
+	var projectId = req.param('projectId');
+
+	// 同一プロジェクトＩＤでない場合にはエラーとする。
+	if(loginInfo["projectId"] !== projectId){
+		cb(req, res, {
+			type: "main",
+			data: {
+				type: "danger",
+				contents: "ボード一覧取得に失敗しました（プロジェクトID不一致）"
+			}
+		});
+		return;
+	}
+
+	Board.find({projectId: projectId}).exec(function(err, found){
+		var loginInfo = Utility.getLoginInfo(req, res);
+		if(err) {
+			cb(req, res, {
+				type: "main",
+				data: {
+					type: "danger",
+					contents: "ボード一覧取得に失敗しました: " + JSON.stringify(err)
+				}
+			});
+			return;
+	   	}
+
+		logger.info(req, "ボード一覧取得処理 成功");
+		cb(req, res, {
+			type: "main",
+			data: {
+				type: "success",
+				contents: "ボード一覧を取得しました",
+				board: found
+			}
+		});
+		return;
+
+   });
+}
+
+/**
  * チケット作成処理.
  *
  * @param req リクエスト
@@ -578,7 +733,8 @@ function updateTicket(req, res, cb, loginInfo, boardId){
 			type: "main",
 			data:{
 				type: "success",
-				contents: "チケットを更新しました。"
+				contents: "チケットを更新しました。",
+				ticket: updated[0]
 			}
 		});
 	});
@@ -708,6 +864,22 @@ module.exports = {
     updateBoard : function(req, res) {
      	var cb = getCallback(req, res);
      	updateBoardInner(req, res, cb);
+    },
+
+    /**
+     * ボード情報削除
+     */
+    deleteBoard : function(req, res) {
+     	var cb = getCallback(req, res);
+     	deleteBoardInner(req, res, cb);
+    },
+
+    /**
+     * ボード一覧取得
+     */
+    listBoard : function(req, res) {
+     	var cb = getCallback(req, res);
+     	listBoardInner(req, res, cb);
     },
 
 	/**

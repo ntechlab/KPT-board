@@ -270,6 +270,46 @@ module.exports = {
 		authenticateToken(req, cb);
 	},
 
+	/**
+	 * ボード削除API.
+	 */
+	deleteBoard : function(req, res) {
+		logger.info(req, "deleteBoard called");
+		var cb = function(err, data){
+			logger.info(req, "err:"+JSON.stringify(err));
+			logger.info(req, "data:"+JSON.stringify(data));
+			if(err){
+				return res.json({
+					success: false,
+					message : "ボード削除失敗"
+				});
+			}
+			req.rest = data.info;
+			BoardController.deleteBoard(req, res);
+		};
+		authenticateToken(req, cb);
+	},
+
+	/**
+	 * ボード一覧取得API.
+	 */
+	listBoard : function(req, res) {
+		logger.info(req, "listBoard called");
+		var cb = function(err, data){
+			logger.info(req, "err:"+JSON.stringify(err));
+			logger.info(req, "data:"+JSON.stringify(data));
+			if(err){
+				return res.json({
+					success: false,
+					message : "ボード一覧取得失敗:"+err.message
+				});
+			}
+			req.rest = data.info;
+			BoardController.listBoard(req, res);
+		};
+		authenticateToken(req, cb);
+	},
+
 	getTicket : function(req, res) {
 		logger.info(req, "★★チケット取得 開始");
 		// 未実装

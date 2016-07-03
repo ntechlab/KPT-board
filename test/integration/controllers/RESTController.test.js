@@ -228,7 +228,83 @@ describe('RESTController', function() {
   });
 
 
-  describe('#createTicket(req, res)', function() {
+  describe('#deleteBoard(req, res)', function() {
+
+	  it('管理者ユーザーでのボード削除に失敗（token未設定）', function (done) {
+	      request(sails.hooks.http.app)
+	        .delete('/api/board')
+	        .send({ boardId: 'P01'})
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+	        	json.should.have.property('success', false);
+	        	json.should.have.property('message', 'ボード削除失敗');
+	        })
+	    });
+
+	  it('管理者ユーザーでのボード削除に失敗（boardId未設定）', function (done) {
+	      request(sails.hooks.http.app)
+	        .delete('/api/board')
+	        .send({ token: TOKEN_ADMIN1})
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+	        	json.should.have.property('success', false);
+	        	json.should.have.property('message', '必須項目が未入力です：[ボードＩＤ]');
+	        })
+	    });
+
+	  it('管理者ユーザーでのボード削除に成功', function (done) {
+		  var boardIdToDelete = 5;
+	      request(sails.hooks.http.app)
+	        .delete('/api/board')
+	        .send({ token: TOKEN_ADMIN1, boardId: boardIdToDelete})
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+	        	json.should.have.property('success', true);
+	        	json.should.have.property('message', 'ボードを削除しました: [board1C]');
+	        })
+	    });
+  });
+
+  describe('#listBoard(req, res)', function() {
+
+	  it('一般ユーザーでのボード一覧取得に失敗（token未設定）', function (done) {
+	      request(sails.hooks.http.app)
+	        .get('/api/board')
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+//	        	console.log(JSON.stringify(json));
+	        	json.should.have.property('success', false);
+	        	json.should.have.property('message', 'ボード一覧取得失敗:トークンが不正です');
+	        })
+	    });
+
+	  it('一般ユーザーでのボード一覧取得に成功', function (done) {
+	      request(sails.hooks.http.app)
+	        .get('/api/board?token='+TOKEN_USER1A+"&projectId=P01")
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+//	        	console.log(JSON.stringify(json));
+	        	json.should.have.property('success', true);
+	        	json.should.have.property('message', 'ボード一覧を取得しました');
+	        	var boards = json["board"];
+//	        	console.log(JSON.stringify(boards));
+	        })
+	    });
+  })
+
+var ticketId = null;
+
+describe('#createTicket(req, res)', function() {
 
 	  it('一般ユーザーでのチケット作成に失敗（boardId未設定）', function (done) {
 	      request(sails.hooks.http.app)
@@ -251,16 +327,117 @@ describe('RESTController', function() {
 	        .expect(200, done)
 	        .expect(function(res){
 	        	var json = res.body;
-	        	console.log(JSON.stringify(json));
+//	        	console.log(JSON.stringify(json));
 	        	json.should.have.property('success', true);
 	        	json.should.have.property('message', 'チケット作成に成功しました。');
 	        	var ticket = json.ticket;
 	        	ticket.should.have.property('positionX', '0');
 	        	ticket.should.have.property('positionY', '0');
+
+	        	// 作成したチケットＩＤを保持
+	        	ticketId = ticket.id;
+
 	        	// TODO: 他の値もアサートすること。
 	        })
 	    });
 
-  });
+});
+
+// ここでチケット更新テスト
+
+describe('#updateTicket(req, res)', function() {
+
+	it('一般ユーザーでのチケット更新に失敗（boardId未設定）', function (done) {
+	      request(sails.hooks.http.app)
+	        .put('/api/ticket')
+	        .send({ token: TOKEN_USER1A, id: ticketId})
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+	        	json.should.have.property('success', false);
+	        	json.should.have.property('message', 'ボードIDが指定されていません');
+	        })
+	    });
+
+	it('一般ユーザーでのチケット更新に失敗（id未設定）', function (done) {
+	      request(sails.hooks.http.app)
+	        .put('/api/ticket')
+	        .send({ token: TOKEN_USER1A, boardId: BOARDID_BOARD1A})
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+	        	json.should.have.property('success', false);
+	        	json.should.have.property('message', 'チケットＩＤが指定されていません。');
+	        })
+	    });
+
+	  it('一般ユーザーでのチケット更新に成功', function (done) {
+	      request(sails.hooks.http.app)
+	        .put('/api/ticket')
+	        .send({
+	        	token: TOKEN_USER1A,
+	        	boardId: BOARDID_BOARD1A,
+	        	id: ticketId,
+	        	positionX: '10',
+	        	positionY: '20'
+	        })
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+//	        	console.log(JSON.stringify(json));
+	        	json.should.have.property('success', true);
+	        	json.should.have.property('message', 'チケットを更新しました。');
+	        	var ticket = json.ticket;
+	        	ticket.should.have.property('positionX', '10');
+	        	ticket.should.have.property('positionY', '20');
+	        	// TODO: 他の値もアサートすること。
+	        })
+	    });
+
+});
+
+
+describe('#deleteTicket(req, res)', function() {
+
+	it('一般ユーザーでのチケット削除に失敗（id未設定）', function (done) {
+	      request(sails.hooks.http.app)
+	        .delete('/api/ticket')
+	        .send({ token: TOKEN_USER1A})
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+	        	json.should.have.property('success', false);
+	        	json.should.have.property('message', 'チケットＩＤが指定されていません。');
+	        })
+	    });
+	it('一般ユーザーでのチケット削除に失敗（boardId未設定）', function (done) {
+	      request(sails.hooks.http.app)
+	        .delete('/api/ticket')
+	        .send({ token: TOKEN_USER1A, id: ticketId})
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+	        	json.should.have.property('success', false);
+	        	json.should.have.property('message', 'ボードIDが指定されていません');
+	        })
+	    });
+	  it('一般ユーザーでのチケット削除に成功', function (done) {
+	      request(sails.hooks.http.app)
+	        .delete('/api/ticket')
+	        .send({ token: TOKEN_USER1A, id: ticketId, boardId: BOARDID_BOARD1A})
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+	        	json.should.have.property('success', true);
+	        	json.should.have.property('message', 'チケットを削除しました。');
+	        })
+	    });
+});
 
 });

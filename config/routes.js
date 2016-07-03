@@ -38,8 +38,10 @@ module.exports.routes = {
 	'delete /api/ticket': 'RESTController.deleteTicket',
 	'put /api/ticketMove': 'RESTController.moveTicket',
 	'get /api/ticket/:id': 'RESTController.getTicket',
+	'get /api/board': 'RESTController.listBoard',
 	'post /api/board': 'RESTController.createBoard',
 	'put /api/board': 'RESTController.updateBoard',
+	'delete /api/board': 'RESTController.deleteBoard',
 
 	'/': 'DashboardController.index',
 	'get /login': "AuthController.login",
@@ -48,7 +50,7 @@ module.exports.routes = {
 	'post /dashboard/uploadImageFile': 'DashboardController.uploadImageFile',
 	'get /dashboard/openBoard2/:selectedId': 'DashboardController.openBoard2',
 	'get /dashboard/editBoard/:selectedId': 'DashboardController.editBoard',
-	'get /dashboard/deleteBoard/:selectedId': 'DashboardController.deleteBoard',
+	'post /dashboard/deleteBoard/:boardId': 'BoardController.deleteBoard',
 	'get /usermanage/destroyUser/:target': 'UsermanageController.destroyUser', // �b��B���p���Ȃ��\��iURL�ɍ폜��̃��[�U�[ID���c�������Ȃ��j
 	'post /usermanage/destroyUser/:target': 'UsermanageController.destroyUser', // �b��B
 	'get /usermanage/updateUser/:target': 'UsermanageController.updateUser', // �b��

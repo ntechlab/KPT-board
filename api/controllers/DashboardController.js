@@ -467,51 +467,6 @@ module.exports = {
 		showEditView(req, res, id, loginInfo);
 	},
 
-	/**
-	 * ボード削除処理
-	 */
-    deleteBoard : function(req, res) {
-    	var id = req.param("selectedId");
-		logger.trace(req, "deleteBoard: [" + id + "]");
-
-		// 管理者ロールでない場合には、ボードを削除できない。
-		var loginInfo = Utility.getLoginInfo(req, res);
-		if(loginInfo["roleName"] !== "admin"){
-			logger.error(req, "一般ユーザーはボードを削除できません。");
-			message = {type: "danger", contents: "処理に失敗しました。"};
-			Utility.openMainPage(req, res, message);
-			return;
-		}
-
-		// 削除対象ボードIDが設定されていない場合には、処理を行わずメイン画面に遷移。
-		var message = null;
-		if(id != null){
-			logger.debug(req, "ボード削除処理 削除対象[" + id + "]");
-
-			Board.findOne(id).exec(function(err2, found2){
-				if(err2 || !found2 || found2.length === 0 || loginInfo["projectId"] !== found2["projectId"]) {
-					logger.error(req, "ボード削除処理 失敗: [" + id + ","+ JSON.stringify(err2) + "]");
-					message = {type: "danger", contents: "ボード削除に失敗しました[" + id + "]"};
-					Utility.openMainPage(req, res, message);
-					return;
-				}
-				Board.destroy(id).exec(function(err, found){
-					if(err || (found && found.length === 0)) {
-						logger.error(req, "ボード削除処理 失敗: [" + id + ","+ JSON.stringify(err) + "]");
-						message = {type: "danger", contents: "ボード削除に失敗しました[" + id + "]"};
-					} else {
-						logger.info(req, "ボード削除処理 成功: [" + id + "]");
-						message = {type: "success", contents: "ボードを削除しました: [" + found[0]["title"] + "]"};
-					}
-					Utility.openMainPage(req, res, message);
-				});
-			});
-		} else {
-			logger.error(req, "ボード削除処理 ボードID未設定");
-			message = {type: "danger", contents: "ボードIDが設定されていません。"};
-			Utility.openMainPage(req, res, message);
-		}
-    },
 
     /**
      * ボード作成画面を開く

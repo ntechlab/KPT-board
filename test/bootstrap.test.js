@@ -21,7 +21,7 @@ before(function(done) {
 		}
 		fs.createReadStream(testDataSrc).pipe(fs.createWriteStream(testDataDest));
 	});
-	
+
 	sails.lift({
 	    // テスト用のログ設定ファイルを指定
 	    log_config : "test/log4js_setting.json",

@@ -36,7 +36,9 @@ module.exports.policies = {
 		"deleteTicket": true,
 		"moveTicket": true,
 		"createBoard": true,
-		"updateBoard": true
+		"deleteBoard": true,
+		"updateBoard": true,
+		"listBoard": true
 	},
 	UserController: {
 		// 暫定的に、ログインしていない場合にも、
