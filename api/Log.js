@@ -2,8 +2,16 @@ var log4js = require('log4js');
 var loggers = {};
 var initDone = false;
 
+// log4jsのデフォルト
+var DEFAULT_LOG4JS_CONF = 'log4js_setting.json';
+
 function init(){
-	log4js.configure('log4js_setting.json');
+	var logConfig = sails.config["log_config"];
+	var conf = DEFAULT_LOG4JS_CONF;
+	if(logConfig != null){
+		conf = logConfig;
+	}
+	log4js.configure(conf);
 	initDone = true;
 }
 

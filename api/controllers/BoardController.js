@@ -93,6 +93,15 @@ function getRESTCallback(req, res, params){
 	var type = params.type;
 	var data = params.data;
 	logger.trace(req, "結果処理コールバック関数呼び出し（REST）:" + JSON.stringify(data));
+
+	// REST結果に加工
+	data = u.extend(data, {
+		success: data["type"] === "success" ? true : false,
+		message: data["contents"]});
+
+	// 結果として利用しない項目の削除
+	delete(data.type);
+	delete(data.contents);
 	res.json(data);
 	logger.trace(req, "getCreateBoardCallbackREST end");
 }
@@ -255,8 +264,9 @@ function createBoardInner(req, res, cb) {
 			type: "main",
 			data: {
 				type: "success",
-				contents: "ボードを作成しました。［カテゴリ：" + req.param("category") + "　タイトル：" + req.param("title") + "］"
-				}
+				contents: "ボードを作成しました。［カテゴリ：" + req.param("category") + ", タイトル：" + req.param("title") + "］",
+				board: created
+			}
 		});
 	});
 }
@@ -279,12 +289,21 @@ function updateBoardInner(req, res, cb) {
 
 	// ボードIDが指定されていない場合にはエラーとする。
 	var requiredKeys = [
-	                    {key: "id", name: "ボードＩＤ"}
+	                    {key: "boardId", name: "ボードＩＤ"}
 	                    ];
 
-	// タイトルが空文字の場合には、値をnullに設定することで更新対象から外す。
-	if(req.param("title") === ""){
-		req.params.title = null;
+	// タイトルが空文字の場合には、エラーとする。
+	var title = req.param("title");
+
+	if(title != null && title.trim() === ""){
+		cb(req, res, {
+			type: "main",
+			data: {
+				type: "danger",
+				contents: "空のタイトルに変更することはできません。]"
+			}
+		});
+		return;
 	};
 
 	// 必須チェックエラーコールバック
@@ -302,21 +321,31 @@ function updateBoardInner(req, res, cb) {
 		return;
 	}
 
-	var boardId = req.param('id');
+	var boardId = req.param('boardId');
 
 	// 同一プロジェクトＩＤでない場合にはエラーとする。
 	Board.findOne(boardId).exec(function(err, found){
 		var loginInfo = Utility.getLoginInfo(req, res);
-		if(err || loginInfo["projectId"] != found["projectId"]){
+		if(err){
 			cb(req, res, {
 				type: "main",
 				data: {
 					type: "danger",
-					contents: "BoardController.js ボード情報の更新に失敗しました（プロジェクトID不一致）: " + JSON.stringify(err)
+					contents: "ボード情報の更新に失敗しました: " + JSON.stringify(err)
 				}
 			});
 			return;
 	   	}
+		if(loginInfo["projectId"] != found["projectId"]){
+			cb(req, res, {
+				type: "main",
+				data: {
+					type: "danger",
+					contents: "ボード情報の更新に失敗しました（プロジェクトID不一致）"
+				}
+			});
+			return;
+		}
 
 		// カテゴリ文字列をトリムする。
 		var trimKeys = ["category"];
@@ -431,7 +460,8 @@ function createTicket(req, res, cb, loginInfo, boardId){
 					type: "main",
 					data:{
 						type: "success",
-						contents: "チケット作成に成功しました。"+JSON.stringify(ticket)
+						contents: "チケット作成に成功しました。",
+						ticket: ticket
 					}
 				});
 			}

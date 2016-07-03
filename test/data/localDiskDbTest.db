@@ -1,0 +1,371 @@
+{
+  "data": {
+    "board": [
+      {
+        "title": "board1A",
+        "description": "",
+        "projectId": "P01",
+        "category": "cat1",
+        "version": "1.1",
+        "width": 3840,
+        "height": 2160,
+        "bgType": "image",
+        "bgColor": "",
+        "bgImage": "/images/background/common/kpt.png",
+        "bgRepeatType": "repeat",
+        "bgSepV": 1,
+        "bgSepH": 1,
+        "bgSepLineWidth": 3,
+        "bgSepLineColor": "#000000",
+        "ticketData": "ticket_blue_small:Keep:true,ticket_pink_small:Problem:true,ticket_yellow_small:Try:true,ticket_white_small:Memo:true",
+        "id": 1,
+        "createdAt": "2016-06-26T08:27:46.079Z",
+        "updatedAt": "2016-06-26T08:45:53.522Z"
+      },
+      {
+        "title": "board1B",
+        "description": "",
+        "projectId": "P01",
+        "category": "cat1",
+        "version": "1.1",
+        "width": 3840,
+        "height": 2160,
+        "bgType": "image",
+        "bgColor": "",
+        "bgImage": "/images/background/common/background02.gif",
+        "bgRepeatType": "repeat",
+        "bgSepV": 1,
+        "bgSepH": 1,
+        "bgSepLineWidth": 3,
+        "bgSepLineColor": "#000000",
+        "ticketData": "ticket_blue_small:Keep:true,ticket_pink_small:Problem:true,ticket_yellow_small:Try:true,ticket_white_small:Memo:true",
+        "id": 2,
+        "createdAt": "2016-06-26T08:28:00.311Z",
+        "updatedAt": "2016-06-26T08:28:00.311Z"
+      },
+      {
+        "title": "board2A",
+        "description": "",
+        "projectId": "P02",
+        "category": "cat2",
+        "version": "1.1",
+        "width": 3840,
+        "height": 2160,
+        "bgType": "image",
+        "bgColor": "",
+        "bgImage": "/images/background/common/background02.gif",
+        "bgRepeatType": "repeat",
+        "bgSepV": 1,
+        "bgSepH": 1,
+        "bgSepLineWidth": 3,
+        "bgSepLineColor": "#000000",
+        "ticketData": "ticket_blue_small:Keep:true,ticket_pink_small:Problem:true,ticket_yellow_small:Try:true,ticket_white_small:Memo:true",
+        "id": 3,
+        "createdAt": "2016-06-26T08:29:15.831Z",
+        "updatedAt": "2016-06-26T08:29:15.831Z"
+      },
+      {
+        "title": "board2B",
+        "description": "",
+        "projectId": "P02",
+        "category": "cat2",
+        "version": "1.1",
+        "width": 3840,
+        "height": 2160,
+        "bgType": "image",
+        "bgColor": "",
+        "bgImage": "/images/background/common/background02.gif",
+        "bgRepeatType": "repeat",
+        "bgSepV": 1,
+        "bgSepH": 1,
+        "bgSepLineWidth": 3,
+        "bgSepLineColor": "#000000",
+        "ticketData": "ticket_blue_small:Keep:true,ticket_pink_small:Problem:true,ticket_yellow_small:Try:true,ticket_white_small:Memo:true",
+        "id": 4,
+        "createdAt": "2016-06-26T08:29:26.455Z",
+        "updatedAt": "2016-06-26T08:29:26.455Z"
+      }
+    ],
+    "room": [],
+    "ticket": [
+      {
+        "boardId": 2,
+        "createUser": "2",
+        "contents": "",
+        "positionX": "208px",
+        "positionY": "154px",
+        "color": "ticket_blue_small",
+        "ticketHeight": 170,
+        "ticketWidth": 244,
+        "id": 1,
+        "createdAt": "2016-06-26T12:47:27.392Z",
+        "updatedAt": "2016-06-26T12:47:27.392Z"
+      }
+    ],
+    "user": [
+      {
+        "username": "admin",
+        "nickname": "Administrator",
+        "password": "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8",
+        "role": "admin",
+        "projectId": "P00",
+        "status": "",
+        "flag1": 0,
+        "id": 1,
+        "createdAt": "2016-06-26T08:22:32.475Z",
+        "updatedAt": "2016-06-26T08:22:32.475Z"
+      },
+      {
+        "username": "admin1",
+        "nickname": "Administrator1",
+        "password": "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8",
+        "role": "admin",
+        "projectId": "P01",
+        "status": "",
+        "flag1": 0,
+        "id": 2,
+        "createdAt": "2016-06-26T08:22:32.475Z",
+        "updatedAt": "2016-06-26T08:22:32.475Z"
+      },
+      {
+        "username": "admin2",
+        "nickname": "Administrator2",
+        "password": "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8",
+        "role": "admin",
+        "projectId": "P02",
+        "status": "",
+        "flag1": 0,
+        "id": 3,
+        "createdAt": "2016-06-26T08:22:32.475Z",
+        "updatedAt": "2016-06-26T08:22:32.475Z"
+      },
+      {
+        "username": "user1A",
+        "nickname": "USER1A",
+        "password": "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8",
+        "role": "",
+        "projectId": "P01",
+        "status": "",
+        "flag1": 0,
+        "id": 4,
+        "createdAt": "2016-06-26T08:27:16.123Z",
+        "updatedAt": "2016-06-26T08:27:16.123Z"
+      },
+      {
+        "username": "user1B",
+        "nickname": "USER1B",
+        "password": "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8",
+        "role": "",
+        "projectId": "P01",
+        "status": "",
+        "flag1": 0,
+        "id": 5,
+        "createdAt": "2016-06-26T08:27:16.123Z",
+        "updatedAt": "2016-06-26T08:27:16.123Z"
+      },
+      {
+        "username": "user2A",
+        "nickname": "USER2A",
+        "password": "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8",
+        "role": "",
+        "projectId": "P02",
+        "status": "",
+        "flag1": 0,
+        "id": 6,
+        "createdAt": "2016-06-26T08:28:34.291Z",
+        "updatedAt": "2016-06-26T08:28:34.291Z"
+      },
+      {
+        "username": "user2B",
+        "nickname": "USER2B",
+        "password": "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8",
+        "role": "",
+        "projectId": "P02",
+        "status": "",
+        "flag1": 0,
+        "id": 7,
+        "createdAt": "2016-06-26T08:28:52.949Z",
+        "updatedAt": "2016-06-26T08:28:52.949Z"
+      }
+    ]
+  },
+  "schema": {
+    "board": {
+      "title": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
+      "projectId": {
+        "type": "string"
+      },
+      "category": {
+        "type": "string"
+      },
+      "version": {
+        "type": "string",
+        "defaultsTo": "1.1"
+      },
+      "width": {
+        "type": "integer",
+        "defaultsTo": 3840
+      },
+      "height": {
+        "type": "integer",
+        "defaultsTo": 2160
+      },
+      "bgType": {
+        "type": "string",
+        "defaultsTo": "image"
+      },
+      "bgColor": {
+        "type": "string",
+        "defaultsTo": ""
+      },
+      "bgImage": {
+        "type": "string",
+        "defaultsTo": "/images/background/background02.gif"
+      },
+      "bgRepeatType": {
+        "type": "string",
+        "defaultsTo": "repeat"
+      },
+      "bgSepV": {
+        "type": "integer",
+        "defaultsTo": 1
+      },
+      "bgSepH": {
+        "type": "integer",
+        "defaultsTo": 1
+      },
+      "bgSepLineWidth": {
+        "type": "integer",
+        "defaultsTo": 3
+      },
+      "bgSepLineColor": {
+        "type": "string",
+        "defaultsTo": "#000000"
+      },
+      "ticketData": {
+        "type": "string",
+        "defaultsTo": "ticket_blue_small:Keep:true,ticket_pink_small:Problem:true,ticket_yellow_small:Try:true,ticket_white_small:Memo:true"
+      },
+      "id": {
+        "type": "integer",
+        "autoIncrement": true,
+        "primaryKey": true,
+        "unique": true
+      },
+      "createdAt": {
+        "type": "datetime"
+      },
+      "updatedAt": {
+        "type": "datetime"
+      }
+    },
+    "room": {
+      "id": {
+        "type": "integer",
+        "autoIncrement": true,
+        "primaryKey": true,
+        "unique": true
+      },
+      "createdAt": {
+        "type": "datetime"
+      },
+      "updatedAt": {
+        "type": "datetime"
+      }
+    },
+    "ticket": {
+      "boardId": {
+        "type": "integer"
+      },
+      "createUser": {
+        "type": "string"
+      },
+      "contents": {
+        "type": "string"
+      },
+      "positionX": {
+        "type": "string"
+      },
+      "positionY": {
+        "type": "string"
+      },
+      "color": {
+        "type": "string"
+      },
+      "ticketHeight": {
+        "type": "integer"
+      },
+      "ticketWidth": {
+        "type": "integer"
+      },
+      "id": {
+        "type": "integer",
+        "autoIncrement": true,
+        "primaryKey": true,
+        "unique": true
+      },
+      "createdAt": {
+        "type": "datetime"
+      },
+      "updatedAt": {
+        "type": "datetime"
+      }
+    },
+    "user": {
+      "username": {
+        "type": "string",
+        "unique": true
+      },
+      "nickname": {
+        "type": "string"
+      },
+      "password": {
+        "type": "string"
+      },
+      "role": {
+        "type": "string",
+        "defaultsTo": ""
+      },
+      "projectId": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string",
+        "defaultsTo": ""
+      },
+      "flag1": {
+        "type": "integer",
+        "defaultsTo": 0
+      },
+      "id": {
+        "type": "integer",
+        "autoIncrement": true,
+        "primaryKey": true,
+        "unique": true
+      },
+      "createdAt": {
+        "type": "datetime"
+      },
+      "updatedAt": {
+        "type": "datetime"
+      }
+    }
+  },
+  "counters": {
+    "board": {
+      "id": 4
+    },
+    "room": {},
+    "ticket": {
+      "id": 1
+    },
+    "user": {
+      "id": 7
+    }
+  }
+}

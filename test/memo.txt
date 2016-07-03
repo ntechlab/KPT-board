@@ -1,0 +1,31 @@
+テスト
+
+【利用モジュール】
+・テストフレームワーク mocha
+・カバレッジ istanbul
+・gruntからの実行のためにgrunt-mocha-istanbulを利用。
+・アサーション should
+・RESTテスト supertest
+
+【テスト実行前設定】
+テスト実行前に以下を実行(test/bootstrap.test.js)：
+
+・テスト用データベースファイルをコピー。(test/data/localDiskDbTest ⇒ .tmp/localDiskDbTest)
+・log4js設定ファイルをテスト用に変更（コンソールにログが出ない設定）
+・sails.logを抑止
+・データベースコネクションをテスト用コネクションに変更
+
+【実行方法】
+プロジェクトルートで以下のコマンドを実行
+
+テスト実行方法（カバレッジなし）
+mocha test/bootstrap.test.js test/integration/**/*.test.js -c
+
+テスト実行方法（カバレッジあり）
+istanbul cover -x "**/config/**" node_modules/mocha/bin/_mocha test/bootstrap.test.js test/integration/**/*.test.js
+カバレッジは以下のフォルダに出力される：
+coverage/lcov-report/index.html
+
+【その他】
+・sails起動に時間がかかるためmochaのタイムアウト時間を10秒としている(test/mocha.opts)
+

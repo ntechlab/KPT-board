@@ -45,5 +45,12 @@
     "url": "git@github.com:ntechlab/KPT-board.git"
   },
   "author": "New Tech. Lab.",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "supertest": "^1.2.0",
+    "grunt-mocha-istanbul": "^5.0.1",
+    "istanbul": "^0.4.4",
+    "mocha": "^2.5.3",
+    "should": "^9.0.2"
+  }
 }

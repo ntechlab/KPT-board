@@ -54,6 +54,7 @@ function authenticate(username, password, cb){
 				result.message = "ユーザー["+username+"]は無効です。";
 			} else {
 				result.success = true;
+				result.projectId = user[0].projectId;
 				result.userId = user[0].id;
 				result.message = "認証成功["+username+"]";
 			}
@@ -144,14 +145,15 @@ module.exports = {
 	 */
 	getToken : function(req, res) {
 		logger.trace(req, "getToken start");
+		var projectId = req.param("projectId");
 		var user = req.param("user");
 		var password = req.param("password");
 
-		// user, passwordのいずれかが未設定の場合、エラーを返却。
-		if(user == null || password == null){
+		// projectId, user, passwordのいずれかが未設定の場合、エラーを返却。
+		if(projectId == null || user == null || password == null){
 			return res.json({
 				success: false,
-				message: "user, passwordが指定されていません"
+				message: "projectId, user, passwordが指定されていません"
 			});
 		}
 
@@ -162,6 +164,14 @@ module.exports = {
 			// 認証失敗の場合、エラーを返却
 			if(!result || !result["success"]){
 				return res.json(result);
+			}
+
+			// プロジェクトＩＤが一致しない場合には、エラーとする。
+			if(result["projectId"] !== projectId){
+				return res.json({
+					success: false,
+					message: "認証に失敗しました。"
+				})
 			}
 
 			// 認証トーク作成
@@ -228,7 +238,10 @@ module.exports = {
 			logger.info(req, "err:"+JSON.stringify(err));
 			logger.info(req, "data:"+JSON.stringify(data));
 			if(err){
-				return res.json({message : "ボード作成失敗"});
+				return res.json({
+					success: false,
+					message : "ボード作成失敗"
+				});
 			}
 			req.rest = data.info;
 			BoardController.createBoard(req, res);
@@ -245,7 +258,10 @@ module.exports = {
 			logger.info(req, "err:"+JSON.stringify(err));
 			logger.info(req, "data:"+JSON.stringify(data));
 			if(err){
-				return res.json({message : "ボード更新失敗"});
+				return res.json({
+					success: false,
+					message : "ボード更新失敗"
+				});
 			}
 			req.rest = data.info;
 
