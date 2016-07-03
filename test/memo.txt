@@ -1,8 +1,8 @@
 テスト
 
 【利用モジュール】
-・テストフレームワーク mocha
-・カバレッジ istanbul
+・テストフレームワーク mocha (要グローバルインストール)
+・カバレッジ istanbul (要グローバルインストール)
 ・gruntからの実行のためにgrunt-mocha-istanbulを利用。
 ・アサーション should
 ・RESTテスト supertest
