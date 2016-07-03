@@ -9,14 +9,19 @@ before(function(done) {
 	// sails起動前にテストデータを配置する。
 	var testDataSrc = './test/data/localDiskDbTest.db';
 	var testDataDest = './.tmp/localDiskDbTest.db';
+	try {
+		fs.mkdirSync("./.tmp");
+	} catch(e){
+		// 処理を行わない。
+	}
 	fs.unlink(testDataDest, function(err) {
 		if (err) {
 			// throw err;
 			// 削除対象がない場合には処理を行わない。
 		}
+		fs.createReadStream(testDataSrc).pipe(fs.createWriteStream(testDataDest));
 	});
-	fs.createReadStream(testDataSrc).pipe(fs.createWriteStream(testDataDest));
-
+	
 	sails.lift({
 	    // テスト用のログ設定ファイルを指定
 	    log_config : "test/log4js_setting.json",
