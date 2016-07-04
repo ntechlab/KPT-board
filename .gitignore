@@ -119,3 +119,5 @@ nbproject
 
 coverage
 doc/jsdoc
+xunit.xml
+

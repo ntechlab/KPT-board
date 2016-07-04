@@ -51,6 +51,7 @@
     "grunt-mocha-istanbul": "^5.0.1",
     "istanbul": "^0.4.4",
     "mocha": "^2.5.3",
-    "should": "^9.0.2"
+    "should": "^9.0.2",
+    "xunit-file": "^1.0.0"
   }
 }
