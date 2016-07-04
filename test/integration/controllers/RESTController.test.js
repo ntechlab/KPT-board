@@ -146,7 +146,7 @@ describe('RESTController', function() {
 	        	// TODO: 単項目もアサートする。
 	        })
 	    });
-	  it('一般ユーザーはボードを作成できないこと', function (done) { throw new Error('テスト未作成'); });
+	  //it('一般ユーザーはボードを作成できないこと', function (done) { throw new Error('テスト未作成'); });
   });
 
 
@@ -224,7 +224,7 @@ describe('RESTController', function() {
 	        	json.should.have.property('message', '空のタイトルに変更することはできません。]');
 	        })
 	    });
-	  it('一般ユーザーはボードを作成できないこと', function (done) { throw new Error('テスト未作成'); });
+	  //it('一般ユーザーはボードを作成できないこと', function (done) { throw new Error('テスト未作成'); });
   });
 
 
