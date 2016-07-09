@@ -1,4 +1,5 @@
 var request = require('supertest');
+var assert = require('assert');
 
 describe('RESTController', function() {
 
@@ -297,6 +298,39 @@ describe('RESTController', function() {
 	        	json.should.have.property('success', true);
 	        	json.should.have.property('message', 'ボード一覧を取得しました');
 	        	var boards = json["board"];
+
+	        	// TODO: 他のテストに依存するため以下のアサートには問題がある。
+	        	assert.equal(3, boards.length);
+//	        	console.log(JSON.stringify(boards));
+	        })
+	    });
+	  it('一般ユーザーでのボード一覧取得に成功（存在するボードID指定）', function (done) {
+	      request(sails.hooks.http.app)
+	        .get('/api/board?token='+TOKEN_USER1A+"&projectId=P01&id=2")
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+//	        	console.log(JSON.stringify(json));
+	        	json.should.have.property('success', true);
+	        	json.should.have.property('message', 'ボード一覧を取得しました');
+	        	var boards = json["board"];
+	        	assert.equal(1, boards.length);
+//	        	console.log(JSON.stringify(boards));
+	        })
+	    });
+	  it('一般ユーザーでのボード一覧取得に成功（存在するタイトル指定）', function (done) {
+	      request(sails.hooks.http.app)
+	        .get('/api/board?token='+TOKEN_USER1A+"&projectId=P01&title=board1B")
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+//	        	console.log(JSON.stringify(json));
+	        	json.should.have.property('success', true);
+	        	json.should.have.property('message', 'ボード一覧を取得しました');
+	        	var boards = json["board"];
+	        	assert.equal(1, boards.length);
 //	        	console.log(JSON.stringify(boards));
 	        })
 	    });
@@ -439,5 +473,86 @@ describe('#deleteTicket(req, res)', function() {
 	        })
 	    });
 });
+
+describe('#listTicket(req, res)', function() {
+
+	  it('一般ユーザーでのチケット一覧取得に失敗（token未設定）', function (done) {
+	      request(sails.hooks.http.app)
+	        .get('/api/ticket')
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+//	        	console.log(JSON.stringify(json));
+	        	json.should.have.property('success', false);
+	        	json.should.have.property('message', 'チケット一覧取得失敗:トークンが不正です');
+	        	var tickets = json["ticket"];
+	        	assert.equal(null, tickets);
+	        })
+	    });
+	  it('一般ユーザーでのチケット一覧取得に失敗（ボードID未設定）', function (done) {
+	      request(sails.hooks.http.app)
+	        .get('/api/ticket?token='+TOKEN_USER1A+"&projectId=P01")
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+//	        	console.log(JSON.stringify(json));
+	        	json.should.have.property('success', false);
+	        	json.should.have.property('message', 'ボードＩＤ(boardId)、もしくは、ボードタイトル(boardTitle)の入力が必要です');
+	        	var tickets = json["ticket"];
+	        	assert.equal(null, tickets);
+
+	        })
+	    });
+
+	  it('一般ユーザーでのチケット一覧取得に成功（ボードID指定）', function (done) {
+	      request(sails.hooks.http.app)
+	        .get('/api/ticket?token='+TOKEN_USER1A+"&projectId=P01&boardId=2")
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+//	        	console.log(JSON.stringify(json));
+	        	json.should.have.property('success', true);
+	        	json.should.have.property('message', 'チケット一覧を取得しました');
+	        	var tickets = json["ticket"];
+
+//	        	console.log(JSON.stringify(tickets));
+	        })
+	    });
+
+	  it('一般ユーザーでのチケット一覧取得に成功（他プロジェクトのボードID指定）', function (done) {
+	      request(sails.hooks.http.app)
+	        .get('/api/ticket?token='+TOKEN_USER1A+"&projectId=P01&boardId=3")
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+//	        	console.log(JSON.stringify(json));
+	        	json.should.have.property('success', false);
+	        	json.should.have.property('message', '指定したボードは存在しません');
+	        	var tickets = json["ticket"];
+	        	assert.equal(null, tickets);
+//	        	console.log(JSON.stringify(tickets));
+	        })
+	    });
+
+	  it('一般ユーザーでのチケット一覧取得に成功（ボードタイトル指定）', function (done) {
+	      request(sails.hooks.http.app)
+	        .get('/api/ticket?token='+TOKEN_USER1A+"&projectId=P01&boardTitle=board1B")
+	        .expect('Content-Type', 'application/json; charset=utf-8')
+	        .expect(200, done)
+	        .expect(function(res){
+	        	var json = res.body;
+//	        	console.log(JSON.stringify(json));
+	        	json.should.have.property('success', true);
+	        	json.should.have.property('message', 'チケット一覧を取得しました');
+	        	var tickets = json["ticket"];
+
+//	        	console.log(JSON.stringify(tickets));
+	        })
+	    });
+	})
 
 });

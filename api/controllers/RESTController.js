@@ -292,6 +292,28 @@ module.exports = {
 
 	/**
 	 * ボード一覧取得API.
+	 *
+	 * <b>REST API利用方法</b>
+	 * <pre>
+	 * URL: http://(IPアドレス):(ポート番号)/api/board
+	 *
+	 * アクション: GET
+	 *
+	 * 入力項目
+	 * <table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>備考</td></tr>
+	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td></tr>
+	 * <tr><td>id</td><td>ボードID</td><td></td><td>指定したボードIDをもつボードのみ取得</td></tr>
+	 * <tr><td>title</td><td>ボードタイトル</td><td></td><td>指定したタイトルをもつボードのみ取得</td></tr>
+	 * </table>
+	 * 出力項目
+	 * <table border=1>
+ 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>備考</td></tr>
+	 * <tr><td>success</td><td>処理結果。処理に成功した場合はtrue、それ以外の場合はfalse.</td><td></td></tr>
+	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
+	 * <tr><td>board</td><td>指定したプロジェクトに存在するボード情報リスト</td><td></td></tr>
+	 * </table>
+	 * </pre>
 	 */
 	listBoard : function(req, res) {
 		logger.info(req, "listBoard called");
@@ -310,11 +332,47 @@ module.exports = {
 		authenticateToken(req, cb);
 	},
 
-	getTicket : function(req, res) {
-		logger.info(req, "★★チケット取得 開始");
-		// 未実装
-		logger.info(req, "★★チケット取 終了");
-		res.json({hello:435});
+	/**
+	 * チケット一覧取得API.
+	 *<pre>
+	 * URL: http://(IPアドレス):(ポート番号)/api/ticket
+	 *
+	 * アクション: GET
+	 *
+	 * 入力必須項目
+	 * <table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>備考</td></tr>
+	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td></tr>
+	 * <tr><td>boardId</td><td>ボードID</td><td>＊１</td><td rowspan=2>＊１: ボードID、もしくは、ボードタイトルのいずれかが必要</td></tr>
+	 * <tr><td>boardTitle</td><td>ボードタイトル</td><td>＊１</td></tr>
+	 * </table>
+	 * 出力項目
+	 * <table border=1>
+ 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>備考</td></tr>
+	 * <tr><td>success</td><td>処理結果。処理に成功した場合はtrue、それ以外の場合はfalse.</td><td></td></tr>
+	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
+	 * <tr><td>ticket</td><td>指定したボードに存在するチケット情報リスト</td><td></td></tr>
+	 * </table>
+	 * 実行例
+	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
+
+	 * </pre>
+	 */
+	listTicket : function(req, res) {
+		logger.info(req, "listTicket called");
+		var cb = function(err, data){
+			logger.info(req, "err:"+JSON.stringify(err));
+			logger.info(req, "data:"+JSON.stringify(data));
+			if(err){
+				return res.json({
+					success: false,
+					message : "チケット一覧取得失敗:"+err.message
+				});
+			}
+			req.rest = data.info;
+			BoardController.listTicket(req, res);
+		};
+		authenticateToken(req, cb);
 	}
 
 };

@@ -1,4 +1,81 @@
-/**
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>DocStrap Source: controllers/BoardController.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.spacelab.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">DocStrap</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-AuthController%2520%25E8%25AA%258D%25E8%25A8%25BC%25E3%2582%25B3%25E3%2583%25B3%25E3%2583%2588%25E3%2583%25AD%25E3%2583%25BC%25E3%2583%25A9%25E3%2583%25BC.html">AuthController 認証コントローラー</a></li><li><a href="module-BoardController%2520%25E3%2583%259C%25E3%2583%25BC%25E3%2583%2589%25E3%2582%25B3%25E3%2583%25B3%25E3%2583%2588%25E3%2583%25AD%25E3%2583%25BC%25E3%2583%25A9%25E3%2583%25BC.html">BoardController ボードコントローラー</a></li><li><a href="module-DashboardController%2520%25E3%2583%259C%25E3%2583%25BC%25E3%2583%2589%25E3%2582%25B3%25E3%2583%25B3%25E3%2583%2588%25E3%2583%25AD%25E3%2583%25BC%25E3%2583%25A9%25E3%2583%25BC%25EF%25BC%2592.html">DashboardController ボードコントローラー２</a></li><li><a href="module-NewBoardController%2520%25E3%2583%259C%25E3%2583%25BC%25E3%2583%2589%25E6%2596%25B0%25E8%25A6%258F%25E4%25BD%259C%25E6%2588%2590%25E3%2582%25B3%25E3%2583%25B3%25E3%2583%2588%25E3%2583%25AD%25E3%2583%25BC%25E3%2583%25A9%25E3%2583%25BC.html">NewBoardController ボード新規作成コントローラー</a></li><li><a href="module-RESTController%2520REST%25E3%2582%25B3%25E3%2583%25B3%25E3%2583%2588%25E3%2583%25AD%25E3%2583%25BC%25E3%2583%25A9%25E3%2583%25BC.html">RESTController RESTコントローラー</a></li><li><a href="module-UserManageController%2520%25E3%2583%25A6%25E3%2583%25BC%25E3%2582%25B6%25E3%2583%25BC%25E7%25AE%25A1%25E7%2590%2586%25E3%2582%25B3%25E3%2583%25B3%25E3%2583%2588%25E3%2583%25AD%25E3%2583%25BC%25E3%2583%25A9%25E3%2583%25BC.html">UserManageController ユーザー管理コントローラー</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="global.html#crypto">crypto</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-3">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: controllers/BoardController.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript linenums">/**
  * BoardController
  *
  * @module BoardController ボードコントローラー
@@ -15,9 +92,12 @@ var us = require('underscore.string');
 /**
  * ブラウザから呼び出された場合に利用するコールバック関数.
  *
- * @param req リクエスト
- * @param res レスポンス
- * @param params パラメータ
+ * @param req
+ *            リクエスト
+ * @param res
+ *            レスポンス
+ * @param params
+ *            パラメータ
  */
 function getBrowserCallback(req, res, params){
 	logger.trace(req, "getCreateBoardCallbackUI start");
@@ -84,9 +164,12 @@ function getBrowserCallback(req, res, params){
 /**
  * RESTから呼び出された場合に利用するコールバック関数.
  *
- * @param req リクエスト
- * @param res レスポンス
- * @param params パラメータ
+ * @param req
+ *            リクエスト
+ * @param res
+ *            レスポンス
+ * @param params
+ *            パラメータ
  */
 function getRESTCallback(req, res, params){
 	logger.trace(req, "getCreateBoardCallbackREST start");
@@ -107,12 +190,14 @@ function getRESTCallback(req, res, params){
 }
 
 /**
- * 結果処理コールバック関数取得.<br>
+ * 結果処理コールバック関数取得.&lt;br>
  *
  * ブラウザからの呼び出しか、RESTからの呼び出し化を判断し、適切なコールバック関数を返却する。
  *
- * @param req リクエスト
- * @param res レスポンス
+ * @param req
+ *            リクエスト
+ * @param res
+ *            レスポンス
  * @returns 結果処理コールバック関数
  */
 function getCallback(req, res){
@@ -187,11 +272,14 @@ function adminCheck(req, res, cb, loginInfo, message){
 }
 
 /**
- * ボード作成内部処理.<br>
+ * ボード作成内部処理.&lt;br>
  *
- * @param req リクエスト
- * @param res レスポンス
- * @param cb 呼び出し方式（ブラウザ/REST）に応じて処理を分岐するためのコールバック関数
+ * @param req
+ *            リクエスト
+ * @param res
+ *            レスポンス
+ * @param cb
+ *            呼び出し方式（ブラウザ/REST）に応じて処理を分岐するためのコールバック関数
  */
 function createBoardInner(req, res, cb) {
 	var loginInfo = Utility.getLoginInfo(req, res);
@@ -272,11 +360,14 @@ function createBoardInner(req, res, cb) {
 }
 
 /**
- * ボード更新内部処理.<br>
+ * ボード更新内部処理.&lt;br>
  *
- * @param req リクエスト
- * @param res レスポンス
- * @param cb 呼び出し方式（ブラウザ/REST）に応じて処理を分岐するためのコールバック関数
+ * @param req
+ *            リクエスト
+ * @param res
+ *            レスポンス
+ * @param cb
+ *            呼び出し方式（ブラウザ/REST）に応じて処理を分岐するためのコールバック関数
  */
 function updateBoardInner(req, res, cb) {
 	logger.trace(req, "updateBoardInner start");
@@ -295,7 +386,7 @@ function updateBoardInner(req, res, cb) {
 	// タイトルが空文字の場合には、エラーとする。
 	var title = req.param("title");
 
-	if(title != null && title.trim() === ""){
+	if(title != null &amp;&amp; title.trim() === ""){
 		cb(req, res, {
 			type: "main",
 			data: {
@@ -452,7 +543,7 @@ function deleteBoardInner(req, res, cb) {
 	   	}
 
 		Board.destroy(boardId).exec(function(err, found2){
-			if(err || (found2 && found2.length === 0)) {
+			if(err || (found2 &amp;&amp; found2.length === 0)) {
 				logger.error(req, "ボード削除処理 失敗: [" + boardId + ","+ JSON.stringify(err) + "]");
 				cb(req, res, {
 					type: "main",
@@ -539,11 +630,16 @@ function listBoardInner(req, res, cb) {
 /**
  * チケット作成処理.
  *
- * @param req リクエスト
- * @param res レスポンス
- * @param cb 結果処理コールバック
- * @param loginInfo ログイン情報
- * @param boardId ボードＩＤ
+ * @param req
+ *            リクエスト
+ * @param res
+ *            レスポンス
+ * @param cb
+ *            結果処理コールバック
+ * @param loginInfo
+ *            ログイン情報
+ * @param boardId
+ *            ボードＩＤ
  */
 function createTicket(req, res, cb, loginInfo, boardId){
 	var userId = req.param('userId');
@@ -605,11 +701,16 @@ function createTicket(req, res, cb, loginInfo, boardId){
 /**
  * チケット削除処理.
  *
- * @param req リクエスト
- * @param res レスポンス
- * @param cb 結果処理コールバック
- * @param loginInfo ログイン情報
- * @param boardId ボードＩＤ
+ * @param req
+ *            リクエスト
+ * @param res
+ *            レスポンス
+ * @param cb
+ *            結果処理コールバック
+ * @param loginInfo
+ *            ログイン情報
+ * @param boardId
+ *            ボードＩＤ
  */
 function deleteTicket(req, res, cb, loginInfo, boardId){
 	var socket = req.socket;
@@ -659,11 +760,16 @@ function deleteTicket(req, res, cb, loginInfo, boardId){
 /**
  * チケット更新処理.
  *
- * @param req リクエスト
- * @param res レスポンス
- * @param cb 結果処理コールバック
- * @param loginInfo ログイン情報
- * @param boardId ボードＩＤ
+ * @param req
+ *            リクエスト
+ * @param res
+ *            レスポンス
+ * @param cb
+ *            結果処理コールバック
+ * @param loginInfo
+ *            ログイン情報
+ * @param boardId
+ *            ボードＩＤ
  */
 function updateTicket(req, res, cb, loginInfo, boardId){
 	var socket = req.socket;
@@ -724,11 +830,16 @@ function updateTicket(req, res, cb, loginInfo, boardId){
  *
  * チケットをボードから別なボードに移動する。
  *
- * @param req リクエスト
- * @param res レスポンス
- * @param cb 結果処理コールバック
- * @param loginInfo ログイン情報
- * @param boardId ボードＩＤ
+ * @param req
+ *            リクエスト
+ * @param res
+ *            レスポンス
+ * @param cb
+ *            結果処理コールバック
+ * @param loginInfo
+ *            ログイン情報
+ * @param boardId
+ *            ボードＩＤ
  */
 function moveTicket(req, res, cb, loginInfo, boardId){
 	var socket = req.socket;
@@ -805,6 +916,8 @@ function moveTicket(req, res, cb, loginInfo, boardId){
 	})
 }
 
+
+
 /**
  * チケット一覧取得処理
  */
@@ -828,7 +941,7 @@ function listTicketInner(req, res, cb) {
 	// ボードID、もしくは、ボードタイトルが指定されていない場合にはエラーとする。
 	var boardId = req.param("boardId");
 	var boardTitle = req.param("boardTitle");
-	if(boardId == null && boardTitle == null){
+	if(boardId == null &amp;&amp; boardTitle == null){
 		cb(req, res, {
 			type: "main",
 			data: {
@@ -963,8 +1076,10 @@ module.exports = {
 	/**
 	 * チケット共通処理.
 	 *
-	 * @param req リクエスト
-	 * @param res レスポンス
+	 * @param req
+	 *            リクエスト
+	 * @param res
+	 *            レスポンス
 	 */
 	process : function(req, res) {
 		var loginInfo = Utility.getLoginInfo(req, res);
@@ -1066,3 +1181,135 @@ module.exports = {
 
 }
 
+</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+	<span class="copyright">
+	DocStrap Copyright © 2012-2015 The contributors to the JSDoc3 and DocStrap projects.
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
+	
+		on Sun Jul 10th 2016
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>

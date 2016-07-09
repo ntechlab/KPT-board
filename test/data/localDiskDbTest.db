@@ -112,13 +112,26 @@
       {
         "boardId": 2,
         "createUser": "2",
-        "contents": "",
+        "contents": "チケット１",
         "positionX": "208px",
         "positionY": "154px",
         "color": "ticket_blue_small",
         "ticketHeight": 170,
         "ticketWidth": 244,
         "id": 1,
+        "createdAt": "2016-06-26T12:47:27.392Z",
+        "updatedAt": "2016-06-26T12:47:27.392Z"
+      },
+      {
+        "boardId": 2,
+        "createUser": "2",
+        "contents": "チケット２",
+        "positionX": "20px",
+        "positionY": "30px",
+        "color": "ticket_blue_small",
+        "ticketHeight": 170,
+        "ticketWidth": 244,
+        "id": 2,
         "createdAt": "2016-06-26T12:47:27.392Z",
         "updatedAt": "2016-06-26T12:47:27.392Z"
       }

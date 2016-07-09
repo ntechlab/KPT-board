@@ -52,6 +52,7 @@
     "istanbul": "^0.4.4",
     "mocha": "^2.5.3",
     "should": "^9.0.2",
-    "xunit-file": "^1.0.0"
+    "xunit-file": "^1.0.0",
+    "assert": "^1.4.1"
   }
 }

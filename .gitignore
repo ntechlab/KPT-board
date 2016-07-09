@@ -118,6 +118,6 @@ nbproject
 .node_history
 
 coverage
-doc/jsdoc
+#doc/jsdoc
 xunit.xml
 

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>DocStrap Index</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.spacelab.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">DocStrap</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-AuthController%2520%25E8%25AA%258D%25E8%25A8%25BC%25E3%2582%25B3%25E3%2583%25B3%25E3%2583%2588%25E3%2583%25AD%25E3%2583%25BC%25E3%2583%25A9%25E3%2583%25BC.html">AuthController 認証コントローラー</a></li><li><a href="module-BoardController%2520%25E3%2583%259C%25E3%2583%25BC%25E3%2583%2589%25E3%2582%25B3%25E3%2583%25B3%25E3%2583%2588%25E3%2583%25AD%25E3%2583%25BC%25E3%2583%25A9%25E3%2583%25BC.html">BoardController ボードコントローラー</a></li><li><a href="module-DashboardController%2520%25E3%2583%259C%25E3%2583%25BC%25E3%2583%2589%25E3%2582%25B3%25E3%2583%25B3%25E3%2583%2588%25E3%2583%25AD%25E3%2583%25BC%25E3%2583%25A9%25E3%2583%25BC%25EF%25BC%2592.html">DashboardController ボードコントローラー２</a></li><li><a href="module-NewBoardController%2520%25E3%2583%259C%25E3%2583%25BC%25E3%2583%2589%25E6%2596%25B0%25E8%25A6%258F%25E4%25BD%259C%25E6%2588%2590%25E3%2582%25B3%25E3%2583%25B3%25E3%2583%2588%25E3%2583%25AD%25E3%2583%25BC%25E3%2583%25A9%25E3%2583%25BC.html">NewBoardController ボード新規作成コントローラー</a></li><li><a href="module-RESTController%2520REST%25E3%2582%25B3%25E3%2583%25B3%25E3%2583%2588%25E3%2583%25AD%25E3%2583%25BC%25E3%2583%25A9%25E3%2583%25BC.html">RESTController RESTコントローラー</a></li><li><a href="module-UserManageController%2520%25E3%2583%25A6%25E3%2583%25BC%25E3%2582%25B6%25E3%2583%25BC%25E7%25AE%25A1%25E7%2590%2586%25E3%2582%25B3%25E3%2583%25B3%25E3%2583%2588%25E3%2583%25AD%25E3%2583%25BC%25E3%2583%25A9%25E3%2583%25BC.html">UserManageController ユーザー管理コントローラー</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="global.html#crypto">crypto</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-3">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-8">
+	
+		<div id="main">
+			
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+
+
+
+
+
+    <section class="readme-section">
+        <article><h1>KPTボード</h1><p>###【利用方法】</p>
+<ol>
+<li><p>必要なアプリケーションの準備<br>プロダクションモードで起動する場合にはmongodbをインストールする。<br>下記【mongodbの準備と利用方法】参照。<br>動作確認環境の例）<br>Windows 7 32bit, node.js v.0.10.26, mongodb v.2.6.3</p>
+</li>
+<li><p>パッケージインストール<br>適宜必要なパッケージをインストールする。<br>dashboard直下で、npm installを実行する。<br>（もしくは、既にダウンロードしたnode_modulesディレクトリをアプリルートディレクトリ直下にコピー。）</p>
+</li>
+<li><p>デフォルト管理アカウントの設定<br>config/bootstrap.js内のデフォルト管理アカウントを適宜修正。<br>▲パスワードを平文として含むため取扱に注意。<br>Sails.js起動時、指定したデフォルト管理アカウントが存在しない場合に作成する。</p>
+</li>
+<li><p>Sails起動<br>アプリルートディレクトリ直下で以下のコマンドを実行：  </p>
+<ul>
+<li>developmentモードで起動する場合：<br>sails lift<br>（.tmpディレクトリ内にDBデータが格納されます。）  </li>
+<li>productionモードで起動する場合：<br>sails lift --prod<br>（この場合、別途mongodbが起動している必要があります。<br> 下記、【mongodbの準備と利用方法】を参照。）  <ul>
+<li>ポートを変更したい場合（例：1338ポートで起動する）<br>sails lift --port 1338  </li>
+<li>利用するmongodbのデータベース名を変更したい場合（例：testを利用する）プロジェクト直下のconfigフォルダに、local.jsファイルを作成する。<br>内容は以下：<br>module.exports.connections = {<br>  mongodbServer : {<br>  database : 'test'<br>}<br>}</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>ログイン<br>http://localhost:1337/login<br>にアクセスしてログインして、ボード作成、チケット作成などの機能を利用する。<br>項目２で定義した値が管理アカウントの初期値となる。  </p>
+<ul>
+<li>id=username</li>
+<li>パスワード=password  </li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>###【mongodbの準備と利用方法】###</p>
+<h4>準備（productionモードで実行する場合にのみ必要）</h4><p>KPT-Bordでは、必要に応じてmongodbと組み合わせて利用できます。  </p>
+<ol>
+<li><p>mongodbのzip版をダウンロードして適当な場所に展開し、binフォルダをPATHに追加する。</p>
+</li>
+<li><p>mongodbのデータ格納フォルダを作成する。</p>
+</li>
+<li><p>以下のコマンドでmongodbを起動する：<br>mongod --dbpath （データ格納フォルダパス）</p>
+</li>
+</ol>
+<h4>mongodb 利用方法</h4><ol>
+<li>mongodbクライアントを起動する。<br>mongo</li>
+<li>利用するDBを選択：<br>use sails</li>
+<li>コマンドの例  <ul>
+<li>以下のコマンドでticketコレクションのリストを表示<br>db.ticket.find()  </li>
+<li>以下のコマンドでticketコレクションにデータをインサート：<br>db.ticket.insert({name:'name01', message:'MESSAGE01', ...});</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>###ライセンス####<br>Copyright &copy; 2014 New Technology Workshop<br><br>Licensed under the MIT License.<br><br>http://www.opensource.org/licenses/mit-license.php</p></article>
+    </section>
+
+
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+		<div class="col-md-3">
+			<div id="toc" class="col-md-3 hidden-xs hidden-sm hidden-md"></div>
+		</div>
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+	<span class="copyright">
+	DocStrap Copyright © 2012-2015 The contributors to the JSDoc3 and DocStrap projects.
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
+	
+		on Sun Jul 10th 2016
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>
