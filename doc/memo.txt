@@ -1,3 +1,5 @@
 mocha test/bootstrap.test.js test/integration/**/*.test.js -c
 
- istanbul cover -x "**/config/**" node_modules/mocha/bin/_mocha test/bootstrap.test.js test/integration/**/*.test.js
+istanbul cover -x "**/config/**" node_modules/mocha/bin/_mocha test/bootstrap.test.js test/integration/**/*.test.js
+
+java -jar plantuml.jar planuml/* -charset utf8 -o ../jsdoc

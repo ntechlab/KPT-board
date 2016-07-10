@@ -417,7 +417,10 @@ module.exports = {
 	 * </table>
 	 * 実行例
 	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
+	 *
+	 *
 	 * </pre>
+	 * <img src="./createBoardREST.png"/>
 	 */
 	createBoard : function(req, res) {
 		logger.info(req, "createBoard called");

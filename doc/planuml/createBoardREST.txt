@@ -1,0 +1,30 @@
+@startuml
+actor ユーザー
+participant RESTController
+participant BoardController
+participant Board
+ユーザー->RESTController: POST api/board
+activate RESTController
+RESTController->RESTController:authenticateToken(req, cb)
+activate RESTController
+RESTController->BoardController: createBoard(req, res);
+deactivate RESTController
+deactivate RESTController
+activate BoardController
+BoardController->BoardController: getCallback
+activate BoardController
+BoardController->BoardController: getRESTCallBack
+deactivate BoardController
+BoardController->BoardController:createBoardInner(req, res, cb2)
+activate BoardController
+BoardController->Board:create
+deactivate BoardController
+opt error
+Board-->BoardController:処理失敗
+BoardController-->ユーザー:処理失敗
+else
+Board-->BoardController:処理成功
+BoardController-->ユーザー:処理成功
+end
+deactivate BoardController
+@enduml

@@ -26,7 +26,7 @@ describe('RESTController', function() {
 			.expect('Content-Type', 'application/json; charset=utf-8')
 			.expect(200, done)
 			.expect(function(res){
-//				console.log(res.body);
+// console.log(res.body);
 				var json = res.body;
 				json.should.have.property('success', false);
 				json.should.have.property('message', 'projectId, user, passwordが指定されていません');
@@ -42,7 +42,7 @@ describe('RESTController', function() {
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
-//	        	console.log(res.body);
+// console.log(res.body);
 	        	var json = res.body;
 	        	json.should.have.property('success', true);
 	        	json.should.have.property('message', 'OK');
@@ -140,7 +140,7 @@ describe('RESTController', function() {
 	        .expect(200, done)
 	        .expect(function(res){
 	        	var json = res.body;
-//	        	console.log(JSON.stringify(json));
+// console.log(JSON.stringify(json));
 	        	json.should.have.property('success', true);
 	        	json.should.have.property('message', 'ボードを作成しました。［カテゴリ：, タイトル：TITLE01］');
 	        	var board = json["board"];
@@ -148,7 +148,8 @@ describe('RESTController', function() {
 	        	// TODO: 単項目もアサートする。
 	        })
 	    });
-	  //it('一般ユーザーはボードを作成できないこと', function (done) { throw new Error('テスト未作成'); });
+	  // it('一般ユーザーはボードを作成できないこと', function (done) { throw new
+		// Error('テスト未作成'); });
   });
 
 
@@ -226,7 +227,8 @@ describe('RESTController', function() {
 	        	json.should.have.property('message', '空のタイトルに変更することはできません。]');
 	        })
 	    });
-	  //it('一般ユーザーはボードを作成できないこと', function (done) { throw new Error('テスト未作成'); });
+	  // it('一般ユーザーはボードを作成できないこと', function (done) { throw new
+		// Error('テスト未作成'); });
   });
 
 
@@ -282,7 +284,7 @@ describe('RESTController', function() {
 	        .expect(200, done)
 	        .expect(function(res){
 	        	var json = res.body;
-//	        	console.log(JSON.stringify(json));
+// console.log(JSON.stringify(json));
 	        	json.should.have.property('success', false);
 	        	json.should.have.property('message', 'ボード一覧取得失敗:トークンが不正です');
 	        })
@@ -295,14 +297,14 @@ describe('RESTController', function() {
 	        .expect(200, done)
 	        .expect(function(res){
 	        	var json = res.body;
-//	        	console.log(JSON.stringify(json));
+// console.log(JSON.stringify(json));
 	        	json.should.have.property('success', true);
 	        	json.should.have.property('message', 'ボード一覧を取得しました');
 	        	var boards = json["board"];
 
 	        	// TODO: 他のテストに依存するため以下のアサートには問題がある。
 	        	assert.equal(3, boards.length);
-//	        	console.log(JSON.stringify(boards));
+// console.log(JSON.stringify(boards));
 	        })
 	    });
 	  it('一般ユーザーでのボード一覧取得に成功（存在するボードID指定）', function (done) {
@@ -312,12 +314,12 @@ describe('RESTController', function() {
 	        .expect(200, done)
 	        .expect(function(res){
 	        	var json = res.body;
-//	        	console.log(JSON.stringify(json));
+// console.log(JSON.stringify(json));
 	        	json.should.have.property('success', true);
 	        	json.should.have.property('message', 'ボード一覧を取得しました');
 	        	var boards = json["board"];
 	        	assert.equal(1, boards.length);
-//	        	console.log(JSON.stringify(boards));
+// console.log(JSON.stringify(boards));
 	        })
 	    });
 	  it('一般ユーザーでのボード一覧取得に成功（存在するタイトル指定）', function (done) {
@@ -327,12 +329,12 @@ describe('RESTController', function() {
 	        .expect(200, done)
 	        .expect(function(res){
 	        	var json = res.body;
-//	        	console.log(JSON.stringify(json));
+// console.log(JSON.stringify(json));
 	        	json.should.have.property('success', true);
 	        	json.should.have.property('message', 'ボード一覧を取得しました');
 	        	var boards = json["board"];
 	        	assert.equal(1, boards.length);
-//	        	console.log(JSON.stringify(boards));
+// console.log(JSON.stringify(boards));
 	        })
 	    });
   })
@@ -362,7 +364,7 @@ describe('#createTicket(req, res)', function() {
 	        .expect(200, done)
 	        .expect(function(res){
 	        	var json = res.body;
-//	        	console.log(JSON.stringify(json));
+// console.log(JSON.stringify(json));
 	        	json.should.have.property('success', true);
 	        	json.should.have.property('message', 'チケット作成に成功しました。');
 	        	var ticket = json.ticket;
@@ -408,7 +410,7 @@ describe('#updateTicket(req, res)', function() {
 	        .expect(200, done)
 	        .expect(function(res){
 	        	var json = res.body;
-//	        	console.log(JSON.stringify(json));
+// console.log(JSON.stringify(json));
 	        	json.should.have.property('success', true);
 	        	json.should.have.property('message', 'チケットを更新しました。');
 	        	var ticket = json.ticket;
@@ -459,7 +461,7 @@ describe('#listTicket(req, res)', function() {
 	        .expect(200, done)
 	        .expect(function(res){
 	        	var json = res.body;
-//	        	console.log(JSON.stringify(json));
+// console.log(JSON.stringify(json));
 	        	json.should.have.property('success', false);
 	        	json.should.have.property('message', 'チケット一覧取得失敗:トークンが不正です');
 	        	var tickets = json["ticket"];
@@ -473,7 +475,7 @@ describe('#listTicket(req, res)', function() {
 	        .expect(200, done)
 	        .expect(function(res){
 	        	var json = res.body;
-//	        	console.log(JSON.stringify(json));
+// console.log(JSON.stringify(json));
 	        	json.should.have.property('success', false);
 	        	json.should.have.property('message', 'ボードＩＤ(boardId)、もしくは、ボードタイトル(boardTitle)の入力が必要です');
 	        	var tickets = json["ticket"];
@@ -489,12 +491,12 @@ describe('#listTicket(req, res)', function() {
 	        .expect(200, done)
 	        .expect(function(res){
 	        	var json = res.body;
-//	        	console.log(JSON.stringify(json));
+// console.log(JSON.stringify(json));
 	        	json.should.have.property('success', true);
 	        	json.should.have.property('message', 'チケット一覧を取得しました');
 	        	var tickets = json["ticket"];
 
-//	        	console.log(JSON.stringify(tickets));
+// console.log(JSON.stringify(tickets));
 	        })
 	    });
 
@@ -505,12 +507,12 @@ describe('#listTicket(req, res)', function() {
 	        .expect(200, done)
 	        .expect(function(res){
 	        	var json = res.body;
-//	        	console.log(JSON.stringify(json));
+// console.log(JSON.stringify(json));
 	        	json.should.have.property('success', false);
 	        	json.should.have.property('message', '指定したボードは存在しません');
 	        	var tickets = json["ticket"];
 	        	assert.equal(null, tickets);
-//	        	console.log(JSON.stringify(tickets));
+// console.log(JSON.stringify(tickets));
 	        })
 	    });
 
@@ -521,12 +523,12 @@ describe('#listTicket(req, res)', function() {
 	        .expect(200, done)
 	        .expect(function(res){
 	        	var json = res.body;
-//	        	console.log(JSON.stringify(json));
+// console.log(JSON.stringify(json));
 	        	json.should.have.property('success', true);
 	        	json.should.have.property('message', 'チケット一覧を取得しました');
 	        	var tickets = json["ticket"];
 
-//	        	console.log(JSON.stringify(tickets));
+// console.log(JSON.stringify(tickets));
 	        })
 	    });
 	})
@@ -559,7 +561,7 @@ describe('#listTicket(req, res)', function() {
 		        .expect(200, done)
 		        .expect(function(res){
 		        	var json = res.body;
-//		        	console.log(JSON.stringify(json));
+// console.log(JSON.stringify(json));
 		        	json.should.have.property('success', true);
 		        	json.should.have.property('message', 'チケットを移動しました:[2]->[1]');
 		        })
