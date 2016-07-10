@@ -142,6 +142,30 @@ module.exports = {
 	 *
 	 * POSTで送られたユーザー名、パスワードから認証トークンを生成する。
 	 *
+	 *
+	 * <b>REST API利用方法</b>
+	 * <pre>
+	 * URL: http://(IPアドレス):(ポート番号)/api/getToken
+	 *
+	 * アクション: POST
+	 *
+	 * 管理者権限要否: 不要
+	 *
+	 * 入力項目
+	 * <table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
+	 * <tr><td>user</td><td>アカウント</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>password</td><td>パスワード</td><td>○</td><td></td><td></td></tr>
+	 * </table>
+	 * 出力項目
+	 * <table border=1>
+ 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>備考</td></tr>
+	 * <tr><td>success</td><td>処理結果。処理に成功した場合はtrue、それ以外の場合はfalse.</td><td></td></tr>
+	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
+	 * <tr><td>token</td><td>認証トークン</td><td></td></tr>
+	 * </table>
+	 * </pre>
+	 *
 	 */
 	getToken : function(req, res) {
 		logger.trace(req, "getToken start");
@@ -195,6 +219,36 @@ module.exports = {
 
 	/**
 	 * チケット作成API.
+	 *
+ 	 *<pre>
+	 * URL: http://(IPアドレス):(ポート番号)/api/ticket
+	 *
+	 * アクション: POST
+	 *
+	 * 管理者権限要否: 不要
+	 *
+	 * 入力必須項目
+	 * <table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
+	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>boardId</td><td>ボードID</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>contents</td><td>チケット内容</td><td></td><td>""</td><td></td></tr>
+	 * <tr><td>positionX</td><td>Ｘ座標</td><td></td><td>0</td><td></td></tr>
+	 * <tr><td>positionY</td><td>Ｙ座標</td><td></td><td>0</td><td></td></tr>
+	 * <tr><td>color</td><td>スタイル</td><td></td><td>ticket_blue_small</td><td></td></tr>
+	 * <tr><td>ticketHeight</td><td>高さ</td><td></td><td>170</td><td></td></tr>
+	 * <tr><td>ticketWidth</td><td>幅</td><td></td><td>244</td><td></td></tr>
+	 * </table>
+	 * 出力項目
+	 * <table border=1>
+ 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>備考</td></tr>
+	 * <tr><td>success</td><td>処理結果。処理に成功した場合はtrue、それ以外の場合はfalse.</td><td></td></tr>
+	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
+	 * <tr><td>ticket</td><td>作成したチケット情報</td><td></td></tr>
+	 * </table>
+	 * 実行例
+	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
+	 * </pre>
 	 */
 	createTicket : function(req, res) {
 		logger.info(req, "createTicket called");
@@ -204,6 +258,29 @@ module.exports = {
 
 	/**
 	 * チケット削除API.
+	 *
+ 	 *<pre>
+	 * URL: http://(IPアドレス):(ポート番号)/api/ticket
+	 *
+	 * アクション: DELETE
+	 *
+	 * 管理者権限要否: 不要
+	 *
+	 * 入力必須項目
+	 * <table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
+	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>id</td><td>チケットID</td><td>○</td><td></td><td></td></tr>
+	 * </table>
+	 * 出力項目
+	 * <table border=1>
+ 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>備考</td></tr>
+	 * <tr><td>success</td><td>処理結果。処理に成功した場合はtrue、それ以外の場合はfalse.</td><td></td></tr>
+	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
+	 * </table>
+	 * 実行例
+	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
+	 * </pre>
 	 */
 	deleteTicket : function(req, res) {
 		logger.info(req, "deleteTicket called");
@@ -213,6 +290,37 @@ module.exports = {
 
 	/**
 	 * チケット更新API.
+	 *
+ 	 *<pre>
+	 * URL: http://(IPアドレス):(ポート番号)/api/ticket
+	 *
+	 * アクション: PUT
+	 *
+	 * 管理者権限要否: 不要
+	 *
+	 * 入力必須項目
+	 * <table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
+	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>id</td><td>更新対象チケットID</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>boardId</td><td>ボードID</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>contents</td><td>チケット内容</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>positionX</td><td>Ｘ座標</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>positionY</td><td>Ｙ座標</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>color</td><td>スタイル</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>ticketHeight</td><td>高さ</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>ticketWidth</td><td>幅</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * </table>
+	 * 出力項目
+	 * <table border=1>
+ 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>備考</td></tr>
+	 * <tr><td>success</td><td>処理結果。処理に成功した場合はtrue、それ以外の場合はfalse.</td><td></td></tr>
+	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
+	 * <tr><td>ticket</td><td>更新したチケット情報</td><td></td></tr>
+	 * </table>
+	 * 実行例
+	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
+	 * </pre>
 	 */
 	updateTicket : function(req, res) {
 		logger.info(req, "updateTicket called");
@@ -231,6 +339,46 @@ module.exports = {
 
 	/**
 	 * ボード作成API.
+	 *
+ 	 *<pre>
+	 * URL: http://(IPアドレス):(ポート番号)/api/board
+	 *
+	 * アクション: POST
+	 *
+	 * 管理者権限要否: 要
+	 *
+	 * 入力必須項目
+	 * <table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
+	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>title</td><td>タイトル</td><td>○</td><td>""</td><td></td></tr>
+	 * <tr><td>description</td><td>説明</td><td></td><td>""</td><td></td></tr>
+	 * <tr><td>category</td><td>カテゴリ</td><td></td><td></td><td></td></tr>
+	 * <tr><td>width</td><td>ボード幅</td><td></td><td>3840</td><td></td></tr>
+	 * <tr><td>height</td><td>ボード高さ</td><td></td><td>2160</td><td></td></tr>
+	 * <tr><td>bgType</td><td>背景タイプ</td><td></td><td>image</td><td></td></tr>
+	 * <tr><td>bgColor</td><td>背景色</td><td></td><td>""</td><td></td></tr>
+	 * <tr><td>bgImage</td><td>背景画像</td><td></td><td>/images/background/common/background02.gif</td><td></td></tr>
+	 * <tr><td>bgRepeatType</td><td>繰り返しタイプ</td><td></td><td>repeat</td><td></td></tr>
+	 * <tr><td>bgSepV</td><td>垂直分割数</td><td></td><td>1</td><td></td></tr>
+	 * <tr><td>bgSepH</td><td>水平分割数</td><td></td><td>1</td><td></td></tr>
+	 * <tr><td>bgSepLineWidth</td><td>分割線幅</td><td></td><td>3</td><td></td></tr>
+	 * <tr><td>bgSepLineColor</td><td>分割線色</td><td></td><td>#000000</td><td></td></tr>
+	 * <tr><td>ticketData</td><td>利用可能チケット情報</td><td></td><td>ticket_blue_small:Keep:true,
+	 * ticket_pink_small:Problem:true,
+	 * ticket_yellow_small:Try:true,
+	 * ticket_white_small:Memo:true</td><td></td></tr>
+	 * </table>
+	 * 出力項目
+	 * <table border=1>
+ 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>備考</td></tr>
+	 * <tr><td>success</td><td>処理結果。処理に成功した場合はtrue、それ以外の場合はfalse.</td><td></td></tr>
+	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
+	 * <tr><td>board</td><td>作成したボード情報</td><td></td></tr>
+	 * </table>
+	 * 実行例
+	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
+	 * </pre>
 	 */
 	createBoard : function(req, res) {
 		logger.info(req, "createBoard called");
@@ -251,6 +399,43 @@ module.exports = {
 
 	/**
 	 * ボード更新API.
+	 *
+  	 *<pre>
+	 * URL: http://(IPアドレス):(ポート番号)/api/board
+	 *
+	 * アクション: PUT
+	 *
+	 * 管理者権限要否: 要
+	 *
+	 * 入力必須項目
+	 * <table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
+	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>title</td><td>タイトル</td><td>○</td><td></td><td>空文字への変更不可</td></tr>
+	 * <tr><td>description</td><td>説明</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>category</td><td>カテゴリ</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>width</td><td>ボード幅</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>height</td><td>ボード高さ</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>bgType</td><td>背景タイプ</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>bgColor</td><td>背景色</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>bgImage</td><td>背景画像</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>bgRepeatType</td><td>繰り返しタイプ</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>bgSepV</td><td>垂直分割数</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>bgSepH</td><td>水平分割数</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>bgSepLineWidth</td><td>分割線幅</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>bgSepLineColor</td><td>分割線色</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * <tr><td>ticketData</td><td>利用可能チケット情報</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
+	 * </table>
+	 * 出力項目
+	 * <table border=1>
+ 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>備考</td></tr>
+	 * <tr><td>success</td><td>処理結果。処理に成功した場合はtrue、それ以外の場合はfalse.</td><td></td></tr>
+	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
+	 * <tr><td>board</td><td>作成したボード情報</td><td></td></tr>
+	 * </table>
+	 * 実行例
+	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
+	 * </pre>
 	 */
 	updateBoard : function(req, res) {
 		logger.info(req, "updateBoard called");
@@ -272,6 +457,29 @@ module.exports = {
 
 	/**
 	 * ボード削除API.
+	 *
+  	 *<pre>
+	 * URL: http://(IPアドレス):(ポート番号)/api/board
+	 *
+	 * アクション: DELETE
+	 *
+	 * 管理者権限要否: 要
+	 *
+	 * 入力必須項目
+	 * <table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
+	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>boardId</td><td>ボードID</td><td>○</td><td></td><td></td></tr>
+	 * </table>
+	 * 出力項目
+	 * <table border=1>
+ 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>備考</td></tr>
+	 * <tr><td>success</td><td>処理結果。処理に成功した場合はtrue、それ以外の場合はfalse.</td><td></td></tr>
+	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
+	 * </table>
+	 * 実行例
+	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
+	 * </pre>
 	 */
 	deleteBoard : function(req, res) {
 		logger.info(req, "deleteBoard called");
@@ -299,12 +507,14 @@ module.exports = {
 	 *
 	 * アクション: GET
 	 *
+ 	 * 管理者権限要否: 要
+	 *
 	 * 入力項目
 	 * <table border=1>
-	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>備考</td></tr>
-	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td></tr>
-	 * <tr><td>id</td><td>ボードID</td><td></td><td>指定したボードIDをもつボードのみ取得</td></tr>
-	 * <tr><td>title</td><td>ボードタイトル</td><td></td><td>指定したタイトルをもつボードのみ取得</td></tr>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
+	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>id</td><td>ボードID</td><td></td><td></td><td>指定したボードIDをもつボードのみ取得</td></tr>
+	 * <tr><td>title</td><td>ボードタイトル</td><td></td><td></td><td>指定したタイトルをもつボードのみ取得</td></tr>
 	 * </table>
 	 * 出力項目
 	 * <table border=1>
@@ -339,12 +549,14 @@ module.exports = {
 	 *
 	 * アクション: GET
 	 *
+	 * 管理者権限要否: 不要
+	 *
 	 * 入力必須項目
 	 * <table border=1>
-	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>備考</td></tr>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td></tr>
-	 * <tr><td>boardId</td><td>ボードID</td><td>＊１</td><td rowspan=2>＊１: ボードID、もしくは、ボードタイトルのいずれかが必要</td></tr>
-	 * <tr><td>boardTitle</td><td>ボードタイトル</td><td>＊１</td></tr>
+	 * <tr><td>boardId</td><td>ボードID</td><td>＊１</td><td></td><td rowspan=2>＊１: ボードID、もしくは、ボードタイトルのいずれかが必要</td></tr>
+	 * <tr><td>boardTitle</td><td>ボードタイトル</td><td>＊１</td><td></td></tr>
 	 * </table>
 	 * 出力項目
 	 * <table border=1>
@@ -355,7 +567,6 @@ module.exports = {
 	 * </table>
 	 * 実行例
 	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
-
 	 * </pre>
 	 */
 	listTicket : function(req, res) {
