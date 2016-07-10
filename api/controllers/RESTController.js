@@ -312,7 +312,6 @@ module.exports = {
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>id</td><td>更新対象チケットID</td><td>○</td><td></td><td></td></tr>
-	 * <tr><td>boardId</td><td>ボードID</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>contents</td><td>チケット内容</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
 	 * <tr><td>positionX</td><td>Ｘ座標</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
 	 * <tr><td>positionY</td><td>Ｙ座標</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>

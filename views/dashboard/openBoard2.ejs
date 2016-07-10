@@ -344,12 +344,12 @@ function confirmDeleteTicket(id){
 }
 
 // 付箋移動処理
-function moveTicket(ticketId, dstBoardId){
+function moveTicket(ticketId, destBoardId){
 	log('ticketid['+ticketId+']');
 	var newData = {};
     newData["actionType"] = "move";
     newData["boardId"] = '<%= boardId %>';
-    newData["dstBoardId"] = dstBoardId;
+    newData["destBoardId"] = destBoardId;
     newData["id"] = ticketId;
     newData["nickname"] = '<%= loginInfo.userName %>';
     io.socket.get('/board/process/', newData);
@@ -364,8 +364,8 @@ function showMoveTicketDialog(ticketId){
       buttons: {
         "移動": function() {
           $(this).dialog("close");
-          var dstBoardId = $('#dstBoardId').val();
-          moveTicket(ticketId, dstBoardId);
+          var destBoardId = $('#destBoardId').val();
+          moveTicket(ticketId, destBoardId);
         },
         "キャンセル": function() {
           $(this).dialog("close");
@@ -1014,7 +1014,7 @@ table th {
   <p>
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 30px 0;"></span>
     移動先ボードを選択してください。
-    <select id="dstBoardId" style="width:100%">
+    <select id="destBoardId" style="width:100%">
     <% for( var i in boardList ) {%><option value="<%= boardList[i].id %>"><%= boardList[i].title %></option><% } %>
     </select>
   </p>
