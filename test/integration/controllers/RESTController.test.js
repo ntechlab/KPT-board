@@ -13,6 +13,7 @@ describe('RESTController', function() {
 			".c83unmSPme1h5TmrufNviC7TKtMQmOR1XcKrwkemH_U";
 
 	var BOARDID_BOARD1A = "1";
+	var BOARDID_BOARD1B = "2";
 	var BOARDID_BOARD2A = "3";
 
 	function execTestGetToken(name){
@@ -180,7 +181,7 @@ describe('RESTController', function() {
 	  it('管理者ユーザーでのボード更新に成功（説明を\"DESCRIPTION\"に変更）', function (done) {
 	      request(sails.hooks.http.app)
 	        .put('/api/board')
-	        .send({ token: TOKEN_ADMIN1, boardId: BOARDID_BOARD1A, description: "DESCRIPTION"})
+	        .send({ token: TOKEN_ADMIN1, id: BOARDID_BOARD1A, description: "DESCRIPTION"})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -192,7 +193,7 @@ describe('RESTController', function() {
 	  it('管理者ユーザーでのボード更新に失敗（プロジェクトＩＤが異なるため）', function (done) {
 	      request(sails.hooks.http.app)
 	        .put('/api/board')
-	        .send({ token: TOKEN_ADMIN1, boardId: BOARDID_BOARD2A})
+	        .send({ token: TOKEN_ADMIN1, id: BOARDID_BOARD2A})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -204,7 +205,7 @@ describe('RESTController', function() {
 	  it('管理者ユーザーでのボード更新に失敗（タイトルが\"\": タイトルを空にすることはできない）', function (done) {
 	      request(sails.hooks.http.app)
 	        .put('/api/board')
-	        .send({ token: TOKEN_ADMIN1, boardId: BOARDID_BOARD1A, title: ""})
+	        .send({ token: TOKEN_ADMIN1, id: BOARDID_BOARD1A, title: ""})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -216,7 +217,7 @@ describe('RESTController', function() {
 	  it('管理者ユーザーでのボード更新に失敗（タイトルが\"    \": タイトルを空にすることはできない）', function (done) {
 	      request(sails.hooks.http.app)
 	        .put('/api/board')
-	        .send({ token: TOKEN_ADMIN1, boardId: BOARDID_BOARD1A, title: ""})
+	        .send({ token: TOKEN_ADMIN1, id: BOARDID_BOARD1A, title: ""})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -349,7 +350,7 @@ describe('#createTicket(req, res)', function() {
 	        .expect(function(res){
 	        	var json = res.body;
 	        	json.should.have.property('success', false);
-	        	json.should.have.property('message', 'ボードIDが指定されていません');
+	        	json.should.have.property('message', 'ボードID(boardId)が指定されていません');
 	        })
 	    });
 
@@ -381,29 +382,16 @@ describe('#createTicket(req, res)', function() {
 
 describe('#updateTicket(req, res)', function() {
 
-	it('一般ユーザーでのチケット更新に失敗（boardId未設定）', function (done) {
-	      request(sails.hooks.http.app)
-	        .put('/api/ticket')
-	        .send({ token: TOKEN_USER1A, id: ticketId})
-	        .expect('Content-Type', 'application/json; charset=utf-8')
-	        .expect(200, done)
-	        .expect(function(res){
-	        	var json = res.body;
-	        	json.should.have.property('success', false);
-	        	json.should.have.property('message', 'ボードIDが指定されていません');
-	        })
-	    });
-
 	it('一般ユーザーでのチケット更新に失敗（id未設定）', function (done) {
 	      request(sails.hooks.http.app)
 	        .put('/api/ticket')
-	        .send({ token: TOKEN_USER1A, boardId: BOARDID_BOARD1A})
+	        .send({ token: TOKEN_USER1A})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
 	        	var json = res.body;
 	        	json.should.have.property('success', false);
-	        	json.should.have.property('message', 'チケットＩＤが指定されていません。');
+	        	json.should.have.property('message', 'チケットID(id)が指定されていません。');
 	        })
 	    });
 
@@ -412,7 +400,6 @@ describe('#updateTicket(req, res)', function() {
 	        .put('/api/ticket')
 	        .send({
 	        	token: TOKEN_USER1A,
-	        	boardId: BOARDID_BOARD1A,
 	        	id: ticketId,
 	        	positionX: '10',
 	        	positionY: '20'
@@ -445,25 +432,14 @@ describe('#deleteTicket(req, res)', function() {
 	        .expect(function(res){
 	        	var json = res.body;
 	        	json.should.have.property('success', false);
-	        	json.should.have.property('message', 'チケットＩＤが指定されていません。');
+	        	json.should.have.property('message', 'チケットID(id)が指定されていません。');
 	        })
 	    });
-	it('一般ユーザーでのチケット削除に失敗（boardId未設定）', function (done) {
-	      request(sails.hooks.http.app)
-	        .delete('/api/ticket')
-	        .send({ token: TOKEN_USER1A, id: ticketId})
-	        .expect('Content-Type', 'application/json; charset=utf-8')
-	        .expect(200, done)
-	        .expect(function(res){
-	        	var json = res.body;
-	        	json.should.have.property('success', false);
-	        	json.should.have.property('message', 'ボードIDが指定されていません');
-	        })
-	    });
+
 	  it('一般ユーザーでのチケット削除に成功', function (done) {
 	      request(sails.hooks.http.app)
 	        .delete('/api/ticket')
-	        .send({ token: TOKEN_USER1A, id: ticketId, boardId: BOARDID_BOARD1A})
+	        .send({ token: TOKEN_USER1A, id: ticketId})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -555,4 +531,39 @@ describe('#listTicket(req, res)', function() {
 	    });
 	})
 
+	describe('#moveTicket(req, res)', function() {
+
+		it('一般ユーザーでのチケットのボード移動に失敗（チケットId未設定）', function (done) {
+		      request(sails.hooks.http.app)
+		        .put('/api/ticketMove')
+		        .send({ token: TOKEN_USER1A})
+		        .expect('Content-Type', 'application/json; charset=utf-8')
+		        .expect(200, done)
+		        .expect(function(res){
+		        	var json = res.body;
+		        	json.should.have.property('success', false);
+		        	json.should.have.property('message', 'チケットID(id)が指定されていません。');
+		        })
+		    });
+
+
+		  it('一般ユーザーでのチケットのボード移動に成功', function (done) {
+		      request(sails.hooks.http.app)
+		        .put('/api/ticketMove')
+		        .send({
+		        	token: TOKEN_USER1A,
+		        	id: 1,
+		        	destBoardId: BOARDID_BOARD1A
+		        })
+		        .expect('Content-Type', 'application/json; charset=utf-8')
+		        .expect(200, done)
+		        .expect(function(res){
+		        	var json = res.body;
+//		        	console.log(JSON.stringify(json));
+		        	json.should.have.property('success', true);
+		        	json.should.have.property('message', 'チケットを移動しました:[2]->[1]');
+		        })
+		    });
+
+	});
 });

@@ -289,7 +289,7 @@ function updateBoardInner(req, res, cb) {
 
 	// ボードIDが指定されていない場合にはエラーとする。
 	var requiredKeys = [
-	                    {key: "boardId", name: "ボードＩＤ"}
+	                    {key: "id", name: "ボードＩＤ"}
 	                    ];
 
 	// タイトルが空文字の場合には、エラーとする。
@@ -321,7 +321,7 @@ function updateBoardInner(req, res, cb) {
 		return;
 	}
 
-	var boardId = req.param('boardId');
+	var boardId = req.param('id');
 
 	// 同一プロジェクトＩＤでない場合にはエラーとする。
 	Board.findOne(boardId).exec(function(err, found){
@@ -734,14 +734,20 @@ function moveTicket(req, res, cb, loginInfo, boardId){
 	var socket = req.socket;
 	var io = sails.io;
 	var roomName = "room_"+boardId+"_";
+
+	// チケットID
 	var id = req.param('id');
-	var nickname = req.param('nickname');
+
+	// ユーザー名
+	var nickname = loginInfo["userName"]
 
 	// 移動先ボード
-	var dstBoardId = req.param('dstBoardId');
+	var destBoardId = req.param('destBoardId');
+
+	var projectId = loginInfo["projectId"];
 
 	// 移動先ボードのプロジェクトＩＤがユーザーのプロジェクトＩＤに一致していない場合にはエラーとする。
-	Board.findOne(dstBoardId).exec(function(err, found){
+	Board.findOne({projectId: projectId, id: destBoardId}).exec(function(err, found){
 		if(err){
 			cb(req, res, {
 				type: "main",
@@ -752,18 +758,9 @@ function moveTicket(req, res, cb, loginInfo, boardId){
 			});
 			return
 		}
-		logger.debug(req, "移動先ボードのプロジェクトＩＤチェック:"+found["projectId"] +","+ loginInfo["projectId"]);
-		if(found["projectId"] !== loginInfo["projectId"]){
-			cb(req, res, {
-				type: "main",
-				data:{
-					type: "danger",
-					contents: "移動先ボードが存在しません。"
-				}
-			});
-			return;
-		}
-		Ticket.update({boardId: boardId, id: id}, {boardId : dstBoardId}).exec(function update(err, updated){
+		logger.debug(req, "チケット移動先ボード取得成功:"+JSON.stringify(found));
+
+		Ticket.update({id: id}, {boardId : destBoardId}).exec(function update(err, updated){
 			if(err){
 				cb(req, res, {
 					type: "main",
@@ -781,7 +778,7 @@ function moveTicket(req, res, cb, loginInfo, boardId){
 			io.sockets.in(roomName).emit('message',{action: "destroyed", id : id});
 
 			// 移動先ボードに対してメッセージ通知
-			io.sockets.in("room_" + dstBoardId).emit('message', {
+			io.sockets.in("room_" + destBoardId).emit('message', {
 				action: "created",
 				id: id,
 				contents: ticket.contents,
@@ -798,7 +795,7 @@ function moveTicket(req, res, cb, loginInfo, boardId){
 				type: "main",
 				data:{
 					type: "success",
-					contents: "チケットを移動しました。"
+					contents: "チケットを移動しました:[" + boardId + "]->[" + destBoardId + "]"
 				}
 			});
 		})
@@ -980,80 +977,105 @@ module.exports = {
 			};
 		}
 
+		var projectId = loginInfo["projectId"];
 		var actionType = req.param('actionType');
+		var boardId = req.param('boardId');
+		var id = req.param('id');
 
-		// チケット新規作成以外の場合には、チケットＩＤの必須チェックを行う。
-		if(actionType !== "create"){
-			var id = req.param('id');
+		if(actionType === "create"){
+			// チケット新規作成の場合には、ボードIDの必須チェックを行う。
+			if(boardId == null || boardId === ""){
+				cb(req, res, {
+					type: "main",
+					data:{
+						type: "danger",
+						contents: "ボードID(boardId)が指定されていません"
+					}
+				});
+				return;
+			}
+		} else {
+			// チケット新規作成以外の場合には、チケットIDの必須チェックを行う。
 			if(id == null){
 				cb(req, res, {
 					type: "main",
 					data:{
 						type: "danger",
-						contents: "チケットＩＤが指定されていません。"
+						contents: "チケットID(id)が指定されていません。"
 					}
 				});
 				return;
 			}
 		}
 
-		var boardId = req.param('boardId');
-		// ボードＩＤの必須チェック
-		if(boardId == null || boardId === ""){
-			cb(req, res, {
-				type: "main",
-				data:{
-					type: "danger",
-					contents: "ボードIDが指定されていません"
+		if(actionType === "create"){
+			// チケット作成の場合には、ボードのプロジェクトIDがユーザーのプロジェクトIDに一致していることを確認し、
+			// 一致していない場合には、エラーとする。
+			Board.findOne({projectId: projectId, id: boardId}).exec(function(err, found){
+				if(err){
+					cb(req, res, {
+						type: "main",
+						data:{
+							type: "danger",
+							contents: "操作対象ボードの取得に失敗しました。"+JSON.stringify(err)
+						}
+					});
+					return
 				}
-			});
-			return;
-		}
 
-		// ボードのプロジェクトＩＤがユーザーのプロジェクトＩＤに一致していない場合にはエラーとする。
-		Board.findOne(boardId).exec(function(err, found){
-			if(err){
-				cb(req, res, {
-					type: "main",
-					data:{
-						type: "danger",
-						contents: "チケット作成ボードの取得に失敗しました。"+JSON.stringify(err)
-					}
-				});
-				return
-			}
-			logger.debug(req, "プロジェクトＩＤチェック:"+found["projectId"] +","+ loginInfo["projectId"]);
-			if(found["projectId"] !== loginInfo["projectId"]){
-				cb(req, res, {
-					type: "main",
-					data:{
-						type: "danger",
-						contents: "チケット作成ボードが存在しません。"
-					}
-				});
-				return;
-			}
+				logger.debug(req, "チケット処理:["+actionType+"]["+id+"]["+boardId+"]");
 
-			logger.debug(req, "チケット処理:["+actionType+"]["+id+"]["+boardId+"]");
-
-			switch(actionType){
-			case "create":
 				// チケット作成
 				createTicket(req, res, cb, loginInfo, boardId);
-				break;
-			case "destroy":
-				deleteTicket(req, res, cb, loginInfo, boardId);
-				break;
-			case "update":
-				updateTicket(req, res, cb, loginInfo, boardId);
-				break;
-			case "move":
-				moveTicket(req, res, cb, loginInfo, boardId);
-				break;
-			default:
-				logger.error(req, "チケット処理 想定外のアクション:[" + actionType + "]");
-			}
-		});
+			});
+
+		} else {
+			// チケット作成以外の場合には、操作対象チケットが同一プロジェクトのボードに属していることを確認し、
+			// 属していない場合にはエラーとする。
+			Ticket.findOne(id).exec(function(err3, found3){
+				if(err3){
+					cb(req, res, {
+						type: "main",
+						data:{
+							type: "danger",
+							contents: "チケットの取得に失敗しました。" + JSON.stringify(err3)
+						}
+					});
+					return;
+				}
+				logger.debug(req, "移動対象チケット取得成功:"+JSON.stringify(found3));
+
+				// 操作対象ボード
+				var srcBoardId = found3["boardId"];
+				logger.debug(req, "操作対象チケットのボードID取得成功:["+srcBoardId+"]");
+				Board.findOne({projectId: projectId, id: srcBoardId}).exec(function update(err4, found4){
+					if(err4){
+						cb(req, res, {
+							type: "main",
+							data:{
+								type: "danger",
+								contents: "操作対象ボードの取得に失敗しました。" + JSON.stringify(err4)
+							}
+						});
+						return;
+					}
+
+					switch(actionType){
+					case "destroy":
+						deleteTicket(req, res, cb, loginInfo, srcBoardId);
+						break;
+					case "update":
+						updateTicket(req, res, cb, loginInfo, srcBoardId);
+						break;
+					case "move":
+						moveTicket(req, res, cb, loginInfo, srcBoardId);
+						break;
+					default:
+						logger.error(req, "チケット処理 想定外のアクション:[" + actionType + "]");
+					}
+				})
+			})
+		}
 	},
 
     /**

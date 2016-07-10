@@ -1,0 +1,3 @@
+mocha test/bootstrap.test.js test/integration/**/*.test.js -c
+
+ istanbul cover -x "**/config/**" node_modules/mocha/bin/_mocha test/bootstrap.test.js test/integration/**/*.test.js

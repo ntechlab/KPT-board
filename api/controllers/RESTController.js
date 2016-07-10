@@ -164,8 +164,17 @@ module.exports = {
 	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
 	 * <tr><td>token</td><td>認証トークン</td><td></td></tr>
 	 * </table>
-	 * </pre>
 	 *
+	 * 実行例
+	 * curl http://localhost:1337/api/getToken -X POST -d "user=admin1" -d "password=password" -d "projectId=P01"
+	 *
+	 * 実行結果
+	 * {
+	 *   "success": true,
+	 *   "message": "OK",
+	 *   "token": "（認証トークン文字列）"
+	 * }
+	 * </pre>
 	 */
 	getToken : function(req, res) {
 		logger.trace(req, "getToken start");
@@ -330,6 +339,37 @@ module.exports = {
 
 	/**
 	 * チケット移動API.
+	 *
+   	 *<pre>
+	 * URL: http://(IPアドレス):(ポート番号)/api/ticketMove
+	 *
+	 * アクション: PUT
+	 *
+	 * 管理者権限要否: 要
+	 *
+	 * 入力必須項目
+	 * <table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
+	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>id</td><td>移動対象チケットID</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>destBoardId</td><td>移動先ボードID</td><td>○</td><td></td><td></td></tr>
+	 * </table>
+	 * 出力項目
+	 * <table border=1>
+ 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>備考</td></tr>
+	 * <tr><td>success</td><td>処理結果。処理に成功した場合はtrue、それ以外の場合はfalse.</td><td></td></tr>
+	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
+	 * </table>
+	 * 実行例
+	 * curl http://localhost:1337/api/ticketMove -X PUT -d "id=1" -d "boardId=8" -d "destBoardId=1" -d "token=(認証トークン文字列)"
+	 *
+	 * 実行結果
+	 * {
+	 *   "success": true,
+	 *   "message": "チケットを移動しました。"
+	 * }
+	 *
+	 * </pre>
 	 */
 	moveTicket : function(req, res) {
 		logger.info(req, "moveTicket called");
@@ -351,7 +391,7 @@ module.exports = {
 	 * <table border=1>
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
-	 * <tr><td>title</td><td>タイトル</td><td>○</td><td>""</td><td></td></tr>
+	 * <tr><td>title</td><td>タイトル</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>description</td><td>説明</td><td></td><td>""</td><td></td></tr>
 	 * <tr><td>category</td><td>カテゴリ</td><td></td><td></td><td></td></tr>
 	 * <tr><td>width</td><td>ボード幅</td><td></td><td>3840</td><td></td></tr>
@@ -411,6 +451,7 @@ module.exports = {
 	 * <table border=1>
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>id</td><td>更新対象ボードID</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>title</td><td>タイトル</td><td>○</td><td></td><td>空文字への変更不可</td></tr>
 	 * <tr><td>description</td><td>説明</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
 	 * <tr><td>category</td><td>カテゴリ</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
