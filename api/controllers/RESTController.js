@@ -392,7 +392,7 @@ module.exports = {
 	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>title</td><td>タイトル</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>description</td><td>説明</td><td></td><td>""</td><td></td></tr>
-	 * <tr><td>category</td><td>カテゴリ</td><td></td><td></td><td></td></tr>
+	 * <tr><td>category</td><td>カテゴリ</td><td></td><td>""</td><td></td></tr>
 	 * <tr><td>width</td><td>ボード幅</td><td></td><td>3840</td><td></td></tr>
 	 * <tr><td>height</td><td>ボード高さ</td><td></td><td>2160</td><td></td></tr>
 	 * <tr><td>bgType</td><td>背景タイプ</td><td></td><td>image</td><td></td></tr>
@@ -454,7 +454,7 @@ module.exports = {
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>id</td><td>更新対象ボードID</td><td>○</td><td></td><td></td></tr>
-	 * <tr><td>title</td><td>タイトル</td><td>○</td><td></td><td>空文字への変更不可</td></tr>
+	 * <tr><td>title</td><td>タイトル</td><td></td><td></td><td>空文字への変更不可</td></tr>
 	 * <tr><td>description</td><td>説明</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
 	 * <tr><td>category</td><td>カテゴリ</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
 	 * <tr><td>width</td><td>ボード幅</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>

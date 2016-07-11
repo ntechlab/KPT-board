@@ -22,7 +22,7 @@
 mocha test/bootstrap.test.js test/integration/**/*.test.js -c
 
 テスト実行方法（カバレッジあり）
-istanbul cover -x "**/config/**" node_modules/mocha/bin/_mocha test/bootstrap.test.js test/integration/**/*.test.js
+istanbul cover -x "**/config/**" node_modules/mocha/bin/_mocha --reporter xunit-file test/bootstrap.test.js test/integration/**/*.test.js
 カバレッジは以下のフォルダに出力される：
 coverage/lcov-report/index.html
 
