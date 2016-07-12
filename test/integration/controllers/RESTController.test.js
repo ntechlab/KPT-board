@@ -264,7 +264,7 @@ describe('RESTController', function() {
 		  var boardIdToDelete = 5;
 	      request(sails.hooks.http.app)
 	        .delete('/api/board')
-	        .send({ token: TOKEN_ADMIN1, boardId: boardIdToDelete})
+	        .send({ token: TOKEN_ADMIN1, id: boardIdToDelete})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
