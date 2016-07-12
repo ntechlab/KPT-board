@@ -3,3 +3,62 @@ mocha test/bootstrap.test.js test/integration/**/*.test.js -c
 istanbul cover -x "**/config/**" node_modules/mocha/bin/_mocha test/bootstrap.test.js test/integration/**/*.test.js
 
 java -jar plantuml.jar planuml/* -charset utf8 -o ../jsdoc
+
+Git for Windows
+
+★認証トークン取得
+curl localhost:1337/api/getToken -X POST -d "projectId=P01" -d "user=admin1" -d "password=password"
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   262  100   219  100    43    701    137 --:--:-- --:--:-- --:--:--   739{
+  "success": true,
+  "message": "OK",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk"
+}
+
+★ボード作成
+curl localhost:1337/api/board -X POST -d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "title=TITLE1"
+
+★ボード一覧
+curl localhost:1337/api/board \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-G
+
+★ボード更新
+curl localhost:1337/api/board -X PUT \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "id=10" \
+-d "description=DESCRIPTION"
+
+★ボード削除
+curl localhost:1337/api/board -X DELETE \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "id=11"
+
+★チケット作成
+curl localhost:1337/api/ticket -X POST \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "boardId=10" \
+-d "contents=Created" \
+-d "positionX=200px" \
+-d "positionY=100px"
+
+★チケット更新
+curl localhost:1337/api/ticket -X PUT \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "id=16" \
+-d "contents=CHANGED" \
+-d "positionX=600px" \
+-d "positionY=100px"
+
+★チケット一覧
+curl localhost:1337/api/ticket \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "boardId=10" -G
+
+★チケット削除
+curl localhost:1337/api/ticket -X DELETE \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "id=12"
+

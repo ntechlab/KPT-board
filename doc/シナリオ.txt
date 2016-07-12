@@ -1,0 +1,102 @@
+【サンプルシナリオ】
+
+認証トークン取得
+ボード1A(BOARD1A)を作成
+ボード1B(BOARD1B)を作成
+ボード1C(BOARD1C)を作成
+
+ボード一覧取得
+ボード1Aの説明を"DESCRIPTION"に変更する。
+ボード1Cを削除
+
+ボード1Aにチケット作成（内容:No.1）
+ボード1Aにチケット作成（内容：No.2）
+ボード1Aにチケット作成（内容：No.3）
+チケット1の内容を変更 （内容を"No.1 Changed", Y座標を300pxに）
+チケット一覧取得
+チケット3の削除
+チケット2をボードBに移動
+----------------------------------------------
+★認証トークン取得
+curl localhost:1337/api/getToken -X POST -d "projectId=P01" -d "user=admin1" -d "password=password"
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   262  100   219  100    43    701    137 --:--:-- --:--:-- --:--:--   739{
+  "success": true,
+  "message": "OK",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk"
+}
+
+★ボード作成
+curl localhost:1337/api/board -X POST \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "title=BOARD1A"
+
+curl localhost:1337/api/board -X POST \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "title=BOARD1B"
+
+curl localhost:1337/api/board -X POST \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "title=BOARD1C"
+
+★ボード一覧
+curl localhost:1337/api/board \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-G
+
+★ボード更新
+curl localhost:1337/api/board -X PUT \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "id=1" \
+-d "description=DESCRIPTION"
+
+★ボード削除
+curl localhost:1337/api/board -X DELETE \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "id=3"
+
+★チケット作成
+curl localhost:1337/api/ticket -X POST \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "boardId=1" \
+-d "contents=No.1"
+
+curl localhost:1337/api/ticket -X POST \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "boardId=1" \
+-d "contents=No.2" \
+-d "positionX=400px" \
+-d "positionY=0px"
+
+curl localhost:1337/api/ticket -X POST \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "boardId=1" \
+-d "contents=No.3" \
+-d "positionX=800px" \
+-d "positionY=0px"
+
+★チケット更新
+curl localhost:1337/api/ticket -X PUT \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "id=1" \
+-d "contents=No.1 Changed" \
+-d "positionX=0px" \
+-d "positionY=300px"
+
+★チケット一覧
+curl localhost:1337/api/ticket \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "boardId=1" -G
+
+★チケット削除
+curl localhost:1337/api/ticket -X DELETE \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "id=3"
+
+★ボード移動
+curl localhost:1337/api/ticketMove -X PUT \
+-d "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4xIiwidXNlcklkIjoyLCJpYXQiOjE0NjgzMTY1NTYsImV4cCI6MTQ2ODMyNzM1Nn0.PWUht9R09Zhv8jDQ0c2gLBTtlaUwU-bBubqW4JVAMrk" \
+-d "id=2" \
+-d "destBoardId=2"
+

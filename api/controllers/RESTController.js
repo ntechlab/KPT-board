@@ -556,8 +556,6 @@ module.exports = {
 	 * <table border=1>
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
-	 * <tr><td>id</td><td>ボードID</td><td></td><td></td><td>指定したボードIDをもつボードのみ取得</td></tr>
-	 * <tr><td>title</td><td>ボードタイトル</td><td></td><td></td><td>指定したタイトルをもつボードのみ取得</td></tr>
 	 * </table>
 	 * 出力項目
 	 * <table border=1>

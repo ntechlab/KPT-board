@@ -417,7 +417,7 @@ function deleteBoardInner(req, res, cb) {
 
 	// ボードIDが指定されていない場合にはエラーとする。
 	var requiredKeys = [
-	                    {key: "boardId", name: "ボードＩＤ"}
+	                    {key: "id", name: "ボードＩＤ"}
 	                    ];
 
 	// 必須チェックエラーコールバック
@@ -435,7 +435,7 @@ function deleteBoardInner(req, res, cb) {
 		return;
 	}
 
-	var boardId = req.param('boardId');
+	var boardId = req.param('id');
 
 	// 同一プロジェクトＩＤでない場合にはエラーとする。
 	Board.find({projectId: loginInfo["projectId"], id: boardId}).exec(function(err, found){
@@ -833,6 +833,7 @@ function listTicketInner(req, res, cb) {
 				contents: "ボードＩＤ(boardId)、もしくは、ボードタイトル(boardTitle)の入力が必要です"
 			}
 		});
+		return;
 	}
 
 	// クエリ条件

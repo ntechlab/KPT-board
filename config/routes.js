@@ -50,7 +50,7 @@ module.exports.routes = {
 	'post /dashboard/uploadImageFile': 'DashboardController.uploadImageFile',
 	'get /dashboard/openBoard2/:selectedId': 'DashboardController.openBoard2',
 	'get /dashboard/editBoard/:selectedId': 'DashboardController.editBoard',
-	'post /dashboard/deleteBoard/:boardId': 'BoardController.deleteBoard',
+	'post /dashboard/deleteBoard/:id': 'BoardController.deleteBoard',
 	'get /usermanage/destroyUser/:target': 'UsermanageController.destroyUser', // �b��B���p���Ȃ��\��iURL�ɍ폜��̃��[�U�[ID���c�������Ȃ��j
 	'post /usermanage/destroyUser/:target': 'UsermanageController.destroyUser', // �b��B
 	'get /usermanage/updateUser/:target': 'UsermanageController.updateUser', // �b��
