@@ -22,9 +22,9 @@ var tokenSecret = "secretissecet"; // TODO: どのように持つか？
  *
  * ユーザーID, パスワード認証を行う。
  *
- * @param username ユーザーID
- * @param password パスワード
- * @param cb コールバック処理
+ * @param {String} username ユーザーID
+ * @param {String} password パスワード
+ * @param {Function} cb コールバック処理
  */
 function authenticate(username, password, cb){
 
@@ -73,8 +73,8 @@ function authenticate(username, password, cb){
  * エラーが発生した場合には、第１引数にエラー内容を設定してコールバック関数を実行。
  * 妥当である場合には、第２引数にデコード結果を設定してコールバック関数を実行。
  *
- * @param req リクエスト
- * @param cb コールバック関数
+ * @param {Object} req リクエスト
+ * @param {Function} cb コールバック関数
  */
 function authenticateToken(req, cb){
 	var token = req.param("token");
@@ -113,6 +113,14 @@ function authenticateToken(req, cb){
 	}
 }
 
+/**
+ * チケット処理コールバック取得.
+ *
+ * @param req {Object} リクエスト
+ * @param res {Object} レスポンス
+ * @param actionType {String} アクションタイプ
+ * @returns {Function} コールバック関数
+ */
 function getTicketProcessCallback(req, res, actionType){
 	return function(err, data){
 		logger.info(req, "err:"+JSON.stringify(err));
@@ -142,9 +150,9 @@ module.exports = {
 	 *
 	 * POSTで送られたユーザー名、パスワードから認証トークンを生成する。
 	 *
-	 *
-	 * <b>REST API利用方法</b>
 	 * <pre>
+	 * <span style="font-size: 15pt;font-weight:bold">REST API利用方法</span>
+	 *
 	 * URL: http://(IPアドレス):(ポート番号)/api/getToken
 	 *
 	 * アクション: POST
@@ -154,6 +162,7 @@ module.exports = {
 	 * 入力項目
 	 * <table border=1>
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
+	 * <tr><td>projectId</td><td>プロジェクトID</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>user</td><td>アカウント</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>password</td><td>パスワード</td><td>○</td><td></td><td></td></tr>
 	 * </table>
@@ -166,7 +175,10 @@ module.exports = {
 	 * </table>
 	 *
 	 * 実行例
-	 * curl http://localhost:1337/api/getToken -X POST -d "user=admin1" -d "password=password" -d "projectId=P01"
+	 * curl http://localhost:1337/api/getToken -X POST \
+	 * -d "projectId=P01" \
+	 * -d "user=admin1" \
+	 * -d "password=password"
 	 *
 	 * 実行結果
 	 * {
@@ -175,6 +187,8 @@ module.exports = {
 	 *   "token": "（認証トークン文字列）"
 	 * }
 	 * </pre>
+	 * @param req {Object} リクエスト
+	 * @param res {Object} レスポンス
 	 */
 	getToken : function(req, res) {
 		logger.trace(req, "getToken start");
@@ -229,7 +243,11 @@ module.exports = {
 	/**
 	 * チケット作成API.
 	 *
- 	 *<pre>
+	 * 指定したボードにチケットを作成する。チケット内容や位置などの指定が可能。
+	 *
+ 	 * <pre>
+	 * <span style="font-size: 15pt;font-weight:bold">REST API利用方法</span>
+	 *
 	 * URL: http://(IPアドレス):(ポート番号)/api/ticket
 	 *
 	 * アクション: POST
@@ -256,8 +274,15 @@ module.exports = {
 	 * <tr><td>ticket</td><td>作成したチケット情報</td><td></td></tr>
 	 * </table>
 	 * 実行例
-	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
+	 * curl localhost:1337/api/ticket -X POST \
+	 * -d "token=（認証トークン文字列）" \
+	 * -d "boardId=10" \
+	 * -d "contents=Created" \
+	 * -d "positionX=200px" \
+	 * -d "positionY=100px"
 	 * </pre>
+	 * @param req {Object} リクエスト
+	 * @param res {Object} レスポンス
 	 */
 	createTicket : function(req, res) {
 		logger.info(req, "createTicket called");
@@ -268,7 +293,11 @@ module.exports = {
 	/**
 	 * チケット削除API.
 	 *
- 	 *<pre>
+	 * 指定したチケットを削除する。
+	 *
+ 	 * <pre>
+ 	 * <span style="font-size: 15pt;font-weight:bold">REST API利用方法</span>
+ 	 *
 	 * URL: http://(IPアドレス):(ポート番号)/api/ticket
 	 *
 	 * アクション: DELETE
@@ -288,8 +317,12 @@ module.exports = {
 	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
 	 * </table>
 	 * 実行例
-	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
+	 * curl localhost:1337/api/ticket -X DELETE \
+	 * -d "token=（認証トークン文字列）" \
+	 * -d "id=1"
 	 * </pre>
+	 * @param req {Object} リクエスト
+	 * @param res {Object} レスポンス
 	 */
 	deleteTicket : function(req, res) {
 		logger.info(req, "deleteTicket called");
@@ -300,7 +333,11 @@ module.exports = {
 	/**
 	 * チケット更新API.
 	 *
- 	 *<pre>
+	 * 指定したチケットの属性を更新する。
+	 *
+ 	 * <pre>
+	 * <span style="font-size: 15pt;font-weight:bold">REST API利用方法</span>
+	 *
 	 * URL: http://(IPアドレス):(ポート番号)/api/ticket
 	 *
 	 * アクション: PUT
@@ -327,8 +364,15 @@ module.exports = {
 	 * <tr><td>ticket</td><td>更新したチケット情報</td><td></td></tr>
 	 * </table>
 	 * 実行例
-	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
+	 * curl localhost:1337/api/ticket -X PUT \
+	 * -d "token=（認証トークン文字列）" \
+	 * -d "id=1" \
+	 * -d "contents=CHANGED" \
+	 * -d "positionX=600px" \
+	 * -d "positionY=100px"
 	 * </pre>
+	 * @param req {Object} リクエスト
+	 * @param res {Object} レスポンス
 	 */
 	updateTicket : function(req, res) {
 		logger.info(req, "updateTicket called");
@@ -339,7 +383,11 @@ module.exports = {
 	/**
 	 * チケット移動API.
 	 *
-   	 *<pre>
+	 * 指定したチケットを別のボードに移動する。
+	 *
+   	 * <pre>
+	 * <span style="font-size: 15pt;font-weight:bold">REST API利用方法</span>
+	 *
 	 * URL: http://(IPアドレス):(ポート番号)/api/ticketMove
 	 *
 	 * アクション: PUT
@@ -360,15 +408,13 @@ module.exports = {
 	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
 	 * </table>
 	 * 実行例
-	 * curl http://localhost:1337/api/ticketMove -X PUT -d "id=1" -d "boardId=8" -d "destBoardId=1" -d "token=(認証トークン文字列)"
-	 *
-	 * 実行結果
-	 * {
-	 *   "success": true,
-	 *   "message": "チケットを移動しました。"
-	 * }
-	 *
+	 * curl localhost:1337/api/ticketMove -X PUT \
+	 * -d "token=（認証トークン文字列）" \
+	 * -d "id=2" \
+	 * -d "destBoardId=2"
 	 * </pre>
+	 * @param req {Object} リクエスト
+	 * @param res {Object} レスポンス
 	 */
 	moveTicket : function(req, res) {
 		logger.info(req, "moveTicket called");
@@ -379,7 +425,11 @@ module.exports = {
 	/**
 	 * ボード作成API.
 	 *
- 	 *<pre>
+	 * ボードを作成する。カテゴリなどを指定することも可能。
+	 *
+ 	 * <pre>
+ 	 * <span style="font-size: 15pt;font-weight:bold">REST API利用方法</span>
+ 	 *
 	 * URL: http://(IPアドレス):(ポート番号)/api/board
 	 *
 	 * アクション: POST
@@ -416,11 +466,14 @@ module.exports = {
 	 * <tr><td>board</td><td>作成したボード情報</td><td></td></tr>
 	 * </table>
 	 * 実行例
-	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
-	 *
+	 * curl localhost:1337/api/board -X POST
+	 * -d "token=（認証トークン文字列）" \
+	 * -d "title=TITLE1"
 	 *
 	 * </pre>
 	 * <img src="./createBoardREST.png"/>
+	 * @param req {Object} リクエスト
+	 * @param res {Object} レスポンス
 	 */
 	createBoard : function(req, res) {
 		logger.info(req, "createBoard called");
@@ -442,7 +495,11 @@ module.exports = {
 	/**
 	 * ボード更新API.
 	 *
-  	 *<pre>
+	 * 指定したボードの属性を更新する。タイトルを空文字にすることはできない。
+	 *
+  	 * <pre>
+  	 * <span style="font-size: 15pt;font-weight:bold">REST API利用方法</span>
+  	 *
 	 * URL: http://(IPアドレス):(ポート番号)/api/board
 	 *
 	 * アクション: PUT
@@ -477,8 +534,13 @@ module.exports = {
 	 * <tr><td>board</td><td>作成したボード情報</td><td></td></tr>
 	 * </table>
 	 * 実行例
-	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
+	 * curl localhost:1337/api/board -X PUT \
+	 * -d "token=（認証トークン文字列）" \
+	 * -d "id=1" \
+	 * -d "description=DESCRIPTION"
 	 * </pre>
+	 * @param req {Object} リクエスト
+	 * @param res {Object} レスポンス
 	 */
 	updateBoard : function(req, res) {
 		logger.info(req, "updateBoard called");
@@ -501,7 +563,11 @@ module.exports = {
 	/**
 	 * ボード削除API.
 	 *
-  	 *<pre>
+	 * 指定したボードを削除する。
+	 *
+  	 * <pre>
+  	 * <span style="font-size: 15pt;font-weight:bold">REST API利用方法</span>
+  	 *
 	 * URL: http://(IPアドレス):(ポート番号)/api/board
 	 *
 	 * アクション: DELETE
@@ -521,8 +587,12 @@ module.exports = {
 	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
 	 * </table>
 	 * 実行例
-	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
+	 * curl localhost:1337/api/board -X DELETE \
+	 * -d "token=（認証トークン文字列）" \
+	 * -d "id=3"
 	 * </pre>
+	 * @param req {Object} リクエスト
+	 * @param res {Object} レスポンス
 	 */
 	deleteBoard : function(req, res) {
 		logger.info(req, "deleteBoard called");
@@ -544,8 +614,11 @@ module.exports = {
 	/**
 	 * ボード一覧取得API.
 	 *
-	 * <b>REST API利用方法</b>
+	 * ユーザーが属するプロジェクトが含むすべてのボード情報を取得する。
+	 *
 	 * <pre>
+	 * <span style="font-size: 15pt;font-weight:bold">REST API利用方法</span>
+	 *
 	 * URL: http://(IPアドレス):(ポート番号)/api/board
 	 *
 	 * アクション: GET
@@ -564,7 +637,13 @@ module.exports = {
 	 * <tr><td>message</td><td>結果メッセージ</td><td></td></tr>
 	 * <tr><td>board</td><td>指定したプロジェクトに存在するボード情報リスト</td><td></td></tr>
 	 * </table>
+	 * 実行例
+	 * curl localhost:1337/api/board \
+	 * -d "token=（認証トークン文字列）" \
+	 * -G
 	 * </pre>
+	 * @param req {Object} リクエスト
+	 * @param res {Object} レスポンス
 	 */
 	listBoard : function(req, res) {
 		logger.info(req, "listBoard called");
@@ -585,7 +664,12 @@ module.exports = {
 
 	/**
 	 * チケット一覧取得API.
-	 *<pre>
+	 *
+	 * 指定したボードに属するすべてのチケットの情報を取得する。
+	 *
+	 * <pre>
+	 * <span style="font-size: 15pt;font-weight:bold">REST API利用方法</span>
+	 *
 	 * URL: http://(IPアドレス):(ポート番号)/api/ticket
 	 *
 	 * アクション: GET
@@ -595,7 +679,7 @@ module.exports = {
 	 * 入力必須項目
 	 * <table border=1>
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
-	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td></tr>
+	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>boardId</td><td>ボードID</td><td>＊１</td><td></td><td rowspan=2>＊１: ボードID、もしくは、ボードタイトルのいずれかが必要</td></tr>
 	 * <tr><td>boardTitle</td><td>ボードタイトル</td><td>＊１</td><td></td></tr>
 	 * </table>
@@ -607,8 +691,13 @@ module.exports = {
 	 * <tr><td>ticket</td><td>指定したボードに存在するチケット情報リスト</td><td></td></tr>
 	 * </table>
 	 * 実行例
-	 * curl "http://localhost:1337/api/board?token=(認証トークン文字列)&projectId=P01"
+	 * curl localhost:1337/api/ticket \
+	 * -d "token=（認証トークン文字列）" \
+	 * -d "boardId=1" \
+	 * -G
 	 * </pre>
+	 * @param req {Object} リクエスト
+	 * @param res {Object} レスポンス
 	 */
 	listTicket : function(req, res) {
 		logger.info(req, "listTicket called");
