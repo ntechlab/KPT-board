@@ -77,7 +77,7 @@ function authenticate(username, password, cb){
  * @param {Function} cb コールバック関数
  */
 function authenticateToken(req, cb){
-	var token = req.param("token");
+	var token = req.headers["x-auth-token"];
 	if(token){
 		// TODO: 暫定的に有効期限をチェックしないようにしている。
 		jwt.verify(token, tokenSecret, {ignoreExpiration: true}, function(err, decoded){
@@ -254,10 +254,14 @@ module.exports = {
 	 *
 	 * 管理者権限要否: 不要
 	 *
-	 * 入力必須項目
-	 * <table border=1>
+	 * 入力項目
+	 *
+	 * ヘッダ情報<table border=1>
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
-	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>X-Auth-Token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * </table>
+	 * 入力項目<table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * <tr><td>boardId</td><td>ボードID</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>contents</td><td>チケット内容</td><td></td><td>""</td><td></td></tr>
 	 * <tr><td>positionX</td><td>Ｘ座標</td><td></td><td>0</td><td></td></tr>
@@ -275,7 +279,7 @@ module.exports = {
 	 * </table>
 	 * 実行例
 	 * curl localhost:1337/api/ticket -X POST \
-	 * -d "token=（認証トークン文字列）" \
+	 * -H "X-Auth-Token:（認証トークン文字列）" \
 	 * -d "boardId=10" \
 	 * -d "contents=Created" \
 	 * -d "positionX=200px" \
@@ -304,10 +308,14 @@ module.exports = {
 	 *
 	 * 管理者権限要否: 不要
 	 *
-	 * 入力必須項目
-	 * <table border=1>
+	 * 入力項目
+	 *
+	 * ヘッダ情報<table border=1>
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
-	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>X-Auth-Token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * </table>
+	 * 入力項目<table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * <tr><td>id</td><td>チケットID</td><td>○</td><td></td><td></td></tr>
 	 * </table>
 	 * 出力項目
@@ -318,7 +326,7 @@ module.exports = {
 	 * </table>
 	 * 実行例
 	 * curl localhost:1337/api/ticket -X DELETE \
-	 * -d "token=（認証トークン文字列）" \
+	 * -H "X-Auth-Token:（認証トークン文字列）" \
 	 * -d "id=1"
 	 * </pre>
 	 * @param req {Object} リクエスト
@@ -344,10 +352,14 @@ module.exports = {
 	 *
 	 * 管理者権限要否: 不要
 	 *
-	 * 入力必須項目
-	 * <table border=1>
+	 * 入力項目
+	 *
+	 * ヘッダ情報<table border=1>
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
-	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>X-Auth-Token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * </table>
+	 * 入力項目<table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * <tr><td>id</td><td>更新対象チケットID</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>contents</td><td>チケット内容</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
 	 * <tr><td>positionX</td><td>Ｘ座標</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
@@ -365,7 +377,7 @@ module.exports = {
 	 * </table>
 	 * 実行例
 	 * curl localhost:1337/api/ticket -X PUT \
-	 * -d "token=（認証トークン文字列）" \
+	 * -H "X-Auth-Token:（認証トークン文字列）" \
 	 * -d "id=1" \
 	 * -d "contents=CHANGED" \
 	 * -d "positionX=600px" \
@@ -394,10 +406,14 @@ module.exports = {
 	 *
 	 * 管理者権限要否: 要
 	 *
-	 * 入力必須項目
-	 * <table border=1>
+	 * 入力項目
+	 *
+	 * ヘッダ情報<table border=1>
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
-	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>X-Auth-Token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * </table>
+	 * 入力項目<table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * <tr><td>id</td><td>移動対象チケットID</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>destBoardId</td><td>移動先ボードID</td><td>○</td><td></td><td></td></tr>
 	 * </table>
@@ -409,7 +425,7 @@ module.exports = {
 	 * </table>
 	 * 実行例
 	 * curl localhost:1337/api/ticketMove -X PUT \
-	 * -d "token=（認証トークン文字列）" \
+	 * -H "X-Auth-Token:（認証トークン文字列）" \
 	 * -d "id=2" \
 	 * -d "destBoardId=2"
 	 * </pre>
@@ -436,10 +452,14 @@ module.exports = {
 	 *
 	 * 管理者権限要否: 要
 	 *
-	 * 入力必須項目
-	 * <table border=1>
+	 * 入力項目
+	 *
+	 * ヘッダ情報<table border=1>
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
-	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>X-Auth-Token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * </table>
+	 * 入力項目<table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * <tr><td>title</td><td>タイトル</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>description</td><td>説明</td><td></td><td>""</td><td></td></tr>
 	 * <tr><td>category</td><td>カテゴリ</td><td></td><td>""</td><td></td></tr>
@@ -467,7 +487,7 @@ module.exports = {
 	 * </table>
 	 * 実行例
 	 * curl localhost:1337/api/board -X POST
-	 * -d "token=（認証トークン文字列）" \
+	 * -H "X-Auth-Token:（認証トークン文字列）" \
 	 * -d "title=TITLE1"
 	 *
 	 * </pre>
@@ -506,10 +526,14 @@ module.exports = {
 	 *
 	 * 管理者権限要否: 要
 	 *
-	 * 入力必須項目
-	 * <table border=1>
+	 * 入力項目
+	 *
+	 * ヘッダ情報<table border=1>
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
-	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>X-Auth-Token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * </table>
+	 * 入力項目<table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * <tr><td>id</td><td>更新対象ボードID</td><td>○</td><td></td><td></td></tr>
 	 * <tr><td>title</td><td>タイトル</td><td></td><td></td><td>空文字への変更不可</td></tr>
 	 * <tr><td>description</td><td>説明</td><td></td><td></td><td>未設定の場合、変更しない</td></tr>
@@ -535,7 +559,7 @@ module.exports = {
 	 * </table>
 	 * 実行例
 	 * curl localhost:1337/api/board -X PUT \
-	 * -d "token=（認証トークン文字列）" \
+	 * -H "X-Auth-Token:（認証トークン文字列）" \
 	 * -d "id=1" \
 	 * -d "description=DESCRIPTION"
 	 * </pre>
@@ -574,10 +598,14 @@ module.exports = {
 	 *
 	 * 管理者権限要否: 要
 	 *
-	 * 入力必須項目
-	 * <table border=1>
+	 * 入力項目
+	 *
+	 * ヘッダ情報<table border=1>
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
-	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>X-Auth-Token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * </table>
+	 * 入力項目<table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * <tr><td>boardId</td><td>ボードID</td><td>○</td><td></td><td></td></tr>
 	 * </table>
 	 * 出力項目
@@ -588,7 +616,7 @@ module.exports = {
 	 * </table>
 	 * 実行例
 	 * curl localhost:1337/api/board -X DELETE \
-	 * -d "token=（認証トークン文字列）" \
+	 * -H "X-Auth-Token:（認証トークン文字列）" \
 	 * -d "id=3"
 	 * </pre>
 	 * @param req {Object} リクエスト
@@ -626,9 +654,13 @@ module.exports = {
  	 * 管理者権限要否: 要
 	 *
 	 * 入力項目
-	 * <table border=1>
+	 *
+	 * ヘッダ情報<table border=1>
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
-	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>X-Auth-Token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * </table>
+	 * 入力項目<table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * </table>
 	 * 出力項目
 	 * <table border=1>
@@ -639,7 +671,7 @@ module.exports = {
 	 * </table>
 	 * 実行例
 	 * curl localhost:1337/api/board \
-	 * -d "token=（認証トークン文字列）" \
+	 * -H "X-Auth-Token:（認証トークン文字列）" \
 	 * -G
 	 * </pre>
 	 * @param req {Object} リクエスト
@@ -676,10 +708,14 @@ module.exports = {
 	 *
 	 * 管理者権限要否: 不要
 	 *
-	 * 入力必須項目
-	 * <table border=1>
+	 * 入力項目
+	 *
+	 * ヘッダ情報<table border=1>
 	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
-	 * <tr><td>token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * <tr><td>X-Auth-Token</td><td>認証トークン</td><td>○</td><td></td><td></td></tr>
+	 * </table>
+	 * 入力項目<table border=1>
+	 * <tr style="background-color: #dfd"><td>キー</td><td>説明</td><td>必須</td><td>デフォルト値</td><td>備考</td></tr>
 	 * <tr><td>boardId</td><td>ボードID</td><td>＊１</td><td></td><td rowspan=2>＊１: ボードID、もしくは、ボードタイトルのいずれかが必要</td></tr>
 	 * <tr><td>boardTitle</td><td>ボードタイトル</td><td>＊１</td><td></td></tr>
 	 * </table>
@@ -692,7 +728,7 @@ module.exports = {
 	 * </table>
 	 * 実行例
 	 * curl localhost:1337/api/ticket \
-	 * -d "token=（認証トークン文字列）" \
+	 * -H "X-Auth-Token:（認証トークン文字列）" \
 	 * -d "boardId=1" \
 	 * -G
 	 * </pre>

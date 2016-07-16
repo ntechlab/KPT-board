@@ -109,7 +109,7 @@ describe('RESTController', function() {
 	  it('管理者ユーザーでのボード作成に失敗（token不正）', function (done) {
 	      request(sails.hooks.http.app)
 	        .post('/api/board')
-	        .send({ token: "NG"})
+	        .set('x-auth-token', "NG")
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -121,7 +121,7 @@ describe('RESTController', function() {
 	  it('管理者ユーザーでのボード作成に失敗（タイトル未設定）', function (done) {
 	      request(sails.hooks.http.app)
 	        .post('/api/board')
-	        .send({ token: TOKEN_ADMIN1})
+	        .set('x-auth-token', TOKEN_ADMIN1)
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -134,8 +134,8 @@ describe('RESTController', function() {
 	  it('管理者ユーザーでのボード作成に成功（タイトルのみ）', function (done) {
 	      request(sails.hooks.http.app)
 	        .post('/api/board')
-	        .send({ token: TOKEN_ADMIN1,
-	        		title: "TITLE01"})
+	        .set('x-auth-token', TOKEN_ADMIN1)
+	        .send({title: "TITLE01"})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -170,7 +170,7 @@ describe('RESTController', function() {
 	  it('管理者ユーザーでのボード更新に失敗（boardId未設定）', function (done) {
 	      request(sails.hooks.http.app)
 	        .put('/api/board')
-	        .send({ token: TOKEN_ADMIN1})
+	        .set('x-auth-token', TOKEN_ADMIN1)
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -182,7 +182,8 @@ describe('RESTController', function() {
 	  it('管理者ユーザーでのボード更新に成功（説明を\"DESCRIPTION\"に変更）', function (done) {
 	      request(sails.hooks.http.app)
 	        .put('/api/board')
-	        .send({ token: TOKEN_ADMIN1, id: BOARDID_BOARD1A, description: "DESCRIPTION"})
+	        .set('x-auth-token', TOKEN_ADMIN1)
+	        .send({id: BOARDID_BOARD1A, description: "DESCRIPTION"})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -194,7 +195,8 @@ describe('RESTController', function() {
 	  it('管理者ユーザーでのボード更新に失敗（プロジェクトＩＤが異なるため）', function (done) {
 	      request(sails.hooks.http.app)
 	        .put('/api/board')
-	        .send({ token: TOKEN_ADMIN1, id: BOARDID_BOARD2A})
+	        .set('x-auth-token', TOKEN_ADMIN1)
+	        .send({id: BOARDID_BOARD2A})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -206,7 +208,8 @@ describe('RESTController', function() {
 	  it('管理者ユーザーでのボード更新に失敗（タイトルが\"\": タイトルを空にすることはできない）', function (done) {
 	      request(sails.hooks.http.app)
 	        .put('/api/board')
-	        .send({ token: TOKEN_ADMIN1, id: BOARDID_BOARD1A, title: ""})
+   	        .set('x-auth-token', TOKEN_ADMIN1)
+	        .send({ id: BOARDID_BOARD1A, title: ""})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -218,7 +221,8 @@ describe('RESTController', function() {
 	  it('管理者ユーザーでのボード更新に失敗（タイトルが\"    \": タイトルを空にすることはできない）', function (done) {
 	      request(sails.hooks.http.app)
 	        .put('/api/board')
-	        .send({ token: TOKEN_ADMIN1, id: BOARDID_BOARD1A, title: ""})
+	        .set('x-auth-token', TOKEN_ADMIN1)
+	        .send({ id: BOARDID_BOARD1A, title: ""})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -250,7 +254,8 @@ describe('RESTController', function() {
 	  it('管理者ユーザーでのボード削除に失敗（boardId未設定）', function (done) {
 	      request(sails.hooks.http.app)
 	        .delete('/api/board')
-	        .send({ token: TOKEN_ADMIN1})
+	        .set('x-auth-token', TOKEN_ADMIN1)
+	        .send({})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -264,7 +269,8 @@ describe('RESTController', function() {
 		  var boardIdToDelete = 5;
 	      request(sails.hooks.http.app)
 	        .delete('/api/board')
-	        .send({ token: TOKEN_ADMIN1, id: boardIdToDelete})
+	        .set('x-auth-token', TOKEN_ADMIN1)
+	        .send({ id: boardIdToDelete})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -292,7 +298,8 @@ describe('RESTController', function() {
 
 	  it('一般ユーザーでのボード一覧取得に成功', function (done) {
 	      request(sails.hooks.http.app)
-	        .get('/api/board?token='+TOKEN_USER1A+"&projectId=P01")
+	        .get('/api/board?projectId=P01')
+	        .set('x-auth-token', TOKEN_USER1A)
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -309,7 +316,8 @@ describe('RESTController', function() {
 	    });
 	  it('一般ユーザーでのボード一覧取得に成功（存在するボードID指定）', function (done) {
 	      request(sails.hooks.http.app)
-	        .get('/api/board?token='+TOKEN_USER1A+"&projectId=P01&id=2")
+	        .get('/api/board?projectId=P01&id=2')
+	        .set('x-auth-token', TOKEN_USER1A)
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -324,7 +332,8 @@ describe('RESTController', function() {
 	    });
 	  it('一般ユーザーでのボード一覧取得に成功（存在するタイトル指定）', function (done) {
 	      request(sails.hooks.http.app)
-	        .get('/api/board?token='+TOKEN_USER1A+"&projectId=P01&title=board1B")
+	        .get('/api/board?projectId=P01&title=board1B')
+	        .set('x-auth-token', TOKEN_USER1A)
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -346,7 +355,8 @@ describe('#createTicket(req, res)', function() {
 	  it('一般ユーザーでのチケット作成に失敗（boardId未設定）', function (done) {
 	      request(sails.hooks.http.app)
 	        .post('/api/ticket')
-	        .send({ token: TOKEN_USER1A})
+	        .set('x-auth-token', TOKEN_USER1A)
+	        .send({ })
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -359,7 +369,8 @@ describe('#createTicket(req, res)', function() {
 	  it('一般ユーザーでのチケット作成に成功（すべてデフォルト値）', function (done) {
 	      request(sails.hooks.http.app)
 	        .post('/api/ticket')
-	        .send({ token: TOKEN_USER1A, boardId: BOARDID_BOARD1A})
+	        .set('x-auth-token', TOKEN_USER1A)
+	        .send({ boardId: BOARDID_BOARD1A})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -387,7 +398,8 @@ describe('#updateTicket(req, res)', function() {
 	it('一般ユーザーでのチケット更新に失敗（id未設定）', function (done) {
 	      request(sails.hooks.http.app)
 	        .put('/api/ticket')
-	        .send({ token: TOKEN_USER1A})
+	        .set('x-auth-token', TOKEN_USER1A)
+	        .send({ })
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -400,8 +412,8 @@ describe('#updateTicket(req, res)', function() {
 	  it('一般ユーザーでのチケット更新に成功', function (done) {
 	      request(sails.hooks.http.app)
 	        .put('/api/ticket')
+	        .set('x-auth-token', TOKEN_USER1A)
 	        .send({
-	        	token: TOKEN_USER1A,
 	        	id: ticketId,
 	        	positionX: '10',
 	        	positionY: '20'
@@ -428,7 +440,8 @@ describe('#deleteTicket(req, res)', function() {
 	it('一般ユーザーでのチケット削除に失敗（id未設定）', function (done) {
 	      request(sails.hooks.http.app)
 	        .delete('/api/ticket')
-	        .send({ token: TOKEN_USER1A})
+	        .set('x-auth-token', TOKEN_USER1A)
+	        .send({ })
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -441,7 +454,8 @@ describe('#deleteTicket(req, res)', function() {
 	  it('一般ユーザーでのチケット削除に成功', function (done) {
 	      request(sails.hooks.http.app)
 	        .delete('/api/ticket')
-	        .send({ token: TOKEN_USER1A, id: ticketId})
+	        .set('x-auth-token', TOKEN_USER1A)
+	        .send({ id: ticketId})
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -470,7 +484,8 @@ describe('#listTicket(req, res)', function() {
 	    });
 	  it('一般ユーザーでのチケット一覧取得に失敗（ボードID未設定）', function (done) {
 	      request(sails.hooks.http.app)
-	        .get('/api/ticket?token='+TOKEN_USER1A+"&projectId=P01")
+	        .get('/api/ticket?projectId=P01')
+	        .set('x-auth-token', TOKEN_USER1A)
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -486,7 +501,8 @@ describe('#listTicket(req, res)', function() {
 
 	  it('一般ユーザーでのチケット一覧取得に成功（ボードID指定）', function (done) {
 	      request(sails.hooks.http.app)
-	        .get('/api/ticket?token='+TOKEN_USER1A+"&projectId=P01&boardId=2")
+	        .get('/api/ticket?projectId=P01&boardId=2')
+	        .set('x-auth-token', TOKEN_USER1A)
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -502,7 +518,8 @@ describe('#listTicket(req, res)', function() {
 
 	  it('一般ユーザーでのチケット一覧取得に成功（他プロジェクトのボードID指定）', function (done) {
 	      request(sails.hooks.http.app)
-	        .get('/api/ticket?token='+TOKEN_USER1A+"&projectId=P01&boardId=3")
+	        .get('/api/ticket?projectId=P01&boardId=3')
+	    	        .set('x-auth-token', TOKEN_USER1A)
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -518,7 +535,8 @@ describe('#listTicket(req, res)', function() {
 
 	  it('一般ユーザーでのチケット一覧取得に成功（ボードタイトル指定）', function (done) {
 	      request(sails.hooks.http.app)
-	        .get('/api/ticket?token='+TOKEN_USER1A+"&projectId=P01&boardTitle=board1B")
+	       .get('/api/ticket?projectId=P01&boardTitle=board1B')
+	       .set('x-auth-token', TOKEN_USER1A)
 	        .expect('Content-Type', 'application/json; charset=utf-8')
 	        .expect(200, done)
 	        .expect(function(res){
@@ -538,7 +556,8 @@ describe('#listTicket(req, res)', function() {
 		it('一般ユーザーでのチケットのボード移動に失敗（チケットId未設定）', function (done) {
 		      request(sails.hooks.http.app)
 		        .put('/api/ticketMove')
-		        .send({ token: TOKEN_USER1A})
+		        .set('x-auth-token', TOKEN_USER1A)
+		        .send({ })
 		        .expect('Content-Type', 'application/json; charset=utf-8')
 		        .expect(200, done)
 		        .expect(function(res){
@@ -552,8 +571,8 @@ describe('#listTicket(req, res)', function() {
 		  it('一般ユーザーでのチケットのボード移動に成功', function (done) {
 		      request(sails.hooks.http.app)
 		        .put('/api/ticketMove')
+		        .set('x-auth-token', TOKEN_USER1A)
 		        .send({
-		        	token: TOKEN_USER1A,
 		        	id: 1,
 		        	destBoardId: BOARDID_BOARD1A
 		        })
