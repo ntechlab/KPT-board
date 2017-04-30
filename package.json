@@ -1,5 +1,5 @@
 {
-  "name": "test-project",
+  "name": "KPT-board",
   "private": true,
   "version": "0.0.0",
   "description": "a Sails application",
@@ -38,8 +38,8 @@
   "main": "app.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/noguchi/test-project.git"
+    "url": "git@github.com:ntechlab/KPT-board.git"
   },
-  "author": "noguchi",
-  "license": ""
+  "author": "New Tech. Lab.",
+  "license": "MIT"
 }
